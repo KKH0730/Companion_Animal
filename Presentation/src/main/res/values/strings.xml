@@ -82,6 +82,7 @@
 
     <!--feed_item.xml-->
     <string name="comment_hint">댓글입력</string>
+    <string name="more">....더보기</string>
 
 
     <!-- common -->

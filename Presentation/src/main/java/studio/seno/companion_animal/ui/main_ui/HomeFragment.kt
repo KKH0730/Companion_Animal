@@ -8,16 +8,17 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.observe
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.FragmentHomeBinding
-import studio.seno.companion_animal.ui.feed.FeedAdapter
+import studio.seno.companion_animal.ui.feed.FeedListAdapter
 import studio.seno.companion_animal.ui.feed.FeedListViewModel
 
 
 class HomeFragment : Fragment() {
     private lateinit var binding : FragmentHomeBinding
     private val viewModel : FeedListViewModel by viewModels()
-    private val feedAdapter : FeedAdapter by lazy { FeedAdapter(requireContext()) }
+    private val feedAdapter : FeedListAdapter by lazy { FeedListAdapter(requireContext(), parentFragmentManager, lifecycle) }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,

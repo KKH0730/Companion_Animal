@@ -36,7 +36,7 @@ class FeedUseCase {
                     //프로필 이미지 객체 저장
                     storageRef.child(profileUri)
                         .downloadUrl
-                        .addOnCompleteListener { it ->
+                        .addOnSuccessListener { it ->
                             feed.remoteProfileUri = it.toString()
 
 

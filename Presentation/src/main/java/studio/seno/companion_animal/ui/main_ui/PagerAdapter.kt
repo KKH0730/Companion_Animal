@@ -8,11 +8,6 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 class PagerAdapter(fm : FragmentManager, cycle : Lifecycle) : FragmentStateAdapter(fm, cycle){
     private var items = mutableListOf<Fragment>()
 
-    constructor(fm : FragmentManager, cycle : Lifecycle, items : MutableList<Fragment>) : this(fm, cycle) {
-        this.items = items
-    }
-
-
     override fun getItemCount(): Int {
         return items.size
     }
