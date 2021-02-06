@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "466063822314",
+    "project_id": "companion-animal-f0bfa",
+    "storage_bucket": "companion-animal-f0bfa.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:466063822314:android:37b29d4d25b0df4128f693",
+        "android_client_info": {
+          "package_name": "studio.seno.domain"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "466063822314-84f77em4gjkt7juoofcs1citj5cmgdot.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDXKphQWPgypw5zBRSQLccY54cxicnOX7s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "466063822314-84f77em4gjkt7juoofcs1citj5cmgdot.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

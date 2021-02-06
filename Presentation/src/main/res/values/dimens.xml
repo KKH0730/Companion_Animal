@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="bottom_bar_text_size">8sp</dimen>
+
+    <!--ImagePicker-->
+    <dimen name="peekHeight">260dp</dimen>
+    <dimen name="columnSize">92dp</dimen>
+
+
+</resources>

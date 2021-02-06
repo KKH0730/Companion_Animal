@@ -1,0 +1,6 @@
+include ':DataModule'
+include ':Data'
+include ':Domain'
+include ':CommonModule'
+include ':Presentation'
+rootProject.name = "Companion_Animal"

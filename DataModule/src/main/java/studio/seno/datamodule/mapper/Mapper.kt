@@ -1,0 +1,29 @@
+package studio.seno.datamodule.mapper
+
+import studio.seno.domain.model.Feed
+import studio.seno.domain.model.User
+
+class Mapper {
+    fun mapperToFeed(
+        email : String,
+        nickname : String,
+        sort : String,
+        hashTags : List<String>,
+        localUri : List<String>,
+        content : String,
+        timestamp: Long
+    ) : Feed {
+        return Feed(email, nickname, sort, hashTags, localUri, content,
+            0, 0, timestamp, null, null)
+    }
+
+    fun mapperToUser(
+        email : String,
+        nickname : String,
+        follower : Long,
+        following : Long,
+        feedCount : Long
+    ) : User {
+        return User(email, nickname, follower, following, feedCount)
+    }
+}

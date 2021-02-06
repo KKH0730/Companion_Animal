@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/homeFragment"
+        android:title="@string/menu_home"
+        android:icon="@drawable/menu_home"/>
+
+    <item
+        android:id="@+id/boardFragment"
+        android:title="@string/menu_search"
+        android:icon="@drawable/menu_search"/>
+
+    <item
+        android:id="@+id/writeFragment"
+        android:title="@string/menu_noti"
+        android:icon="@drawable/menu_noti"/>
+
+    <item
+        android:id="@+id/chattingFragment"
+        android:title="@string/menu_chatting"
+        android:icon="@drawable/menu_chat"/>
+
+    <item
+        android:id="@+id/timeLineFragment"
+        android:title="@string/menu_timeline"
+        android:icon="@drawable/menu_profile"/>
+
+</menu>
