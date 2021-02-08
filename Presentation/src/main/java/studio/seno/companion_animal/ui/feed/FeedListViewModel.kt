@@ -1,5 +1,6 @@
 package studio.seno.companion_animal.ui.feed
 
+import android.content.Context
 import android.util.Log
 import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.lifecycle.MutableLiveData
@@ -24,16 +25,16 @@ class FeedListViewModel() : ViewModel() {
         return feedSaveStatus
     }
 
-    fun requestUploadFeed(email : String, nickname : String, sort : String, hashTags : List<String>,
+    fun requestUploadFeed(context : Context, id : Long, email : String, nickname : String, sort : String, hashTags : List<String>,
         localUri : List<String>, content : String, timestamp : Long
     ) {
 
         var feed = mapper.mapperToFeed(
-            email, nickname, sort, hashTags,
+            id, email, nickname, sort, hashTags,
             localUri, content, timestamp
         )
 
-        repository.uploadFeed(feed, object : LongTaskCallback<Boolean> {
+        repository.uploadFeed(context, feed, object : LongTaskCallback<Boolean> {
             override fun onResponse(result: Result<Boolean>) {
                 if (result is Result.Success) {
                     feedSaveStatus.value = result.data
@@ -53,6 +54,10 @@ class FeedListViewModel() : ViewModel() {
                 }
             }
         })
+    }
+
+    fun requestUploadComment(){
+
     }
 
 }

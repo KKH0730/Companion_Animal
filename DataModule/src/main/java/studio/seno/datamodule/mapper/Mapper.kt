@@ -5,6 +5,7 @@ import studio.seno.domain.model.User
 
 class Mapper {
     fun mapperToFeed(
+        id : Long,
         email : String,
         nickname : String,
         sort : String,
@@ -18,12 +19,13 @@ class Mapper {
     }
 
     fun mapperToUser(
+        id : Long,
         email : String,
         nickname : String,
         follower : Long,
         following : Long,
         feedCount : Long
     ) : User {
-        return User(email, nickname, follower, following, feedCount)
+        return User(id, email, nickname, follower, following, feedCount)
     }
 }

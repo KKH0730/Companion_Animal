@@ -24,6 +24,7 @@ import studio.seno.companion_animal.util.ViewControlListener
 import studio.seno.companion_animal.databinding.FragmentRegisterBinding
 import studio.seno.companion_animal.module.CommonFunction
 import studio.seno.companion_animal.util.TextUtils
+import studio.seno.domain.database.InfoManager
 
 
 class RegisterFragment : Fragment(), View.OnClickListener {
@@ -96,7 +97,8 @@ class RegisterFragment : Fragment(), View.OnClickListener {
                         viewModel.getUpLoadLiveDate().observe(requireActivity(), {
                             if(it) {
                                 binding.registerBtn.stopAnimation(TransitionButton.StopAnimationStyle.EXPAND) {
-                                    viewModel.uploadUserInfo(email, nickName, 0L, 0L, 0L)
+                                    viewModel.uploadUserInfo(0L, email, nickName, 0L, 0L, 0L)
+                                    InfoManager.setUserInfo(requireContext(), email, nickName, 0L, 0L, 0L)
                                     startActivity<MainActivity>()
                                     viewControlListener.finishCurrentActivity()
                                 }

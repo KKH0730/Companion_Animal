@@ -16,7 +16,7 @@
 
         <activity android:name=".MainActivity"
             android:windowSoftInputMode="adjustUnspecified|adjustPan"/>
-            <activity android:name=".ui.user_manage.UserManageActivity" >
+        <activity android:name=".ui.user_manage.UserManageActivity" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

@@ -1,6 +1,7 @@
 package studio.seno.companion_animal.ui.user_manage
 
 import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -73,16 +74,22 @@ class UserViewModel() : ViewModel() {
         })
     }
 
-    fun uploadUserInfo(email: String, nickname: String, follower: Long,
+    fun uploadUserInfo(id : Long, email: String, nickname: String, follower: Long,
                         following: Long, feedCount: Long){
-        var user = mapper.mapperToUser(email, nickname, follower, following, feedCount)
+        var user = mapper.mapperToUser(id, email, nickname, follower, following, feedCount)
         repository.uploadUserInfo(user)
     }
 
     fun checkOverlapEmail(email : String) {
         repository.checkOverlapEmail(email, object : LongTaskCallback<Boolean>{
             override fun onResponse(result: Result<Boolean>) {
-                overLapLiveData.value = result is Result.Success
+                if(result is Result.Success) {
+                    if(result.data) {
+                        overLapLiveData.value = true
+                    } else {
+                        overLapLiveData.value = false
+                    }
+                }
             }
         })
     }

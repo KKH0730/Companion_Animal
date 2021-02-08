@@ -38,6 +38,8 @@ class UserViewModelModule(viewModel: UserViewModel) {
                     memberViewModel.setRegisterLiveData(true)
                 else
                     memberViewModel.setRegisterLiveData(false)
+            }.addOnFailureListener{
+                Log.e("register fail", "error : " + it.message)
             }
     }
 }

@@ -19,6 +19,7 @@ import studio.seno.companion_animal.databinding.ActivityMakeFeedBinding
 import studio.seno.companion_animal.module.CommonFunction
 import studio.seno.companion_animal.util.ItemTouchHelperCallback
 import studio.seno.companion_animal.util.OnItemDeleteListener
+import studio.seno.domain.database.InfoManager
 import java.sql.Timestamp
 
 class MakeFeedActivity : AppCompatActivity(), View.OnClickListener,
@@ -125,20 +126,24 @@ class MakeFeedActivity : AppCompatActivity(), View.OnClickListener,
             if(currentChecked == "etc")
                 currentChecked = binding.etcContent.text.toString()
 
-            viewModel.requestUploadFeed(
-                FirebaseAuth.getInstance()?.currentUser?.email.toString(),
-                "test_nickname",
-                currentChecked!!,
-                hashTags,
-                selectedImageAdapter.getItems(),
-                binding.content.text.toString(),
-                Timestamp(System.currentTimeMillis()).time
-            )
+            InfoManager.getString(this, "nickName")?.let {
+                viewModel.requestUploadFeed(
+                    this,
+                    0,
+                    FirebaseAuth.getInstance().currentUser?.email.toString(),
+                    it,
+                    currentChecked!!,
+                    hashTags,
+                    selectedImageAdapter.getItems(),
+                    binding.content.text.toString(),
+                    Timestamp(System.currentTimeMillis()).time
+                )
+            }
 
             viewModel.getFeedListSaveStatus().observe(this, {
-                if(it)
+                if(it) {
                     finish()
-                else
+                } else
                     CustomToast(this, getString(R.string.upload_fail)).show()
             })
 

@@ -1,5 +1,6 @@
 package studio.seno.domain.usecase
 
+import android.content.Context
 import android.util.Log
 import androidx.lifecycle.LifecycleCoroutineScope
 import com.google.firebase.auth.FirebaseAuth
@@ -12,15 +13,16 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import studio.seno.domain.LongTaskCallback
 import studio.seno.domain.Result
+import studio.seno.domain.database.InfoManager
 import studio.seno.domain.model.Feed
 import studio.seno.domain.model.User
 
 class FeedUseCase {
     private val userMangerUseCase = UserManageUseCase()
 
-    fun uploadFeed(
-        feed: Feed, auth: FirebaseAuth, mDB: FirebaseFirestore,
-        storageRef: StorageReference, callback: LongTaskCallback<Boolean>
+    fun uploadFeed(context : Context,
+                   feed: Feed, auth: FirebaseAuth, mDB: FirebaseFirestore,
+                   storageRef: StorageReference, callback: LongTaskCallback<Boolean>
     ) {
         var profileUri = auth.currentUser?.email + "/profile/profileImage"
         var localUri = auth.currentUser?.email + "/feed/" + feed.timestamp + "/"
@@ -53,7 +55,7 @@ class FeedUseCase {
                                             feed.remoteUri = res
 
                                             //db에 객체 데이터 저장
-                                            mDB.collection("Feed")
+                                            mDB.collection("feed")
                                                 .document(feed.email + feed.timestamp)
                                                 .set(feed)
                                                 .addOnCompleteListener {
@@ -63,8 +65,10 @@ class FeedUseCase {
                                                     else
                                                         result = Result.Success(false)
                                                     callback.onResponse(result)
+
+                                                    InfoManager.setLong(context, "feedCount", InfoManager.getLong(context, "feedCount") + 1L)
                                                 }.addOnFailureListener {
-                                                    Log.e("db", "feed_save_errer ${it.message}")
+                                                    Log.e("db", "feed_save_error ${it.message}")
                                                 }
                                         }
                                     })
@@ -79,15 +83,15 @@ class FeedUseCase {
     }
 
     fun loadFeedList(auth: FirebaseAuth, db: FirebaseFirestore, storageRef: StorageReference, callback: LongTaskCallback<List<Feed>>) {
-        db.collection("Feed")
+        db.collection("feed")
             .orderBy("timestamp", Query.Direction.DESCENDING)
             .get().addOnCompleteListener {
                 if (it.isSuccessful) {
                     if (it.result != null) {
                         val snap: QuerySnapshot = it.result!!
                         val list = snap.documents
-
                         val feedList : MutableList<Feed> = mutableListOf()
+
                         for (i in 0 until list.size) {
                             var feed = Feed(
                                 list[i].getString("email")!!, list[i].getString("nickname")!!,

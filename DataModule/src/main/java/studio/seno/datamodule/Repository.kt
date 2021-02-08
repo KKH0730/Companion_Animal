@@ -1,5 +1,6 @@
 package studio.seno.datamodule
 
+import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.LifecycleCoroutineScope
 import com.google.firebase.auth.FirebaseAuth
@@ -27,6 +28,10 @@ class Repository() {
         userManagerUseCase.uploadRemoteUserInfo(user, mDB)
     }
 
+    fun loadUserInfo(email : String, callback: LongTaskCallback<User>){
+        userManagerUseCase.loadRemoteUserInfo(email, mDB, callback)
+    }
+
     //회원가입시 이메일 중복여부 확인
     fun checkOverlapEmail(email : String, callback : LongTaskCallback<Boolean>) {
         userManagerUseCase.checkRemoteOverlapUser(email, mDB, callback)
@@ -43,8 +48,8 @@ class Repository() {
     }
 
     //피드 작성후 서버에 업로드
-    fun uploadFeed(feed: Feed, callback: LongTaskCallback<Boolean> ) {
-        feedUseCase.uploadFeed(feed, mAuth, mDB, mStorageRef, callback)
+    fun uploadFeed(context : Context, feed: Feed, callback: LongTaskCallback<Boolean> ) {
+        feedUseCase.uploadFeed(context, feed, mAuth, mDB, mStorageRef, callback)
     }
 
     fun loadFeedList(callback: LongTaskCallback<List<Feed>>){
