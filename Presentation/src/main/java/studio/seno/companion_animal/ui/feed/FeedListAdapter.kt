@@ -2,8 +2,11 @@ package studio.seno.companion_animal.ui.feed
 
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.ImageButton
+import android.widget.TextView
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
@@ -38,9 +41,10 @@ class FeedListAdapter(
     private val mLifecycle = lifecycle
     private val mFm = fm
     private var listener : OnItemClickListener? = null
+    private lateinit var binding : FeedItemBinding
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        val binding: FeedItemBinding = DataBindingUtil.inflate(
+            binding = DataBindingUtil.inflate(
             LayoutInflater.from(parent.context),
             R.layout.feed_item,
             parent,
@@ -54,7 +58,8 @@ class FeedListAdapter(
         var item = getItem(position)
         val model = FeedViewModel(mLifecycle, mFm, holder.itemView.findViewById(R.id.indicator))
         model.setFeedLiveData(item)
-        holder.setViewModel(model)
+        holder.setViewModel(model, item)
+
     }
 
     fun setOnItemClickListener(listener : OnItemClickListener) {
@@ -66,18 +71,25 @@ class FeedListAdapter(
         private var binding: FeedItemBinding = feedBinding
         private var mListener = listener
 
-        init {
-            binding.commentBtn.setOnClickListener{
-                if(binding.content.text.isNotEmpty()) {
-                    mListener.onItemClicked(binding.comment, binding.commentContainer)
-                }
-            }
-        }
 
 
-        fun setViewModel(model: FeedViewModel) {
+        fun setViewModel(model: FeedViewModel, feed : Feed) {
             binding.model = model
             binding.executePendingBindings()
+
+            setEvent(feed)
+        }
+
+        fun setEvent(feed : Feed){
+            binding.commentBtn.setOnClickListener{
+                if(binding.content.text.isNotEmpty())
+                    mListener.onCommentBtnClicked(feed, binding.comment,
+                        binding.commentCount, binding.commentContainer)
+            }
+
+            binding.commentShow.setOnClickListener{
+                mListener.onCommentShowClicked(binding.commentCount, feed)
+            }
         }
 
     }

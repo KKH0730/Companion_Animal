@@ -59,13 +59,13 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.viewpager2.widget.ViewPager2
-            setFeedImages="@{model.feedLiveData.component11()}"
-            getLifecycle="@{model.lifecycle}"
+            android:id="@+id/feedViewPager"
             getFm="@{model.fragmentManager}"
             getIndicator="@{model.indicator}"
-            android:id="@+id/feedViewPager"
+            getLifecycle="@{model.lifecycle}"
+            setFeedImages="@{model.feedLiveData.component11()}"
             android:layout_width="match_parent"
-            android:layout_height="300dp"
+            android:layout_height="500dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/constraintLayout4" />
@@ -127,7 +127,7 @@
 
 
             <ImageButton
-                android:id="@+id/imageButton"
+                android:id="@+id/heart_btn"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
                 android:layout_marginStart="10dp"
@@ -147,11 +147,11 @@
                 android:textColor="@color/black"
                 android:textSize="14sp"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/imageButton"
+                app:layout_constraintStart_toEndOf="@+id/heart_btn"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <ImageButton
-                android:id="@+id/imageButton3"
+                android:id="@+id/comment_show"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
                 android:layout_marginStart="20dp"
@@ -162,6 +162,7 @@
 
             <TextView
                 setComment="@{model.feedLiveData.component8()}"
+                android:id="@+id/comment_count"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="5dp"
@@ -169,7 +170,7 @@
                 android:textColor="@color/black"
                 android:textSize="14sp"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/imageButton3"
+                app:layout_constraintStart_toEndOf="@+id/comment_show"
                 app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -205,7 +206,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="10dp">
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp">
 
             </LinearLayout>
 

@@ -27,7 +27,7 @@ class UploadUseCase {
     }
 
     fun uploadRemoteFeedImage(feed : Feed, storageRef: StorageReference, path : String, callback: LongTaskCallback<Boolean>){
-        for (i in 0..feed.localUri.size - 1) {
+        for (i in 0 until feed.localUri.size) {
             Log.d("hi", "i : $i")
             storageRef.child(path + i).putFile(Uri.parse(feed.localUri[i]))
                 .addOnCompleteListener {
@@ -43,7 +43,7 @@ class UploadUseCase {
     fun loadRemoteFeedImage(listResult : MutableList<StorageReference>, callback : LongTaskCallback<MutableList<String>>)  {
         var list = mutableListOf<String>()
 
-        for(i in 0..(listResult.size - 1)) {
+        for(i in 0 until listResult.size) {
             listResult[i].downloadUrl.addOnCompleteListener {
                 list.add(it.result.toString())
             }

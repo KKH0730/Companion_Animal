@@ -1,8 +1,6 @@
 package studio.seno.companion_animal.ui.feed
 
 import android.content.Context
-import android.util.Log
-import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import studio.seno.datamodule.Repository
@@ -10,6 +8,7 @@ import studio.seno.datamodule.mapper.Mapper
 import studio.seno.domain.LongTaskCallback
 import studio.seno.domain.model.Feed
 import studio.seno.domain.Result
+import studio.seno.domain.model.Comment
 
 class FeedListViewModel() : ViewModel() {
     private var feedListLiveData = MutableLiveData<List<Feed>>()
@@ -49,15 +48,19 @@ class FeedListViewModel() : ViewModel() {
             override fun onResponse(result: Result<List<Feed>>) {
                 if(result is Result.Success) {
                     var list = result.data
-
                     feedListLiveData.value = list
                 }
             }
         })
     }
 
-    fun requestUploadComment(){
+    fun requestUploadComment(feed : Feed, type : Long, email : String, nickname : String, content : String, timestamp: Long){
+        var comment = mapper.mapperToComment(type, email, nickname, content, null, timestamp)
+        repository.uploadComment(feed, comment)
+    }
 
+    fun requestUploadCommentCount(feed : Feed, commentCount : Long) {
+        repository.uploadCommentCount(feed, commentCount)
     }
 
 }

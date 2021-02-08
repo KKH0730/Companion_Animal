@@ -2,6 +2,7 @@ package studio.seno.domain.usecase
 
 import android.content.Context
 import android.util.Log
+import androidx.annotation.MainThread
 import androidx.lifecycle.LifecycleCoroutineScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentSnapshot
@@ -14,6 +15,7 @@ import kotlinx.coroutines.launch
 import studio.seno.domain.LongTaskCallback
 import studio.seno.domain.Result
 import studio.seno.domain.database.InfoManager
+import studio.seno.domain.model.Comment
 import studio.seno.domain.model.Feed
 import studio.seno.domain.model.User
 
@@ -24,25 +26,25 @@ class FeedUseCase {
                    feed: Feed, auth: FirebaseAuth, mDB: FirebaseFirestore,
                    storageRef: StorageReference, callback: LongTaskCallback<Boolean>
     ) {
-        var profileUri = auth.currentUser?.email + "/profile/profileImage"
-        var localUri = auth.currentUser?.email + "/feed/" + feed.timestamp + "/"
+        var remoteProfilePath = auth.currentUser?.email + "/profile/profileImage"
+        var remoteImagePath = auth.currentUser?.email + "/feed/" + feed.timestamp + "/"
 
         //Feed 이미지 업로드
         UploadUseCase().uploadRemoteFeedImage(
             feed,
             storageRef,
-            localUri,
+            remoteImagePath,
             object : LongTaskCallback<Boolean> {
                 override fun onResponse(result: Result<Boolean>) {
 
-                    //프로필 이미지 객체 저장
-                    storageRef.child(profileUri)
+                    //프로필 이미지 객체 불러와 객체에 저장
+                    storageRef.child(remoteProfilePath)
                         .downloadUrl
                         .addOnSuccessListener { it ->
                             feed.remoteProfileUri = it.toString()
 
 
-                            storageRef.child(localUri).listAll().addOnCompleteListener { it2 ->
+                            storageRef.child(remoteImagePath).listAll().addOnCompleteListener { it2 ->
                                 var listResult = it2.result?.items!!
 
 
@@ -109,5 +111,75 @@ class FeedUseCase {
             }.addOnFailureListener{
                 Log.d("hi", "error : ${it.message}")
             }
+    }
+
+    fun uploadComment(feed : Feed, comment : Comment, auth: FirebaseAuth, db: FirebaseFirestore, storageRef : StorageReference) {
+        var remoteProfilePath = auth.currentUser?.email + "/profile/profileImage"
+        storageRef.child(remoteProfilePath).downloadUrl.addOnSuccessListener {
+            comment.profileUri = it.toString()
+
+            db.collection("feed")
+                .document(feed.email + feed.timestamp)
+                .collection("comment")
+                .document(auth.currentUser?.email.toString() + comment.timestamp)
+                .set(comment)
+        }
+    }
+
+    fun uploadCommentCount(feed : Feed, commentCount : Long, db: FirebaseFirestore) {
+        db.collection("feed")
+            .document(feed.email + feed.timestamp)
+            .update("comment", commentCount + 1)
+    }
+
+    fun loadComment(email : String, timestamp : Long, db: FirebaseFirestore, callback : LongTaskCallback<Comment>) {
+        db.collection("feed")
+            .document(email + timestamp)
+            .collection("comment")
+            .orderBy("timestamp")
+            .get()
+            .addOnCompleteListener {
+
+
+                if(it.result != null) {
+                    for(i in 0 until it.result!!.size()) {
+                        var document : DocumentSnapshot = it.result!!.documents[i]
+                        var loadComment = Comment(document.getLong("type")!!, document.getString("email")!!,
+                        document.getString("nickname")!!, document.getString("content")!!, document.getString("profileUri"), document.getLong("timestamp")!!)
+
+                        loadAnswerComment(email, timestamp,loadComment.email + loadComment.timestamp, loadComment, db, callback)
+                    }
+                }
+
+            }
+    }
+
+    fun loadAnswerComment(email : String, timestamp : Long, commentPath : String, loadComment : Comment,
+                          db: FirebaseFirestore, callback : LongTaskCallback<Comment>){
+        db.collection("feed")
+            .document(email + timestamp)
+            .collection("comment")
+            .document(commentPath)
+            .collection("comment_answer")
+            .orderBy("timestamp")
+            .get()
+            .addOnCompleteListener {
+
+                var list : MutableList<Comment> = mutableListOf()
+                if(it.result != null) {
+                    for(i in 0 until it.result!!.size()) {
+                        var document : DocumentSnapshot = it.result!!.documents[i]
+                        var commentItem = Comment(document.getLong("type")!!, document.getString("email")!!,
+                            document.getString("nickname")!!, document.getString("content")!!, document.getString("profileUri"), document.getLong("timestamp")!!)
+                        list.add(commentItem)
+                    }
+
+                    loadComment.setChildren(list.toList())
+                    var result = Result.Success(loadComment)
+                    callback.onResponse(result)
+                }
+            }
+
+
     }
 }

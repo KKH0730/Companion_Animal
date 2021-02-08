@@ -3,6 +3,7 @@ package studio.seno.companion_animal.ui.main_ui
 import android.os.Bundle
 import android.text.SpannableStringBuilder
 import android.text.TextUtils
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -13,14 +14,20 @@ import android.widget.TextView
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
+import com.google.firebase.auth.FirebaseAuth
+import org.jetbrains.anko.support.v4.startActivity
 import studio.seno.companion_animal.OnItemClickListener
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.FragmentHomeBinding
 import studio.seno.companion_animal.module.CommonFunction
+import studio.seno.companion_animal.ui.comment.CommentActivity
 import studio.seno.companion_animal.ui.feed.FeedListAdapter
 import studio.seno.companion_animal.ui.feed.FeedListViewModel
+import studio.seno.companion_animal.util.Constants
 import studio.seno.companion_animal.util.TextUtils.setTextColorBold
 import studio.seno.domain.database.InfoManager
+import studio.seno.domain.model.Feed
+import java.sql.Timestamp
 
 /**
  * HomeFragment는 FeedViewListModel과 연결.
@@ -46,9 +53,6 @@ class HomeFragment : Fragment() {
         binding.model = viewModel
         binding.feedRecyclerView.adapter = feedAdapter
 
-        ////게시판 데이터 서버로부터 불러와서 viewmode의 livedata 업데이트
-        viewModel.loadFeedList()
-        observe()
 
         itemEvent()
     }
@@ -63,9 +67,16 @@ class HomeFragment : Fragment() {
     private fun itemEvent(){
         //댓글작성 버튼클릭
         feedAdapter.setOnItemClickListener(object : OnItemClickListener{
-            override fun onItemClicked(commentEdit: EditText, container: LinearLayout) {
-                val textView = TextView(context)
+            override fun onCommentBtnClicked(feed : Feed, commentEdit: EditText, commentCount: TextView, container : LinearLayout) {
+                viewModel.requestUploadComment(
+                    feed,  Constants.PARENT, FirebaseAuth.getInstance().currentUser?.email.toString(), InfoManager.getString(requireContext(),
+                    "nickName")!!, commentEdit.text.toString(), Timestamp(System.currentTimeMillis()).time)
+                viewModel.requestUploadCommentCount(feed, commentCount.text.toString().toLong())
 
+                var curCommentCount = Integer.valueOf(commentCount.text.toString())
+                commentCount.text =  (curCommentCount + 1).toString()
+
+                val textView = TextView(context)
                 val nickname = InfoManager.getString(requireContext(), "nickName")
                 SpannableStringBuilder(nickname).apply {
                     setTextColorBold(this, requireContext(), R.color.black, 0, nickname!!.length)
@@ -78,7 +89,23 @@ class HomeFragment : Fragment() {
                 commentEdit.hint = requireContext().getString(R.string.comment_hint)
                 CommonFunction.closeKeyboard(requireContext(), commentEdit)
             }
+
+            override fun onCommentShowClicked(commentCount: TextView, feed : Feed) {
+                startActivity<CommentActivity>(
+                    "commentCount" to Integer.valueOf(commentCount.text.toString()),
+                    "email" to feed.email,
+                    "timestamp" to feed.timestamp
+                )
+            }
         })
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        //게시판 데이터 서버로부터 불러와서 viewmode의 livedata 업데이트
+        viewModel.loadFeedList()
+        observe()
     }
 
     companion object {

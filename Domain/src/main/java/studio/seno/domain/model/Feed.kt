@@ -2,14 +2,14 @@ package studio.seno.domain.model
 
 data class Feed(
     val email : String,
-    var nickname : String,
-    var sort : String,
-    var hashTags : List<String>?,
-    var localUri : List<String>,
-    var content : String?,
-    var heart : Long,
-    var comment : Long,
-    var timestamp : Long,
+    val nickname : String,
+    val sort : String,
+    val hashTags : List<String>?,
+    val localUri : List<String>,
+    val content : String?,
+    val heart : Long,
+    val comment : Long,
+    val timestamp : Long,
     var remoteProfileUri : String?,
     var remoteUri : List<String>?
 )

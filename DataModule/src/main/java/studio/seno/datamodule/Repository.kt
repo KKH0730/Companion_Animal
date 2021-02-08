@@ -2,12 +2,12 @@ package studio.seno.datamodule
 
 import android.content.Context
 import android.net.Uri
-import androidx.lifecycle.LifecycleCoroutineScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import studio.seno.domain.LongTaskCallback
+import studio.seno.domain.model.Comment
 import studio.seno.domain.model.Feed
 import studio.seno.domain.model.User
 import studio.seno.domain.usecase.FeedUseCase
@@ -56,4 +56,16 @@ class Repository() {
         feedUseCase.loadFeedList(mAuth, mDB, mStorageRef, callback)
     }
 
+    //피드 리스트에서 댓글 작성후 업로드
+    fun uploadComment(feed : Feed, comment : Comment){
+        feedUseCase.uploadComment(feed, comment, mAuth, mDB, mStorageRef)
+    }
+
+    fun uploadCommentCount(feed : Feed, commentCount : Long) {
+        feedUseCase.uploadCommentCount(feed, commentCount, mDB)
+    }
+
+    fun loadComment(email : String, timestamp : Long, callback: LongTaskCallback<Comment>) {
+        feedUseCase.loadComment(email, timestamp, mDB, callback)
+    }
 }
