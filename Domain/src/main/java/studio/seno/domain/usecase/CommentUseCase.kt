@@ -1,0 +1,236 @@
+package studio.seno.domain.usecase
+
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.QuerySnapshot
+import com.google.firebase.storage.StorageReference
+import kotlinx.coroutines.channels.ticker
+import studio.seno.domain.LongTaskCallback
+import studio.seno.domain.Result
+import studio.seno.domain.model.Comment
+import java.util.*
+
+class CommentUseCase {
+
+    fun uploadComment(
+        targetEmail: String,
+        targetTimestamp: Long,
+        comment: Comment,
+        auth: FirebaseAuth,
+        db: FirebaseFirestore,
+        storageRef: StorageReference,
+        callback: LongTaskCallback<Boolean>
+    ) {
+        var remoteProfilePath = auth.currentUser?.email + "/profile/profileImage"
+        storageRef.child(remoteProfilePath).downloadUrl.addOnSuccessListener {
+            comment.profileUri = it.toString()
+
+            db.collection("feed")
+                .document(targetEmail + targetTimestamp)
+                .collection("comment")
+                .document(comment.email + comment.timestamp)
+                .set(comment)
+                .addOnCompleteListener {
+                    callback.onResponse(Result.Success(true))
+                }.addOnFailureListener {
+                    callback.onResponse(Result.Error(it))
+                }
+        }
+    }
+
+    fun uploadCommentAnswer(
+        feedEmail: String,
+        feedTimeStamp: Long,
+        targetEmail: String,
+        targetTimestamp: Long,
+        comment: Comment,
+        auth: FirebaseAuth,
+        db: FirebaseFirestore,
+        storageRef: StorageReference,
+        callback: LongTaskCallback<Boolean>
+    ) {
+        var remoteProfilePath = auth.currentUser?.email + "/profile/profileImage"
+        storageRef.child(remoteProfilePath).downloadUrl.addOnSuccessListener {
+            comment.profileUri = it.toString()
+
+            db.collection("feed")
+                .document(feedEmail + feedTimeStamp)
+                .collection("comment")
+                .document(targetEmail + targetTimestamp)
+                .collection("comment_answer")
+                .document(comment.email + comment.timestamp)
+                .set(comment)
+                .addOnCompleteListener {
+                    callback.onResponse(Result.Success(true))
+                }.addOnFailureListener { it2 ->
+                    callback.onResponse(Result.Error(it2))
+                }
+        }
+    }
+
+    fun uploadCommentCount(
+        targetEmail: String,
+        targetTimestamp: Long,
+        commentCount: Long,
+        flag : Boolean,
+        db: FirebaseFirestore
+    ) {
+        if(flag){
+            db.collection("feed")
+                .document(targetEmail + targetTimestamp)
+                .update("comment", commentCount + 1)
+        } else {
+            db.collection("feed")
+                .document(targetEmail + targetTimestamp)
+                .update("comment", commentCount - 1)
+        }
+    }
+
+
+    fun loadComment(
+        email: String,
+        timestamp: Long,
+        db: FirebaseFirestore,
+        callback: LongTaskCallback<List<Comment>>
+    ) {
+        db.collection("feed")
+            .document(email + timestamp)
+            .collection("comment")
+            .orderBy("timestamp", Query.Direction.DESCENDING)
+            .get()
+            .addOnCompleteListener {
+
+                var list: MutableList<Comment> = mutableListOf()
+                var size: Int? = null
+                if (it.result != null) {
+                    size = it.result!!.size()
+
+                    for (i in 0 until it.result!!.size()) {
+                        var document: DocumentSnapshot = it.result!!.documents[i]
+                        var loadComment = Comment(
+                            document.getLong("type")!!,
+                            document.getString("email")!!,
+                            document.getString("nickname")!!,
+                            document.getString("content")!!,
+                            document.getString("profileUri"),
+                            document.getLong("timestamp")!!
+                        )
+                        list.add(loadComment)
+                    }
+                }
+                if (list.size == size) {
+                    loadAnswerComment(
+                        email,
+                        timestamp,
+                        list,
+                        db,
+                        callback
+                    )
+                }
+            }
+    }
+
+    fun loadAnswerComment(
+        email: String, timestamp: Long, commentList: MutableList<Comment>,
+        db: FirebaseFirestore, callback: LongTaskCallback<List<Comment>>
+    ) {
+        var totalList = mutableListOf<Comment>()
+        var size = commentList.size
+        for (i in 0 until size) {
+            var loadComment = commentList[i]
+
+            db.collection("feed")
+                .document(email + timestamp)
+                .collection("comment")
+                .document(loadComment.email + loadComment.timestamp)
+                .collection("comment_answer")
+                .orderBy("timestamp", Query.Direction.DESCENDING)
+                .get()
+                .addOnCompleteListener {
+
+                    var tempList = mutableListOf<Comment>()
+                    if (it.result != null) {
+                        for (i in 0 until it.result!!.size()) {
+                            var document: DocumentSnapshot = it.result!!.documents[i]
+                            var commentAnswerItem = Comment(
+                                document.getLong("type")!!,
+                                document.getString("email")!!,
+                                document.getString("nickname")!!,
+                                document.getString("content")!!,
+                                document.getString("profileUri"),
+                                document.getLong("timestamp")!!
+                            )
+                            tempList.add(commentAnswerItem)
+                        }
+                        loadComment.setChildren(tempList.toList())
+                        totalList.add(loadComment)
+                    }
+
+                    if (totalList.size == size) {
+                        Collections.sort(totalList)
+                        var result = Result.Success(totalList.toList())
+                        callback.onResponse(result)
+                    }
+                }
+        }
+    }
+
+    fun deleteComment(
+        feedEmail : String,
+        feedTimestamp : Long,
+        parentComment : Comment,
+        childComment : Comment?,
+        type : String,
+        db : FirebaseFirestore,
+        callback: LongTaskCallback<Boolean>
+    ) {
+        if (type == "parent") {
+            /*
+            db.collection("feed")
+                .document(feedEmail + feedTimestamp)
+                .collection("comment")
+                .document(parentComment.email + parentComment.timestamp)
+                .collection("comment_answer")
+                .get()
+                .addOnCompleteListener {
+                    var list: QuerySnapshot? = it.result
+
+                    if (list != null)
+                        for (element in list)
+                            element.reference.delete()
+                }
+
+             */
+
+            db.collection("feed")
+                .document(feedEmail + feedTimestamp)
+                .collection("comment")
+                .document(parentComment.email + parentComment.timestamp)
+                .delete()
+                .addOnCompleteListener {
+                    if (it.isSuccessful) {
+                        callback.onResponse(Result.Success(true))
+                    }
+                }.addOnFailureListener {
+                    callback.onResponse(Result.Error(it))
+                }
+        } else {
+            db.collection("feed")
+                .document(feedEmail + feedTimestamp)
+                .collection("comment")
+                .document(parentComment.email + parentComment.timestamp)
+                .collection("comment_answer")
+                .document(childComment?.email + childComment?.timestamp)
+                .delete()
+                .addOnCompleteListener {
+                    if (it.isSuccessful) {
+                        callback.onResponse(Result.Success(true))
+                    }
+                }.addOnFailureListener {
+                    callback.onResponse(Result.Error(it))
+                }
+        }
+    }
+}

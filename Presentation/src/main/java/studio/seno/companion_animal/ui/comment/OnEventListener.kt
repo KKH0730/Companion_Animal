@@ -6,4 +6,5 @@ import studio.seno.domain.model.Comment
 interface OnEventListener {
     fun OnReadAnswerClicked(readAnswer : Button, targetComment : Comment)
     fun OnWriteAnswerCilcked(targetComment : Comment)
+    fun OnMenuClicked(comment : Comment, position : Int)
 }

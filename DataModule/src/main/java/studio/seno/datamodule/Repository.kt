@@ -10,6 +10,7 @@ import studio.seno.domain.LongTaskCallback
 import studio.seno.domain.model.Comment
 import studio.seno.domain.model.Feed
 import studio.seno.domain.model.User
+import studio.seno.domain.usecase.CommentUseCase
 import studio.seno.domain.usecase.FeedUseCase
 import studio.seno.domain.usecase.UploadUseCase
 import studio.seno.domain.usecase.UserManageUseCase
@@ -22,6 +23,7 @@ class Repository() {
     private val feedUseCase = FeedUseCase()
     private val uploadUseCase = UploadUseCase()
     private val userManagerUseCase = UserManageUseCase()
+    private val commentUseCase = CommentUseCase()
 
     //회원가입시 회원정보 서버에 저장
     fun uploadUserInfo(user: User) {
@@ -63,7 +65,7 @@ class Repository() {
         comment: Comment,
         callback: LongTaskCallback<Boolean>
     ) {
-        feedUseCase.uploadComment(
+        commentUseCase.uploadComment(
             targetEmail,
             targetTimestamp,
             comment,
@@ -82,7 +84,7 @@ class Repository() {
         commentAnswer: Comment,
         callback: LongTaskCallback<Boolean>
     ) {
-        feedUseCase.uploadCommentAnswer(
+        commentUseCase.uploadCommentAnswer(
             feedEmail,
             feedTimestamp,
             targetEmail,
@@ -95,11 +97,22 @@ class Repository() {
         )
     }
 
-    fun uploadCommentCount(targetEmail: String, targetTimestamp: Long, commentCount: Long) {
-        feedUseCase.uploadCommentCount(targetEmail, targetTimestamp, commentCount, mDB)
+    fun uploadCommentCount(targetEmail: String, targetTimestamp: Long, commentCount: Long, flag : Boolean) {
+        commentUseCase.uploadCommentCount(targetEmail, targetTimestamp, commentCount, flag, mDB)
     }
 
     fun loadComment(email: String, timestamp: Long, callback: LongTaskCallback<List<Comment>>) {
-        feedUseCase.loadComment(email, timestamp, mDB, callback)
+        commentUseCase.loadComment(email, timestamp, mDB, callback)
+    }
+
+    fun deleteComment(
+        feedEmail: String,
+        feedTimestamp: Long,
+        parentComment: Comment,
+        childComment: Comment?,
+        type: String,
+        callback: LongTaskCallback<Boolean>
+    ){
+        commentUseCase.deleteComment(feedEmail, feedTimestamp, parentComment, childComment, type, mDB, callback)
     }
 }

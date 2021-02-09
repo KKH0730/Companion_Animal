@@ -63,8 +63,8 @@ class FeedListViewModel() : ViewModel() {
         })
     }
 
-    fun requestUploadCommentCount(targetEmail : String, targetTimestamp: Long, commentCount : Long) {
-        repository.uploadCommentCount(targetEmail, targetTimestamp, commentCount)
+    fun requestUploadCommentCount(targetEmail : String, targetTimestamp: Long, commentCount : Long, flag : Boolean) {
+        repository.uploadCommentCount(targetEmail, targetTimestamp, commentCount, flag)
     }
 
 }

@@ -11,7 +11,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Companion_Animal">
-        <activity android:name=".ui.comment.CommentActivity"></activity>
+        <activity android:name=".ui.comment.CommentActivity"/>
         <activity android:name=".ui.feed.MakeFeedActivity" />
         <activity android:name="studio.seno.commonmodule.BaseActivity" />
         <activity android:name=".ui.user_manage.UserManageActivity" />

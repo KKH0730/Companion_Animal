@@ -85,7 +85,7 @@ class HomeFragment : Fragment() {
 
                 //댓글을 서버에 업로드
                 viewModel.requestUploadComment(
-                    feed.email,
+                    feed.email!!,
                     feed.timestamp,
                     Constants.PARENT,
                     FirebaseAuth.getInstance().currentUser?.email.toString(),
@@ -98,7 +98,7 @@ class HomeFragment : Fragment() {
                 )
 
                 //서버에 댓글 개수 업로드
-                viewModel.requestUploadCommentCount(feed.email, feed.timestamp, commentCount.text.toString().toLong())
+                viewModel.requestUploadCommentCount(feed.email!!, feed.timestamp, commentCount.text.toString().toLong(), true)
 
                 //댓글수 업데이트
                 commentCount.text.apply {

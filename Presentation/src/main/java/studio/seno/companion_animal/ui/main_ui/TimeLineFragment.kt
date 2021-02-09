@@ -45,8 +45,8 @@ class TimeLineFragment : Fragment(), View.OnClickListener {
 
     override fun onClick(v: View?) {
         if(v?.id == R.id.menu_Btn) {
-            var menuDialog = MenuDialog.newInstance("write")
-            menuDialog.show(parentFragmentManager, "menu_dialog")
+            var menuDialog = MenuDialog.newInstance("null")
+            menuDialog.show(parentFragmentManager, "write")
         }
     }
 }

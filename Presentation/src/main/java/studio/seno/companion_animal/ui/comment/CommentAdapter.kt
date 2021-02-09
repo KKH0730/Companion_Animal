@@ -34,7 +34,7 @@ class CommentAdapter : ListAdapter<Comment, RecyclerView.ViewHolder>(
             return ParentCommentViewHolder(binding, listener!!)
         } else {
             val binding = DataBindingUtil.inflate<CommentChildBinding>(LayoutInflater.from(parent.context), R.layout.comment_child, parent, false)
-            return ChildCommentViewHolder(binding)
+            return ChildCommentViewHolder(binding, listener!!)
         }
     }
 
@@ -52,14 +52,13 @@ class CommentAdapter : ListAdapter<Comment, RecyclerView.ViewHolder>(
             val item = getItem(position)
             val model = CommentChildViewModel()
             model.setChildCommentLiveData(item)
-            holder.setViewModel(model)
+            holder.setViewModel(model, item)
         }
     }
 
     override fun getCurrentList(): MutableList<Comment> {
         return super.getCurrentList()
     }
-
 
 
     override fun getItemViewType(position: Int): Int {
@@ -90,23 +89,25 @@ class CommentAdapter : ListAdapter<Comment, RecyclerView.ViewHolder>(
         }
 
         fun setEvent(comment: Comment){
-            binding.readAnswer.setOnClickListener{
-                mListener.OnReadAnswerClicked(binding.readAnswer, comment)
-            }
-
-            binding.writeAnswer.setOnClickListener {
-                mListener.OnWriteAnswerCilcked(comment)
-            }
+            binding.readAnswer.setOnClickListener{ mListener.OnReadAnswerClicked(binding.readAnswer, comment) }
+            binding.writeAnswer.setOnClickListener { mListener.OnWriteAnswerCilcked(comment) }
+            binding.commentMenu.setOnClickListener { mListener.OnMenuClicked(comment, adapterPosition) }
         }
-
     }
 
-    private class ChildCommentViewHolder(binding : CommentChildBinding) : RecyclerView.ViewHolder(binding.root){
+    private class ChildCommentViewHolder(binding : CommentChildBinding, listener : OnEventListener) : RecyclerView.ViewHolder(binding.root){
         private var binding : CommentChildBinding = binding
+        private var mListener = listener
 
-        fun setViewModel(model : CommentChildViewModel) {
+        fun setViewModel(model : CommentChildViewModel, commentAnswer: Comment) {
             binding.model = model
             binding.executePendingBindings()
+
+            setEvent(commentAnswer)
+        }
+
+        fun setEvent(commentAnswer : Comment){
+            binding.commentMenu.setOnClickListener { mListener.OnMenuClicked(commentAnswer, adapterPosition) }
         }
     }
 }

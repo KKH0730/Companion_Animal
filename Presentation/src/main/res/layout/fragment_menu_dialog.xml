@@ -16,7 +16,7 @@
             android:background="@drawable/divider_bottom">
 
             <TextView
-                android:id="@+id/textView6"
+                android:id="@+id/menu_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="15dp"
@@ -25,6 +25,7 @@
                 android:text="@string/menu_title"
                 android:textStyle="bold"
                 android:textColor="@color/black"
+                android:textSize="18sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -34,7 +35,7 @@
 
 
         <LinearLayout
-            android:id="@+id/show_animal_btn"
+            android:id="@+id/make_feed_btn"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:background="@drawable/divider_bottom"
@@ -67,7 +68,7 @@
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/question_animal_btn"
+            android:id="@+id/make_question_btn"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:background="@drawable/divider_bottom"
@@ -93,6 +94,53 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/modify_btn"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:background="@drawable/divider_bottom"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/modify"
+                android:textSize="16sp"
+                android:textColor="@color/black"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/delete_btn"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:background="@drawable/divider_bottom"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/delete"
+                android:textSize="16sp"
+                android:textColor="@color/black"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/report_btn"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/report"
+                android:textSize="16sp"
+                android:textColor="@color/black"/>
         </LinearLayout>
     </LinearLayout>
 </layout>

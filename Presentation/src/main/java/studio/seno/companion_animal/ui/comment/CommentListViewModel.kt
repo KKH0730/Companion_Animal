@@ -90,8 +90,23 @@ class CommentListViewModel : ViewModel() {
         })
     }
 
-    fun requestUploadCommentCount(targetEmail: String, targetTimestamp: Long, commentCount: Long) {
-        repository.uploadCommentCount(targetEmail, targetTimestamp, commentCount)
+    fun requestUploadCommentCount(targetEmail: String, targetTimestamp: Long, commentCount: Long, flag : Boolean) {
+        repository.uploadCommentCount(targetEmail, targetTimestamp, commentCount, flag)
+    }
+
+    fun requestDeleteComment(
+        feedEmail: String,
+        feedTimestamp: Long,
+        parentComment: Comment,
+        childComment: Comment?,
+        type: String
+    ){
+        repository.deleteComment(feedEmail, feedTimestamp, parentComment, childComment, type,
+        object : LongTaskCallback<Boolean>{
+            override fun onResponse(result: Result<Boolean>) {
+                requestLoadComment(feedEmail, feedTimestamp)
+            }
+        })
     }
 
 
