@@ -82,11 +82,18 @@
 
 
     <!--feed_item.xml-->
-    <string name="comment_hint">댓글입력</string>
+    <string name="comment_hint">댓글 입력</string>
     <string name="more">....더보기</string>
 
     <!-- CommentActivity -->
     <string name="header_title">댓글</string>
+    <string name="comment_write_answer">답글 달기</string>
+    <string name="comment_read_answer">----------답글 보기</string>
+    <string name="comment_modify_ing">댓글 수정 중</string>
+    <string name="answer_write_hint">답글 달기</string>
+    <string name="answer_write_ing">답글 작성 중</string>
+    <string name="answer_modify_ing">답글 수정 중</string>
+
 
 
     <!-- common -->

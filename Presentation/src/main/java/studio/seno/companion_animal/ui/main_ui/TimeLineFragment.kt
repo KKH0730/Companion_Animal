@@ -9,6 +9,7 @@ import androidx.databinding.DataBindingUtil
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.FragmentTimeLineBinding
 import studio.seno.companion_animal.ui.MenuDialog
+import studio.seno.domain.database.InfoManager
 
 
 class TimeLineFragment : Fragment(), View.OnClickListener {
@@ -39,6 +40,7 @@ class TimeLineFragment : Fragment(), View.OnClickListener {
 
     fun init(){
         binding.menuBtn.setOnClickListener(this)
+        binding.nickNameTextView.text = InfoManager.getString(requireContext(), "nickName")
     }
 
     override fun onClick(v: View?) {

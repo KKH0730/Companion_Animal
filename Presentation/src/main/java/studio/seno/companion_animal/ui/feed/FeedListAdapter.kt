@@ -10,6 +10,7 @@ import android.widget.TextView
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -22,9 +23,9 @@ import studio.seno.companion_animal.ui.main_ui.PagerAdapter
 import studio.seno.domain.model.Feed
 
 class FeedListAdapter(
-    context: Context,
     fm: FragmentManager,
-    lifecycle: Lifecycle
+    lifecycle: Lifecycle,
+    lifecycleOwner: LifecycleOwner
 ) : ListAdapter<Feed, RecyclerView.ViewHolder>(
 
     object : DiffUtil.ItemCallback<Feed>() {
@@ -40,11 +41,12 @@ class FeedListAdapter(
 ) {
     private val mLifecycle = lifecycle
     private val mFm = fm
-    private var listener : OnItemClickListener? = null
-    private lateinit var binding : FeedItemBinding
+    private val mLifecycleOwner = lifecycleOwner
+    private var listener: OnItemClickListener? = null
+    private lateinit var binding: FeedItemBinding
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-            binding = DataBindingUtil.inflate(
+        binding = DataBindingUtil.inflate(
             LayoutInflater.from(parent.context),
             R.layout.feed_item,
             parent,
@@ -56,40 +58,48 @@ class FeedListAdapter(
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         var holder = holder as FeedViewHolder
         var item = getItem(position)
-        val model = FeedViewModel(mLifecycle, mFm, holder.itemView.findViewById(R.id.indicator))
+        val model = FeedViewModel(
+            mLifecycle,
+            mFm,
+            holder.itemView.findViewById(R.id.indicator),
+            mLifecycleOwner
+        )
         model.setFeedLiveData(item)
         holder.setViewModel(model, item)
-
     }
 
-    fun setOnItemClickListener(listener : OnItemClickListener) {
+
+    fun setOnItemClickListener(listener: OnItemClickListener) {
         this.listener = listener
     }
 
-    private class FeedViewHolder(feedBinding: FeedItemBinding, listener : OnItemClickListener) :
+    private class FeedViewHolder(feedBinding: FeedItemBinding, listener: OnItemClickListener) :
         RecyclerView.ViewHolder(feedBinding.root) {
         private var binding: FeedItemBinding = feedBinding
         private var mListener = listener
 
 
-
-        fun setViewModel(model: FeedViewModel, feed : Feed) {
+        fun setViewModel(model: FeedViewModel, feed: Feed) {
             binding.model = model
             binding.executePendingBindings()
 
-            setEvent(feed)
+            setEvent(model, feed)
         }
 
-        fun setEvent(feed : Feed){
-            binding.commentBtn.setOnClickListener{
-                if(binding.content.text.isNotEmpty())
-                    mListener.onCommentBtnClicked(feed, binding.comment,
-                        binding.commentCount, binding.commentContainer)
+        fun setEvent(model: FeedViewModel, feed: Feed) {
+            binding.commentBtn.setOnClickListener {
+                if (binding.content.text.isNotEmpty()) {
+                    mListener.onCommentBtnClicked(
+                        feed, binding.comment,
+                        binding.commentCount, model
+                    )
+                }
             }
 
-            binding.commentShow.setOnClickListener{
+            binding.commentShow.setOnClickListener {
                 mListener.onCommentShowClicked(binding.commentCount, feed)
             }
+
         }
 
     }

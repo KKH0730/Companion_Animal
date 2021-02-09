@@ -54,13 +54,17 @@ class FeedListViewModel() : ViewModel() {
         })
     }
 
-    fun requestUploadComment(feed : Feed, type : Long, email : String, nickname : String, content : String, timestamp: Long){
+    fun requestUploadComment(targetEmail : String, targetTimestamp : Long, type : Long, email : String, nickname : String, content : String, timestamp: Long){
         var comment = mapper.mapperToComment(type, email, nickname, content, null, timestamp)
-        repository.uploadComment(feed, comment)
+        repository.uploadComment(targetEmail, targetTimestamp, comment, object : LongTaskCallback<Boolean>{
+            override fun onResponse(result: Result<Boolean>) {
+
+            }
+        })
     }
 
-    fun requestUploadCommentCount(feed : Feed, commentCount : Long) {
-        repository.uploadCommentCount(feed, commentCount)
+    fun requestUploadCommentCount(targetEmail : String, targetTimestamp: Long, commentCount : Long) {
+        repository.uploadCommentCount(targetEmail, targetTimestamp, commentCount)
     }
 
 }

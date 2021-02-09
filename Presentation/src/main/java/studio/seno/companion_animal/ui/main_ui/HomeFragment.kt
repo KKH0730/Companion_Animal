@@ -23,6 +23,7 @@ import studio.seno.companion_animal.module.CommonFunction
 import studio.seno.companion_animal.ui.comment.CommentActivity
 import studio.seno.companion_animal.ui.feed.FeedListAdapter
 import studio.seno.companion_animal.ui.feed.FeedListViewModel
+import studio.seno.companion_animal.ui.feed.FeedViewModel
 import studio.seno.companion_animal.util.Constants
 import studio.seno.companion_animal.util.TextUtils.setTextColorBold
 import studio.seno.domain.database.InfoManager
@@ -34,9 +35,15 @@ import java.sql.Timestamp
  * FeedViewModel는 FeedListAdapter와 연결.
  */
 class HomeFragment : Fragment() {
-    private lateinit var binding : FragmentHomeBinding
-    private val viewModel : FeedListViewModel by viewModels()
-    private val feedAdapter : FeedListAdapter by lazy { FeedListAdapter(requireContext(), parentFragmentManager, lifecycle) }
+    private lateinit var binding: FragmentHomeBinding
+    private val viewModel: FeedListViewModel by viewModels()
+    private val feedAdapter: FeedListAdapter by lazy {
+        FeedListAdapter(
+            parentFragmentManager,
+            lifecycle,
+            viewLifecycleOwner
+        )
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -56,41 +63,56 @@ class HomeFragment : Fragment() {
 
         itemEvent()
     }
-    
 
-    private fun observe(){
+
+    private fun observe() {
         viewModel.getFeedListLiveData().observe(requireActivity(), {
             feedAdapter.submitList(it)
         })
     }
 
-    private fun itemEvent(){
+    private fun itemEvent() {
         //댓글작성 버튼클릭
-        feedAdapter.setOnItemClickListener(object : OnItemClickListener{
-            override fun onCommentBtnClicked(feed : Feed, commentEdit: EditText, commentCount: TextView, container : LinearLayout) {
+        feedAdapter.setOnItemClickListener(object : OnItemClickListener {
+            override fun onCommentBtnClicked(
+                feed: Feed,
+                commentEdit: EditText,
+                commentCount: TextView,
+                model : FeedViewModel
+            ) {
+                //피드에 보여지는 댓글의 라이브 데이터 업데이트
+                model.setFeedCommentLiveData(commentEdit.text.toString())
+
+                //댓글을 서버에 업로드
                 viewModel.requestUploadComment(
-                    feed,  Constants.PARENT, FirebaseAuth.getInstance().currentUser?.email.toString(), InfoManager.getString(requireContext(),
-                    "nickName")!!, commentEdit.text.toString(), Timestamp(System.currentTimeMillis()).time)
-                viewModel.requestUploadCommentCount(feed, commentCount.text.toString().toLong())
+                    feed.email,
+                    feed.timestamp,
+                    Constants.PARENT,
+                    FirebaseAuth.getInstance().currentUser?.email.toString(),
+                    InfoManager.getString(
+                        requireContext(),
+                        "nickName"
+                    )!!,
+                    commentEdit.text.toString(),
+                    Timestamp(System.currentTimeMillis()).time
+                )
 
-                var curCommentCount = Integer.valueOf(commentCount.text.toString())
-                commentCount.text =  (curCommentCount + 1).toString()
+                //서버에 댓글 개수 업로드
+                viewModel.requestUploadCommentCount(feed.email, feed.timestamp, commentCount.text.toString().toLong())
 
-                val textView = TextView(context)
-                val nickname = InfoManager.getString(requireContext(), "nickName")
-                SpannableStringBuilder(nickname).apply {
-                    setTextColorBold(this, requireContext(), R.color.black, 0, nickname!!.length)
-                    append("  ${commentEdit.text}")
-                    textView.text = this
+                //댓글수 업데이트
+                commentCount.text.apply {
+                    var curCommentCount = Integer.valueOf(commentCount.text.toString())
+                    (curCommentCount + 1).toString()
                 }
 
-                container.addView(textView)
+
                 commentEdit.setText("")
                 commentEdit.hint = requireContext().getString(R.string.comment_hint)
                 CommonFunction.closeKeyboard(requireContext(), commentEdit)
             }
 
-            override fun onCommentShowClicked(commentCount: TextView, feed : Feed) {
+            override fun onCommentShowClicked(commentCount: TextView, feed: Feed) {
                 startActivity<CommentActivity>(
                     "commentCount" to Integer.valueOf(commentCount.text.toString()),
                     "email" to feed.email,

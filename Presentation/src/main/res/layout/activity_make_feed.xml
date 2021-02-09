@@ -65,7 +65,7 @@
                             android:layout_width="50dp"
                             android:layout_height="match_parent"
                             android:layout_margin="5dp"
-                            app:srcCompat="@drawable/camera" />
+                            app:srcCompat="@drawable/pthoto" />
 
                         <androidx.recyclerview.widget.RecyclerView
                             android:id="@+id/imageRecyclerView"
