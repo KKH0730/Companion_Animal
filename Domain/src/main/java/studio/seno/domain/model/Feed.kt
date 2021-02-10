@@ -18,7 +18,9 @@ data class Feed(
     var remoteProfileUri: String?,
     var remoteUri: List<String>?,
     var heartList: Map<String, String>?,
-    var bookmarkList: Map<String, String>?
+    var bookmarkList: Map<String, String>?,
+    var followList: Map<String, String>?
+
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readString(),
@@ -33,7 +35,9 @@ data class Feed(
         parcel.readString(),
         parcel.createStringArrayList(),
         parcel.readSerializable() as Map<String, String>,
+        parcel.readSerializable() as Map<String, String>,
         parcel.readSerializable() as Map<String, String>
+
     ) {
     }
 
@@ -55,6 +59,7 @@ data class Feed(
         dest?.writeStringList(remoteUri)
         dest?.writeValue(heartList)
         dest?.writeValue(bookmarkList)
+        dest?.writeValue(followList)
     }
 
     companion object CREATOR : Parcelable.Creator<Feed> {

@@ -1,19 +1,13 @@
 package studio.seno.domain.usecase
 
 import android.content.Context
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.DocumentSnapshot
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Query
-import com.google.firebase.firestore.QuerySnapshot
+import android.util.Log
+import com.google.firebase.firestore.*
 import com.google.firebase.storage.StorageReference
 import studio.seno.domain.LongTaskCallback
 import studio.seno.domain.Result
 import studio.seno.domain.database.InfoManager
-import studio.seno.domain.model.Comment
 import studio.seno.domain.model.Feed
-import java.util.*
-import kotlin.collections.HashMap
 
 class FeedUseCase {
     private val userMangerUseCase = UserManageUseCase()
@@ -53,27 +47,37 @@ class FeedUseCase {
                                                 var res = (result as Result.Success).data
                                                 feed.remoteUri = res
 
-                                                //db에 객체 데이터 저장
-                                                mDB.collection("feed")
-                                                    .document(feed.email + feed.timestamp)
-                                                    .set(feed)
-                                                    .addOnCompleteListener {
-                                                        var result: Result<Boolean>? = null
-                                                        if (it.isSuccessful)
-                                                            result = Result.Success(true)
-                                                        else
-                                                            result = Result.Success(false)
-                                                        callback.onResponse(result)
+                                                loadFollower(feed, mDB, object: LongTaskCallback<MutableMap<String, String>>{
+                                                    override fun onResponse(result : Result<MutableMap<String, String>>) {
+                                                        if(result is Result.Success) {
+                                                            feed.followList = result.data.toMap()
+                                                            var tempMap : MutableMap<String, String> = feed.followList!!.toMutableMap()
 
-                                                        InfoManager.setLong(
-                                                            context,
-                                                            "feedCount",
-                                                            InfoManager.getLong(
-                                                                context,
-                                                                "feedCount"
-                                                            ) + 1L
-                                                        )
-                                                    }.addOnFailureListener { callback.onResponse(Result.Error(it)) }
+                                                            //db에 객체 데이터 저장
+                                                            mDB.collection("feed")
+                                                                .document(feed.email + feed.timestamp)
+                                                                .set(feed)
+                                                                .addOnCompleteListener {
+                                                                    var result: Result<Boolean>? = null
+                                                                    if (it.isSuccessful)
+                                                                        result = Result.Success(true)
+                                                                    else
+                                                                        result = Result.Success(false)
+                                                                    callback.onResponse(result)
+
+                                                                    InfoManager.setLong(
+                                                                        context,
+                                                                        "feedCount",
+                                                                        InfoManager.getLong(
+                                                                            context,
+                                                                            "feedCount"
+                                                                        ) + 1L
+                                                                    )
+                                                                }.addOnFailureListener { callback.onResponse(Result.Error(it)) }
+
+                                                        }
+                                                    }
+                                                })
                                             }
                                         })
 
@@ -113,7 +117,8 @@ class FeedUseCase {
                                 list[i].getString("remoteProfileUri")!!,
                                 list[i].data?.get("remoteUri") as MutableList<String>,
                                 list[i].data?.get("heartList") as Map<String, String>,
-                                list[i].data?.get("bookmarkList") as  Map<String, String>
+                                list[i].data?.get("bookmarkList") as  Map<String, String>,
+                                list[i].data?.get("followList") as  Map<String, String>
                             )
                             feedList.add(feed)
                         }
@@ -154,14 +159,14 @@ class FeedUseCase {
         }
     }
 
-    fun updateStatus(feed: Feed, count: Long, updatedEmail : String, flag : Boolean, db : FirebaseFirestore){
+    fun updateHeart(feed: Feed, count: Long,  myEmail : String, flag : Boolean, db : FirebaseFirestore){
         var map = hashMapOf<String, Any>()
         var heartList = feed.heartList!!.toMutableMap()
 
         if(flag)
-            heartList[updatedEmail] = updatedEmail
+            heartList[myEmail] = myEmail
         else
-            heartList.remove(updatedEmail)
+            heartList.remove(myEmail)
 
 
         map["heartList"] = heartList
@@ -172,19 +177,129 @@ class FeedUseCase {
             .update(map)
     }
 
+    fun updateBookmark(feed: Feed, myEmail: String, flag: Boolean, db: FirebaseFirestore) {
+        var map = hashMapOf<String, Any>()
+        var bookmarkList = feed.bookmarkList!!.toMutableMap()
 
-
-
-    fun uploadHeart(feed : Feed, heart : Long, db : FirebaseFirestore, flag : Boolean){
-        if(flag){
-            db.collection("feed")
-                .document(feed.email + feed.timestamp)
-                .update("heart", heart + 1L)
+        if(flag) {
+            bookmarkList[myEmail] = myEmail
         } else {
-            db.collection("feed")
+            bookmarkList.remove(myEmail)
+
+            db.collection("user")
+                .document(myEmail)
+                .collection("bookmark")
                 .document(feed.email + feed.timestamp)
-                .update("heart", heart - 1L)
+                .delete()
+                .addOnFailureListener {
+
+                }
+        }
+
+        map["bookmarkList"] = bookmarkList
+        db.collection("feed")
+            .document(feed.email + feed.timestamp)
+            .update(map)
+
+        if(flag) {
+            map = hashMapOf<String, Any>()
+            map["feed"] = feed.email + feed.timestamp
+            db.collection("user")
+                .document(myEmail)
+                .collection("bookmark")
+                .document(feed.email + feed.timestamp)
+                .set(map)
         }
     }
 
+
+
+    fun loadFollower(feed: Feed, db: FirebaseFirestore, callback : LongTaskCallback<MutableMap<String, String>>){
+        db.collection("user")
+            .document(feed.email!!)
+            .collection("follower")
+            .get()
+            .addOnCompleteListener {
+                val map = mutableMapOf<String, String>()
+                var size : Int? = null
+                if(it.result != null) {
+                    size = it.result!!.size()
+                    for(i in 0 until it.result!!.size()) {
+                        var document : List<DocumentSnapshot> = it.result!!.documents
+                        for(element in document) {
+                            var follower = element.getString("email")
+                            if (follower != null) {
+                                map[follower] = follower
+                            }
+                        }
+                    }
+
+                    if(map.size == size)
+                        callback.onResponse(Result.Success(map))
+                }
+            }
+    }
+
+    fun updateFollower(targetFeed: Feed, myEmail: String, flag: Boolean, db: FirebaseFirestore) {
+        //flag = true 이면
+       //User 콜렉션 :targetEmail의 follower 수 (+1)와 myemail의 following (+1) 수 업데이트
+       //User 콜렉션 :targetEmail의 follower 컬렉션에 myemail 업로드, myemail의 following 컬렉션에 targetEmail 업로드
+       //feed 콜렉션 :feed 게시물에 follower myEmail 업데이트
+
+        //flag = false이면
+        //User 콜렉션 :targetEmail의 follower 수(-1)와 myemail의 following(-1) 수 업데이트
+        //User 콜렉션 :targetEmail의 follower 컬렉션에 myemail 삭제, myemail의 following 컬렉션에 targetEmail 삭제
+        //feed 콜렉션 :feed 게시물에 follower myEmail 삭제
+        if(flag) {
+            followerNumberUpdate(targetFeed.email!!, "follower", db, true)
+            followerNumberUpdate(myEmail, "following", db, true)
+
+            followerStatusUpdate(targetFeed.email, myEmail, "follower", myEmail, db, true)
+            followerStatusUpdate(myEmail, targetFeed.email, "following", targetFeed.email, db, true)
+        } else {
+            followerNumberUpdate(targetFeed.email!!, "follower", db, false)
+            followerNumberUpdate(myEmail, "following", db, false)
+
+            followerStatusUpdate(targetFeed.email, myEmail, "follower", myEmail, db, true)
+            followerStatusUpdate(myEmail, targetFeed.email, "following", targetFeed.email, db, true)
+        }
+    }
+
+    fun followerNumberUpdate(email: String, fieldName : String, db: FirebaseFirestore, add : Boolean) {
+        db.collection("user")
+            .document(email)
+            .get()
+            .addOnCompleteListener {
+                if(it.result != null) {
+                    var count = it.result!!.getLong(fieldName)
+
+                    if(add) {
+                        db.collection("user").document(email).update(fieldName, count!! + 1L)
+                    } else {
+                        db.collection("user").document(email).update(fieldName, count!! - 1L)
+                    }
+                }
+
+            }
+    }
+
+    fun followerStatusUpdate(document1 : String, document2: String, fieldName: String, updateEmail : String, db: FirebaseFirestore, add : Boolean) {
+        if(add) {
+            var map = mutableMapOf<String, String>()
+            map["email"] = updateEmail
+
+            db.collection("user")
+                .document(document1)
+                .collection(fieldName)
+                .document(document2)
+                .set(map)
+        } else {
+            db.collection("user")
+                .document(document1)
+                .collection(fieldName)
+                .document(document2)
+                .delete()
+        }
+
+    }
 }

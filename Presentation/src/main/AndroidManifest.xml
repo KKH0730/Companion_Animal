@@ -14,10 +14,11 @@
         <activity android:name=".ui.comment.CommentActivity"/>
         <activity android:name=".ui.feed.MakeFeedActivity" />
         <activity android:name="studio.seno.commonmodule.BaseActivity" />
-        <activity android:name=".ui.user_manage.UserManageActivity" />
+
         <activity
             android:name=".MainActivity"
-            android:windowSoftInputMode="adjustUnspecified|adjustPan">
+            android:windowSoftInputMode="adjustUnspecified|adjustPan"/>
+            <activity android:name=".ui.user_manage.UserManageActivity" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

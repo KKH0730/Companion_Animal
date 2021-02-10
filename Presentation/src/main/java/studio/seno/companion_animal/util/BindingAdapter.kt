@@ -3,6 +3,7 @@ package studio.seno.companion_animal.util
 import android.net.Uri
 import android.text.SpannableStringBuilder
 import android.util.Log
+import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.databinding.BindingAdapter
@@ -95,13 +96,20 @@ object BindingAdapter {
 
     @BindingAdapter("setHeartButton")
     @JvmStatic
-    fun setHeartButton(lottie : LottieAnimationView, map : Map<String, String>) {
-        if(map[FirebaseAuth.getInstance().currentUser!!.email.toString()] != null) {
-            lottie.playAnimation()
-        } else {
-            lottie.cancelAnimation()
-            lottie.progress = 0f
-        }
+    fun setHeartButton(imageButton : ImageButton, map : Map<String, String>) {
+        imageButton.isSelected = map[FirebaseAuth.getInstance().currentUser!!.email.toString()] != null
+    }
+
+    @BindingAdapter("setBookmarkButton")
+    @JvmStatic
+    fun setBookmarkButton(imageButton : ImageButton, map : Map<String, String>) {
+        imageButton.isSelected = map[FirebaseAuth.getInstance().currentUser!!.email.toString()] != null
+    }
+
+    @BindingAdapter("setFollowButton")
+    @JvmStatic
+    fun setFollowButton(imageButton : ImageButton, map : Map<String, String>) {
+        imageButton.isSelected = map[FirebaseAuth.getInstance().currentUser!!.email.toString()] != null
     }
 
     @BindingAdapter("setComment")

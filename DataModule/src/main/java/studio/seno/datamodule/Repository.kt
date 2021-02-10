@@ -64,9 +64,20 @@ class Repository() {
         feedUseCase.deleteFeed(feed, mDB, mStorageRef, callback)
     }
 
-    fun requestUpdateStatus(feed : Feed, count: Long, updatedEmail : String, flag : Boolean){
-        feedUseCase.updateStatus(feed, count, updatedEmail, flag, mDB)
+    //좋아요 수 업데이트
+    fun requestUpdateHeart(feed : Feed, count: Long, myEmail : String, flag : Boolean){
+        feedUseCase.updateHeart(feed, count, myEmail, flag, mDB)
     }
+
+    //북마크 상태 업데이트
+    fun requestUpdateBookmark(feed : Feed, myEmail: String, flag: Boolean) {
+        feedUseCase.updateBookmark(feed, myEmail, flag, mDB)
+    }
+
+    fun requestUpdateFollower(feed : Feed, myEmail: String, flag: Boolean) {
+        feedUseCase.updateFollower(feed, myEmail, flag, mDB)
+    }
+
 
     /**
      * comment

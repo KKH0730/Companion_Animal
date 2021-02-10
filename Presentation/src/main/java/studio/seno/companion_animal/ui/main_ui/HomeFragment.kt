@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
+import android.widget.ImageButton
 import android.widget.TextView
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -19,6 +20,8 @@ import com.google.firebase.auth.FirebaseAuth
 import org.jetbrains.anko.support.v4.intentFor
 import org.jetbrains.anko.support.v4.startActivity
 import org.jetbrains.anko.support.v4.startActivityForResult
+import seno.library.refreshlayout.OnRefreshListener
+import seno.library.refreshlayout.SimpleRefreshLayout
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.FragmentHomeBinding
 import studio.seno.companion_animal.module.CommonFunction
@@ -27,6 +30,8 @@ import studio.seno.companion_animal.ui.comment.CommentActivity
 import studio.seno.companion_animal.ui.comment.CommentListViewModel
 import studio.seno.companion_animal.ui.feed.*
 import studio.seno.companion_animal.util.Constants
+import studio.seno.domain.LongTaskCallback
+import studio.seno.domain.Result
 import studio.seno.domain.database.InfoManager
 import studio.seno.domain.model.Feed
 import java.sql.Timestamp
@@ -40,6 +45,7 @@ class HomeFragment : Fragment(){
     private val feedListViewModel: FeedListViewModel by viewModels()
     private val commentViewModel : CommentListViewModel by viewModels()
     private var currentFeed : Feed? = null
+    private val currentUserEmail  = FirebaseAuth.getInstance().currentUser?.email.toString()
     private val feedAdapter: FeedListAdapter by lazy {
         FeedListAdapter(
             parentFragmentManager,
@@ -62,10 +68,12 @@ class HomeFragment : Fragment(){
         binding.model = feedListViewModel
         binding.feedRecyclerView.adapter = feedAdapter
 
-        itemEvent()
+        feedItemEvent()
+        freshFeedList()
 
+        binding.refreshLayout.bringToFront()
         //게시판 데이터 서버로부터 불러와서 viewmode의 livedata 업데이트
-        feedListViewModel.loadFeedList()
+        feedListViewModel.loadFeedList(null)
         observe()
     }
 
@@ -79,7 +87,7 @@ class HomeFragment : Fragment(){
 
     }
 
-    private fun itemEvent() {
+    private fun feedItemEvent() {
         //댓글작성 버튼클릭
         feedAdapter.setOnItemClickListener(object : OnItemClickListener {
             override fun onCommentBtnClicked(
@@ -133,25 +141,20 @@ class HomeFragment : Fragment(){
                 dialog.show(parentFragmentManager, "feed")
             }
 
-            override fun onHeartClicked(feed: Feed, heartCount : TextView, heartButton : LottieAnimationView) {
-                var currentUserEmail = FirebaseAuth.getInstance().currentUser?.email.toString()
+            override fun onHeartClicked(feed: Feed, heartCount : TextView, heartButton : ImageButton) {
                 var map = feed.heartList?.toMutableMap()!!
                 var count = feed.heart
-                if(feed.heartList?.get(currentUserEmail) != null) {
+                if(map[currentUserEmail] != null) {
                     count--
                     updateHeart(feed, count,false)
                     map.remove(currentUserEmail)
-
-                    heartButton.apply {
-                        cancelAnimation()
-                        progress = 0f
-                    }
+                    heartButton.isSelected = false
                 } else {
                     count++
                     updateHeart(feed, count,true)
                     map[currentUserEmail] = currentUserEmail
 
-                    heartButton.playAnimation()
+                    heartButton.isSelected = true
                 }
 
                 feed.apply {
@@ -161,16 +164,58 @@ class HomeFragment : Fragment(){
                 heartCount.text = count.toString()
                 feedAdapter.notifyDataSetChanged()
             }
+
+            override fun onBookmarkClicked(feed: Feed, bookmarkButton: ImageButton) {
+                var map = feed.bookmarkList?.toMutableMap()!!
+                if(map[currentUserEmail] != null) { //북마크 중인 상태에서 클릭
+                    updateBookmark(feed, false)
+                    map.remove(currentUserEmail)
+                    bookmarkButton.isSelected = false
+                } else {
+                    updateBookmark(feed, true)
+                    map[currentUserEmail] = currentUserEmail
+                    bookmarkButton.isSelected = true
+                }
+                feed.bookmarkList = map
+                feedAdapter.notifyDataSetChanged()
+            }
+
+            override fun onFollowClicked(feed: Feed, follow_btn: ImageButton) {
+                var map = feed.followList?.toMutableMap()!!
+                if(map[currentUserEmail] != null) {//팔로우 중인 상태에서 클릭
+                    updateFollower(feed, false)
+                    map.remove(currentUserEmail)
+                    follow_btn.isSelected = false
+                } else {
+                    updateFollower(feed, true)
+                    map[currentUserEmail] = currentUserEmail
+                    follow_btn.isSelected = true
+                }
+                feed.followList = map
+                feedAdapter.notifyDataSetChanged()
+            }
         })
     }
 
-    fun updateHeart(feed: Feed, count : Long, flag : Boolean) {
-        feedListViewModel.updateStatus(
-            feed,
-            count,
-            FirebaseAuth.getInstance().currentUser?.email.toString(),
-            flag
-        )
+    fun updateHeart(feed: Feed, count : Long, flag : Boolean) { feedListViewModel.requestUpdateHeart(feed, count, currentUserEmail, flag) }
+
+    fun updateBookmark(feed: Feed, flag : Boolean) { feedListViewModel.requestUpdateBookmark(feed, currentUserEmail, flag) }
+
+    fun updateFollower(feed: Feed, flag : Boolean) { feedListViewModel.requestUpdateFollower(feed, currentUserEmail, flag)}
+
+    fun freshFeedList(){
+        binding.refreshLayout.setOnRefreshListener {
+            feedListViewModel.loadFeedList(object : LongTaskCallback<List<Feed>>{
+                override fun onResponse(result: Result<List<Feed>>) {
+                    if(result is Result.Success) {
+                        binding.refreshLayout.isRefreshing = false
+                        binding.feedRecyclerView.smoothScrollToPosition(0)
+                    } else if(result is Result.Error) {
+                        Log.e("error", "feed refresh error : ${result.exception}")
+                    }
+                }
+            })
+        }
     }
 
     override fun onResume() {
@@ -204,3 +249,4 @@ class HomeFragment : Fragment(){
         }
     }
 }
+

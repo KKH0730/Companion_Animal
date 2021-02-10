@@ -88,12 +88,11 @@ class FeedListAdapter(
                     )
                 }
             }
-
             binding.commentShow.setOnClickListener { mListener.onCommentShowClicked(binding.commentCount, feed) }
             binding.feedMenu.setOnClickListener { mListener.onMenuClicked(feed, adapterPosition) }
             binding.heartBtn.setOnClickListener { mListener.onHeartClicked(feed, binding.heartCount, binding.heartBtn) }
+            binding.bookmarkBtn.setOnClickListener { mListener.onBookmarkClicked(feed, binding.bookmarkBtn) }
+            binding.followBtn.setOnClickListener { mListener.onFollowClicked(feed, binding.followBtn) }
         }
-
-
     }
 }

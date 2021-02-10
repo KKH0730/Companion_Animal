@@ -93,4 +93,8 @@ dependencies {
 
     //lottie(https://github.com/airbnb/lottie-android)
     implementation 'com.airbnb.android:lottie:3.5.0'
+
+
+    //refresh layout
+    implementation 'com.github.KKH0730:RefreshLayout:1.0'
 }

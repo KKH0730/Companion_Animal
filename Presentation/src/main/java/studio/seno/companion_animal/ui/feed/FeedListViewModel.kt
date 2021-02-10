@@ -47,13 +47,19 @@ class FeedListViewModel() : ViewModel() {
     }
 
 
-    fun loadFeedList(){
+    fun loadFeedList(callback : LongTaskCallback<List<Feed>>?){
         repository.loadFeedList(object : LongTaskCallback<List<Feed>> {
             override fun onResponse(result: Result<List<Feed>>) {
                 if(result is Result.Success) {
                     var list = result.data
                     feedListLiveData.value = list
+
+                    if(callback != null) {
+                        callback.onResponse(result)
+                    }
                 }else if(result is Result.Error){
+                    if(callback!= null)
+                        callback.onResponse(Result.Error(result.exception))
                     Log.e("error", "load feed list error : ${result.exception}")
                 }
             }
@@ -66,7 +72,7 @@ class FeedListViewModel() : ViewModel() {
             override fun onResponse(result: Result<Boolean>) {
                 if(result is Result.Success) {
                     if(result.data) {
-                        loadFeedList()
+                        loadFeedList(null)
                         feedSaveStatus.value = true
                     } else {
                         Log.e("error", "requestDeleteFeed fail")
@@ -78,8 +84,16 @@ class FeedListViewModel() : ViewModel() {
         })
     }
 
-    fun updateStatus(feed: Feed, count: Long, updatedEmail : String, flag : Boolean){
-        repository.requestUpdateStatus(feed, count, updatedEmail, flag)
+    fun requestUpdateHeart(feed: Feed, count: Long, myEmail : String, flag : Boolean){
+        repository.requestUpdateHeart(feed, count, myEmail, flag)
+    }
+
+    fun requestUpdateBookmark(feed: Feed, myEmail : String, flag : Boolean) {
+        repository.requestUpdateBookmark(feed, myEmail, flag)
+    }
+
+    fun requestUpdateFollower(feed: Feed, myEmail : String, flag : Boolean) {
+        repository.requestUpdateFollower(feed, myEmail, flag)
     }
 
 }

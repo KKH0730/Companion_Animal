@@ -56,6 +56,18 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:srcCompat="@drawable/menu" />
 
+            <ImageButton
+                setBookmarkButton="@{model.feedLiveData.component13()}"
+                android:id="@+id/bookmark_btn"
+                android:layout_width="40dp"
+                android:layout_height="25dp"
+                android:layout_marginEnd="10dp"
+                android:background="@color/main_color"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/feed_menu"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/bookmark_btn" />
+
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.viewpager2.widget.ViewPager2
@@ -126,20 +138,6 @@
             app:layout_constraintTop_toBottomOf="@+id/constraintLayout5">
 
 
-            <com.airbnb.lottie.LottieAnimationView
-                setHeartButton="@{model.feedLiveData.component12()}"
-                android:id="@+id/heart_btn"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:paddingTop="8dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:lottie_autoPlay="false"
-                app:lottie_fileName="heart.json"
-                app:lottie_loop="true"
-                app:lottie_speed="3.5"/>
-
             <TextView
                 android:id="@+id/heart_count"
                 setHeart="@{model.feedLiveData.component7()}"
@@ -149,23 +147,24 @@
                 android:padding="3dp"
                 android:textColor="@color/black"
                 android:textSize="14sp"
-                app:layout_constraintBottom_toBottomOf="@+id/heart_btn"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/heart_btn"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <ImageButton
                 android:id="@+id/comment_show"
-                android:layout_width="35dp"
-                android:layout_height="35dp"
-                android:layout_marginStart="20dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:background="@color/white"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/heart_count"
                 app:layout_constraintTop_toTopOf="parent"
                 app:srcCompat="@drawable/comment2" />
 
             <TextView
-                setComment="@{model.feedLiveData.component8()}"
                 android:id="@+id/comment_count"
+                setComment="@{model.feedLiveData.component8()}"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="5dp"
@@ -175,6 +174,32 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/comment_show"
                 app:layout_constraintTop_toTopOf="parent" />
+
+            <ImageButton
+                android:id="@+id/heart_btn"
+                setHeartButton="@{model.feedLiveData.component12()}"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+
+                android:background="@color/white"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/heart_btn" />
+
+            <ImageButton
+                setFollowButton="@{model.feedLiveData.component14()}"
+                android:id="@+id/follow_btn"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginEnd="10dp"
+                android:background="@color/white"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/follow_btn" />
+
         </androidx.constraintlayout.widget.ConstraintLayout>
 
 

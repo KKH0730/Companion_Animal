@@ -266,10 +266,12 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
             binding.modeLayout.visibility = View.VISIBLE
             modifyMode = true
             setHint(3)
+            CommonFunction.showKeyboard(this)
         } else if (InfoManager.getString(applicationContext, "mode") == "comment_answer_modify") {
             binding.modeLayout.visibility = View.VISIBLE
             modifyMode = true
             setHint(2)
+            CommonFunction.showKeyboard(this)
         } else if (InfoManager.getString(applicationContext, "mode") == "comment_delete") {
             deleteComment()
         } else {
