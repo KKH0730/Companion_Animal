@@ -1,6 +1,7 @@
 package studio.seno.companion_animal.ui.feed
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import studio.seno.datamodule.Repository
@@ -37,6 +38,9 @@ class FeedListViewModel() : ViewModel() {
             override fun onResponse(result: Result<Boolean>) {
                 if (result is Result.Success) {
                     feedSaveStatus.value = result.data
+                } else if(result is Result.Error) {
+                    feedSaveStatus.value = false
+                    Log.e("error", "upload feed error : ${result.exception}")
                 }
             }
         })
@@ -49,22 +53,32 @@ class FeedListViewModel() : ViewModel() {
                 if(result is Result.Success) {
                     var list = result.data
                     feedListLiveData.value = list
+                }else if(result is Result.Error){
+                    Log.e("error", "load feed list error : ${result.exception}")
                 }
-            }
-        })
-    }
-
-    fun requestUploadComment(targetEmail : String, targetTimestamp : Long, type : Long, email : String, nickname : String, content : String, timestamp: Long){
-        var comment = mapper.mapperToComment(type, email, nickname, content, null, timestamp)
-        repository.uploadComment(targetEmail, targetTimestamp, comment, object : LongTaskCallback<Boolean>{
-            override fun onResponse(result: Result<Boolean>) {
-
             }
         })
     }
 
     fun requestUploadCommentCount(targetEmail : String, targetTimestamp: Long, commentCount : Long, flag : Boolean) {
         repository.uploadCommentCount(targetEmail, targetTimestamp, commentCount, flag)
+    }
+
+    fun requestDeleteFeed(feed: Feed){
+        repository.deleteFeed(feed, object : LongTaskCallback<Boolean>{
+            override fun onResponse(result: Result<Boolean>) {
+                if(result is Result.Success) {
+                    if(result.data) {
+                        loadFeedList()
+                        feedSaveStatus.value = true
+                    } else {
+                        Log.e("error", "requestDeleteFeed fail")
+                    }
+                } else if(result is Result.Error) {
+                    Log.e("error", "requestDeleteFeed : ${result.exception}")
+                }
+            }
+        })
     }
 
 }

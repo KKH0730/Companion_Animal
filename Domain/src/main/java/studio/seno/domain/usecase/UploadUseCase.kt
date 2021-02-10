@@ -21,21 +21,23 @@ class UploadUseCase {
             storageRef.child(profileUri).putFile(imageUri)
                 .addOnCompleteListener{
                     callback.onResponse(Result.Success(true))
-                }.addOnCompleteListener{
-                    callback.onResponse(Result.Success(false))
+                }.addOnFailureListener{
+                    callback.onResponse(Result.Error(it))
                 }
     }
 
     fun uploadRemoteFeedImage(feed : Feed, storageRef: StorageReference, path : String, callback: LongTaskCallback<Boolean>){
-        var size = feed.localUri!!.size
-        for (i in 0 until feed.localUri.size) {
-            storageRef.child(path + i).putFile(Uri.parse(feed.localUri[i]))
-                .addOnCompleteListener {
-                    if(i == feed.localUri.size - 1){
-                        callback.onResponse(Result.Success(true))
+        if(feed.localUri != null){
+            for (i in 0 until feed.localUri.size) {
+                storageRef.child(path + i).putFile(Uri.parse(feed.localUri[i]))
+                    .addOnCompleteListener {
+                        if(i == feed.localUri.size - 1){
+                            callback.onResponse(Result.Success(true))
+                        }
                     }
-                }
+            }
         }
+
     }
 
 

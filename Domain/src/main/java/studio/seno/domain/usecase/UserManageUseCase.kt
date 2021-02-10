@@ -36,7 +36,7 @@ class UserManageUseCase {
                 }
 
             }.addOnFailureListener{
-                Log.d("hi","eeror : " + it.message)
+                callback.onResponse(Result.Error(it))
             }
     }
 
@@ -50,6 +50,8 @@ class UserManageUseCase {
                 } else {
                     callback.onResponse(Result.Success(true))
                 }
+            }.addOnFailureListener {
+                callback.onResponse(Result.Error(it))
             }
     }
 

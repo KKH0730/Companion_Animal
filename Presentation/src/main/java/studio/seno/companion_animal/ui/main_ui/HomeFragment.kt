@@ -1,32 +1,32 @@
 package studio.seno.companion_animal.ui.main_ui
 
+import android.app.Activity
+import android.content.Context
+import android.content.DialogInterface
 import android.os.Bundle
-import android.text.SpannableStringBuilder
-import android.text.TextUtils
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
-import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
 import com.google.firebase.auth.FirebaseAuth
 import org.jetbrains.anko.support.v4.startActivity
-import studio.seno.companion_animal.OnItemClickListener
+import studio.seno.commonmodule.CustomToast
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.FragmentHomeBinding
 import studio.seno.companion_animal.module.CommonFunction
+import studio.seno.companion_animal.ui.MenuDialog
 import studio.seno.companion_animal.ui.comment.CommentActivity
-import studio.seno.companion_animal.ui.feed.FeedListAdapter
-import studio.seno.companion_animal.ui.feed.FeedListViewModel
-import studio.seno.companion_animal.ui.feed.FeedViewModel
+import studio.seno.companion_animal.ui.comment.CommentListViewModel
+import studio.seno.companion_animal.ui.feed.*
 import studio.seno.companion_animal.util.Constants
-import studio.seno.companion_animal.util.TextUtils.setTextColorBold
 import studio.seno.domain.database.InfoManager
+import studio.seno.domain.model.Comment
 import studio.seno.domain.model.Feed
 import java.sql.Timestamp
 
@@ -34,9 +34,11 @@ import java.sql.Timestamp
  * HomeFragment는 FeedViewListModel과 연결.
  * FeedViewModel는 FeedListAdapter와 연결.
  */
-class HomeFragment : Fragment() {
+class HomeFragment : Fragment(){
     private lateinit var binding: FragmentHomeBinding
     private val viewModel: FeedListViewModel by viewModels()
+    private val commentViewModel : CommentListViewModel by viewModels()
+    private var currentFeed : Feed? = null
     private val feedAdapter: FeedListAdapter by lazy {
         FeedListAdapter(
             parentFragmentManager,
@@ -55,14 +57,14 @@ class HomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         binding.lifecycleOwner = this
         binding.model = viewModel
         binding.feedRecyclerView.adapter = feedAdapter
 
-
         itemEvent()
     }
+
+
 
 
     private fun observe() {
@@ -84,7 +86,7 @@ class HomeFragment : Fragment() {
                 model.setFeedCommentLiveData(commentEdit.text.toString())
 
                 //댓글을 서버에 업로드
-                viewModel.requestUploadComment(
+                commentViewModel.requestUploadComment(
                     feed.email!!,
                     feed.timestamp,
                     Constants.PARENT,
@@ -101,11 +103,10 @@ class HomeFragment : Fragment() {
                 viewModel.requestUploadCommentCount(feed.email!!, feed.timestamp, commentCount.text.toString().toLong(), true)
 
                 //댓글수 업데이트
-                commentCount.text.apply {
+                commentCount.apply {
                     var curCommentCount = Integer.valueOf(commentCount.text.toString())
-                    (curCommentCount + 1).toString()
+                    text = (curCommentCount + 1).toString()
                 }
-
 
                 commentEdit.setText("")
                 commentEdit.hint = requireContext().getString(R.string.comment_hint)
@@ -118,6 +119,14 @@ class HomeFragment : Fragment() {
                     "email" to feed.email,
                     "timestamp" to feed.timestamp
                 )
+            }
+
+            override fun OnMenuClicked(feed: Feed, position: Int) {
+                currentFeed = feed
+
+
+                val dialog = MenuDialog.newInstance(feed.email!!)
+                dialog.show(parentFragmentManager, "feed")
             }
         })
     }
@@ -138,4 +147,21 @@ class HomeFragment : Fragment() {
                 }
             }
     }
+
+    fun onDismissed(type: String) {
+        if(currentFeed != null) {
+            if(type == "feed_modify") {
+                startActivity<MakeFeedActivity>(
+                    "feed" to currentFeed,
+                    "mode" to "modify"
+                )
+            } else if(type == "feed_delete") {
+                startActivity<MakeFeedActivity>(
+                    "feed" to currentFeed,
+                    "mode" to "delete"
+                )
+            }
+        }
+    }
+
 }

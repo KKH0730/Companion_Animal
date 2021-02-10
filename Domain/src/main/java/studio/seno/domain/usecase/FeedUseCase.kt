@@ -19,12 +19,11 @@ class FeedUseCase {
     private val userMangerUseCase = UserManageUseCase()
 
     fun uploadFeed(
-        context: Context,
-        feed: Feed, auth: FirebaseAuth, mDB: FirebaseFirestore,
+        context: Context, feed: Feed, mDB: FirebaseFirestore,
         storageRef: StorageReference, callback: LongTaskCallback<Boolean>
     ) {
-        var remoteProfilePath = auth.currentUser?.email + "/profile/profileImage"
-        var remoteImagePath = auth.currentUser?.email + "/feed/" + feed.timestamp + "/"
+        var remoteProfilePath = feed.email + "/profile/profileImage"
+        var remoteImagePath = feed.email + "/feed/" + feed.timestamp + "/"
 
         //Feed 이미지 업로드
         UploadUseCase().uploadRemoteFeedImage(
@@ -74,25 +73,21 @@ class FeedUseCase {
                                                                 "feedCount"
                                                             ) + 1L
                                                         )
-                                                    }.addOnFailureListener {
-                                                        Log.e("db", "feed_save_error ${it.message}")
-                                                    }
+                                                    }.addOnFailureListener { callback.onResponse(Result.Error(it)) }
                                             }
                                         })
 
-                                }
-                        }
+                                }.addOnFailureListener { callback.onResponse(Result.Error(it)) }
+                        }.addOnFailureListener { callback.onResponse(Result.Error(it)) }
                 }
             })
         var list = mutableListOf("feedCount")
-        userMangerUseCase.updateRemoteUserInfo(auth.currentUser?.email.toString(), mDB, list)
+        userMangerUseCase.updateRemoteUserInfo(feed.email!!, mDB, list)
 
     }
 
     fun loadFeedList(
-        auth: FirebaseAuth,
         db: FirebaseFirestore,
-        storageRef: StorageReference,
         callback: LongTaskCallback<List<Feed>>
     ) {
         db.collection("feed")
@@ -125,7 +120,36 @@ class FeedUseCase {
                     }
                 }
             }.addOnFailureListener {
-                Log.d("hi", "error : ${it.message}")
+                callback.onResponse(Result.Error(it))
             }
     }
+
+
+    fun deleteFeed(feed: Feed, db : FirebaseFirestore,
+                   storageRef: StorageReference, callback : LongTaskCallback<Boolean>){
+        var remoteImagePath = feed.email + "/feed/" + feed.timestamp + "/"
+
+        db.collection("feed")
+            .document(feed.email + feed.timestamp)
+            .delete()
+            .addOnCompleteListener {
+                if(it.isSuccessful) {
+                    callback.onResponse(Result.Success(true))
+                } else{
+                    callback.onResponse(Result.Success(false))
+                }
+            }.addOnFailureListener {
+                callback.onResponse(Result.Error(it))
+            }
+
+        storageRef.child(remoteImagePath).listAll().addOnCompleteListener{
+            if(it.result != null) {
+                for(element in it.result!!.items) {
+                    element.delete()
+                }
+            }
+
+        }
+    }
+
 }

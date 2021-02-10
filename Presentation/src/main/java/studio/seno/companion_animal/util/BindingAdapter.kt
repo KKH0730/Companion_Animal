@@ -165,7 +165,6 @@ object BindingAdapter {
 
         liveData.observe(lifecycle, Observer {
             layout.removeAllViews()
-            Log.d("hi", "str : $it")
 
             SpannableStringBuilder(nickname).apply {
                 TextUtils.setTextColorBold(

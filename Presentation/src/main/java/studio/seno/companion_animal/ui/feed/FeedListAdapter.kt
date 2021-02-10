@@ -1,12 +1,8 @@
 package studio.seno.companion_animal.ui.feed
 
-import android.content.Context
-import android.net.Uri
-import android.util.Log
+import android.content.DialogInterface
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.widget.ImageButton
-import android.widget.TextView
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
@@ -14,12 +10,8 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.engine.DiskCacheStrategy
-import studio.seno.companion_animal.OnItemClickListener
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.FeedItemBinding
-import studio.seno.companion_animal.ui.main_ui.PagerAdapter
 import studio.seno.domain.model.Feed
 
 class FeedListAdapter(
@@ -74,7 +66,7 @@ class FeedListAdapter(
     }
 
     private class FeedViewHolder(feedBinding: FeedItemBinding, listener: OnItemClickListener) :
-        RecyclerView.ViewHolder(feedBinding.root) {
+        RecyclerView.ViewHolder(feedBinding.root), DialogInterface.OnDismissListener {
         private var binding: FeedItemBinding = feedBinding
         private var mListener = listener
 
@@ -96,10 +88,13 @@ class FeedListAdapter(
                 }
             }
 
-            binding.commentShow.setOnClickListener {
-                mListener.onCommentShowClicked(binding.commentCount, feed)
-            }
+            binding.commentShow.setOnClickListener { mListener.onCommentShowClicked(binding.commentCount, feed) }
 
+            binding.feedMenu.setOnClickListener { mListener.OnMenuClicked(feed, adapterPosition) }
+        }
+
+        override fun onDismiss(dialog: DialogInterface?) {
+            TODO("Not yet implemented")
         }
 
     }

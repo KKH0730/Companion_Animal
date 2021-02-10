@@ -69,7 +69,13 @@ class UserViewModel() : ViewModel() {
     fun requestUpload(email : String, imageUri : Uri){
         repository.uploadInItProfileImage(email, imageUri, object : LongTaskCallback<Boolean>{
             override fun onResponse(result: Result<Boolean>) {
-                uploadLiveData.value = result is Result.Success
+                if(result is Result.Success) {
+                    uploadLiveData.value = true
+                } else if(result is Result.Error) {
+                    uploadLiveData.value = false
+                    Log.e("error", "uploadInItProfileImage : ${result.exception}")
+                }
+
             }
         })
     }
@@ -89,6 +95,8 @@ class UserViewModel() : ViewModel() {
                     } else {
                         overLapLiveData.value = false
                     }
+                } else if(result is Result.Error){
+                    Log.e("error", "checkOverlapEmail : ${result.exception}")
                 }
             }
         })

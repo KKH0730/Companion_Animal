@@ -51,11 +51,17 @@ class Repository() {
 
     //피드 작성후 서버에 업로드
     fun uploadFeed(context: Context, feed: Feed, callback: LongTaskCallback<Boolean>) {
-        feedUseCase.uploadFeed(context, feed, mAuth, mDB, mStorageRef, callback)
+        feedUseCase.uploadFeed(context, feed, mDB, mStorageRef, callback)
     }
 
+    //피드 리스트 로드
     fun loadFeedList(callback: LongTaskCallback<List<Feed>>) {
-        feedUseCase.loadFeedList(mAuth, mDB, mStorageRef, callback)
+        feedUseCase.loadFeedList( mDB, callback)
+    }
+
+    //피드 삭제
+    fun deleteFeed(feed: Feed, callback : LongTaskCallback<Boolean>){
+        feedUseCase.deleteFeed(feed, mDB, mStorageRef, callback)
     }
 
     //피드 리스트에서 댓글 작성후 업로드

@@ -1,28 +1,31 @@
 package studio.seno.companion_animal
 
+import android.content.DialogInterface
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.viewModels
 import androidx.databinding.DataBindingUtil
 import com.google.firebase.auth.FirebaseAuth
 import me.ibrahimsn.lib.OnItemSelectedListener
 import studio.seno.companion_animal.databinding.ActivityMainBinding
+import studio.seno.companion_animal.ui.feed.FeedListViewModel
 import studio.seno.companion_animal.ui.main_ui.*
 import studio.seno.domain.database.InfoManager
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity() , DialogInterface.OnDismissListener{
     private lateinit var binding: ActivityMainBinding
     private val mainViewModel : MainViewModel by viewModels()
+    private lateinit var homeFragment: HomeFragment
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
+        homeFragment = HomeFragment.newInstance()
         loadUserInfo()
 
         navigateView()
-        supportFragmentManager.beginTransaction().replace(R.id.container, HomeFragment.newInstance()).commit()
-
+        supportFragmentManager.beginTransaction().replace(R.id.container, homeFragment).commit()
     }
 
     private fun loadUserInfo(){
@@ -38,7 +41,7 @@ class MainActivity : AppCompatActivity() {
         binding.bottomBar.onItemSelectedListener = object : OnItemSelectedListener {
             override fun onItemSelect(pos: Int): Boolean {
                 when(pos) {
-                    0 -> supportFragmentManager.beginTransaction().replace(R.id.container, HomeFragment.newInstance()).commit()
+                    0 -> supportFragmentManager.beginTransaction().replace(R.id.container, homeFragment).commit()
                     1 -> supportFragmentManager.beginTransaction().replace(R.id.container, SearchFragment.newInstance()).commit()
                     2 -> supportFragmentManager.beginTransaction().replace(R.id.container, NotificationFragment.newInstance()).commit()
                     3 -> supportFragmentManager.beginTransaction().replace(R.id.container, ChatFragment.newInstance()).commit()
@@ -49,5 +52,11 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-
+    override fun onDismiss(dialog: DialogInterface?) {
+        if (InfoManager.getString(applicationContext, "mode") == "feed_modify") {
+            homeFragment.onDismissed("feed_modify")
+        } else if (InfoManager.getString(applicationContext, "mode") == "feed_delete") {
+            homeFragment.onDismissed("feed_delete")
+        }
+    }
 }

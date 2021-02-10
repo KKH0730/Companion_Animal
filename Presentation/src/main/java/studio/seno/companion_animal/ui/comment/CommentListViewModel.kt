@@ -8,7 +8,6 @@ import studio.seno.datamodule.mapper.Mapper
 import studio.seno.domain.LongTaskCallback
 import studio.seno.domain.Result
 import studio.seno.domain.model.Comment
-import studio.seno.domain.model.Feed
 import java.util.*
 
 class CommentListViewModel : ViewModel() {
@@ -35,6 +34,8 @@ class CommentListViewModel : ViewModel() {
                         Collections.sort(commentList)
                         commentListLiveData.value = null
                         commentListLiveData.value = commentList
+                    } else if(result is Result.Error) {
+                        Log.e("error", "comment load error : ${result.exception}")
                     }
                 }
             })
@@ -59,8 +60,8 @@ class CommentListViewModel : ViewModel() {
                     if (result is Result.Success) {
                         //댓글 업로드 후, 댓글 로드하여 라이브 데이터 갱신
                         requestLoadComment(targetEmail, targetTimestamp)
-                    } else {
-                        Log.e("error", "comment upload error")
+                    } else if(result is Result.Error){
+                        Log.e("error", "comment upload error : ${result.exception}")
                     }
                 }
             })
@@ -83,8 +84,8 @@ class CommentListViewModel : ViewModel() {
             override fun onResponse(result: Result<Boolean>) {
                 if(result is Result.Success) {
                     requestLoadComment(feedEmail, feedTimestamp)
-                }else {
-                    Log.e("error", "comment upload error")
+                }else if(result is Result.Error){
+                    Log.e("error", "comment upload error : ${result.exception}")
                 }
             }
         })
@@ -104,7 +105,12 @@ class CommentListViewModel : ViewModel() {
         repository.deleteComment(feedEmail, feedTimestamp, parentComment, childComment, type,
         object : LongTaskCallback<Boolean>{
             override fun onResponse(result: Result<Boolean>) {
-                requestLoadComment(feedEmail, feedTimestamp)
+                if(result is Result.Success) {
+                    requestLoadComment(feedEmail, feedTimestamp)
+                } else if(result is Result.Error){
+                    Log.e("error", "delete Comment : ${result.exception}")
+                }
+
             }
         })
     }

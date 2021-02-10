@@ -1,7 +1,9 @@
 package studio.seno.companion_animal.ui.feed
 
+import android.content.DialogInterface
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.ImageButton
 import android.widget.RadioGroup
@@ -20,14 +22,16 @@ import studio.seno.companion_animal.module.CommonFunction
 import studio.seno.companion_animal.util.ItemTouchHelperCallback
 import studio.seno.companion_animal.util.OnItemDeleteListener
 import studio.seno.domain.database.InfoManager
+import studio.seno.domain.model.Feed
 import java.sql.Timestamp
 
 class MakeFeedActivity : AppCompatActivity(), View.OnClickListener,
-    BottomSheetImagePicker.OnImagesSelectedListener,
-    RadioGroup.OnCheckedChangeListener {
+    BottomSheetImagePicker.OnImagesSelectedListener, RadioGroup.OnCheckedChangeListener {
     private lateinit var binding: ActivityMakeFeedBinding
     private lateinit var selectedImageAdapter: SelectedImageAdapter
     private val viewModel: FeedListViewModel by viewModels()
+    private var feed : Feed? = null
+    private var mode = "write"
 
 
     private var currentChecked: String? = null
@@ -36,8 +40,13 @@ class MakeFeedActivity : AppCompatActivity(), View.OnClickListener,
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_make_feed)
-        initView()
+        init()
         setImageRecycler()
+
+        if(feed != null) {
+            setModifyInfo()
+        }
+
 
         selectedImageAdapter.setOnDeleteItemListener(object : OnItemDeleteListener {
             override fun onDeleted(position: Int) {
@@ -47,13 +56,7 @@ class MakeFeedActivity : AppCompatActivity(), View.OnClickListener,
         })
     }
 
-    fun setImageRecycler() {
-        binding.imageRecyclerView.adapter = selectedImageAdapter
-        val itemHelper = ItemTouchHelper(ItemTouchHelperCallback(selectedImageAdapter))
-        itemHelper.attachToRecyclerView(binding.imageRecyclerView)
-    }
-
-    private fun initView() {
+    private fun init() {
         selectedImageAdapter = SelectedImageAdapter(applicationContext)
         binding.cameraBtn.setOnClickListener(this)
         binding.header.findViewById<ImageButton>(R.id.back_btn).setOnClickListener(this)
@@ -61,16 +64,64 @@ class MakeFeedActivity : AppCompatActivity(), View.OnClickListener,
         binding.hashTagBtn.setOnClickListener(this)
         binding.submitBtn.setOnClickListener(this)
 
+        feed = intent.getParcelableExtra<Feed>("feed")
+        mode = intent.getStringExtra("mode")
+    }
+
+    fun setImageRecycler() {
+        binding.imageRecyclerView.adapter = selectedImageAdapter
+        val itemHelper = ItemTouchHelper(ItemTouchHelperCallback(selectedImageAdapter))
+        itemHelper.attachToRecyclerView(binding.imageRecyclerView)
+    }
+
+    fun setModifyInfo(){
+        // 이미지 업로드
+        for(element in feed!!.remoteUri!!) {
+            selectedImageAdapter.addItem(element)
+        }
+        selectedImageAdapter.notifyDataSetChanged()
+
+        //반려동물 종류
+        when(feed!!.sort) {
+            "dog" -> {
+                binding.dog.isChecked = true
+                currentChecked = "dog"
+            }
+            "cat" -> {
+                binding.cat.isChecked = true
+                currentChecked = "cat"
+            }
+            else -> {
+                binding.etc.isChecked = true
+                binding.etcContent.setText(feed!!.sort)
+                currentChecked = feed!!.sort
+            }
+        }
+        //해시태그
+        hashTags = feed!!.hashTags!!.toMutableList()
+        for(element in feed!!.hashTags!!) {
+            makeHashTag(element)
+        }
+
+        //내용
+        binding.content.setText(feed!!.content)
+
+        if(mode == "modify") {
+            binding.submitBtn.text = getString(R.string.modify)
+        } else if(mode == "delete") {
+            binding.submitBtn.text = getString(R.string.delete)
+        }
+
     }
 
 
     override fun onImagesSelected(uris: List<Uri>, tag: String?) {
-        for (uri in 0..(uris.size - 1)) {
+        for (element in uris) {
             if (selectedImageAdapter.getItems().size == 10) {
                 CustomToast(applicationContext, getString(R.string.ShowAnimal_toast2)).show()
                 break
             }
-            selectedImageAdapter.addItem(uris[uri].toString())
+            selectedImageAdapter.addItem(element.toString())
             selectedImageAdapter.notifyDataSetChanged()
         }
     }
@@ -95,22 +146,12 @@ class MakeFeedActivity : AppCompatActivity(), View.OnClickListener,
                 return
             }
 
-            val chipView = ChipView(this)
-            chipView.label = binding.hashTagContent.text.toString().trim()
-            chipView.setDeletable(true)
-            chipView.setPadding(30, 0, 0, 0)
-            chipView.setChipBackgroundColor(getColor(R.color.main_color))
-            chipView.setLabelColor(getColor(R.color.white))
-            binding.hashTagContainer.addView(chipView)
-            hashTags.add(chipView.label)
+            makeHashTag(binding.hashTagContent.text.toString().trim())
             binding.hashTagContent.setText("")
             binding.hashTagContent.hint = getString(R.string.ShowAnimal_hint1)
             CommonFunction.closeKeyboard(applicationContext, binding.hashTagContent)
 
-            chipView.setOnDeleteClicked {
-                binding.hashTagContainer.removeView(chipView)
-                hashTags.remove(chipView.label)
-            }
+
         } else if (v?.id == R.id.submit_btn) {
             if (currentChecked == null) {
                 CustomToast(applicationContext, getString(R.string.ShowAnimal_toast3)).show()
@@ -126,27 +167,54 @@ class MakeFeedActivity : AppCompatActivity(), View.OnClickListener,
             if(currentChecked == "etc")
                 currentChecked = binding.etcContent.text.toString()
 
-            InfoManager.getString(this, "nickName")?.let {
-                viewModel.requestUploadFeed(
-                    this,
-                    0,
-                    FirebaseAuth.getInstance().currentUser?.email.toString(),
-                    it,
-                    currentChecked!!,
-                    hashTags,
-                    selectedImageAdapter.getItems(),
-                    binding.content.text.toString(),
-                    Timestamp(System.currentTimeMillis()).time
-                )
+            if(feed == null && mode != "write") {
+                submitResult(Timestamp(System.currentTimeMillis()).time)
+            } else if(feed != null && mode != "write") {
+                if(mode == "modify")
+                    submitResult(feed!!.timestamp)
+                else
+                    viewModel.requestDeleteFeed(feed!!)
             }
+
 
             viewModel.getFeedListSaveStatus().observe(this, {
                 if(it) {
                     finish()
-                } else
-                    CustomToast(this, getString(R.string.upload_fail)).show()
+                }
             })
 
+        }
+    }
+
+    fun submitResult(timestamp: Long){
+        InfoManager.getString(this, "nickName")?.let {
+            viewModel.requestUploadFeed(
+                this,
+                0,
+                FirebaseAuth.getInstance().currentUser?.email.toString(),
+                it,
+                currentChecked!!,
+                hashTags,
+                selectedImageAdapter.getItems(),
+                binding.content.text.toString(),
+                timestamp
+            )
+        }
+    }
+
+    fun makeHashTag(str : String){
+        val chipView = ChipView(this)
+        chipView.label = str
+        chipView.setDeletable(true)
+        chipView.setPadding(30, 0, 0, 0)
+        chipView.setChipBackgroundColor(getColor(R.color.main_color))
+        chipView.setLabelColor(getColor(R.color.white))
+        binding.hashTagContainer.addView(chipView)
+        hashTags.add(chipView.label)
+
+        chipView.setOnDeleteClicked {
+            binding.hashTagContainer.removeView(chipView)
+            hashTags.remove(chipView.label)
         }
     }
 
@@ -159,7 +227,6 @@ class MakeFeedActivity : AppCompatActivity(), View.OnClickListener,
             currentChecked = "etc"
         }
     }
-
 
 }
 

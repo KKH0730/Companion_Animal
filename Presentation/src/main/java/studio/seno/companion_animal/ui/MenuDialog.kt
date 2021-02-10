@@ -41,6 +41,8 @@ class MenuDialog : BottomSheetDialogFragment(), View.OnClickListener {
             email = it.getString("email")
         }
         setStyle(STYLE_NORMAL, R.style.CustomBottomSheetStyle)
+        isCancelable = true
+        InfoManager.setString(requireContext(), "mode", "initial_mode")
     }
 
     override fun onCreateView(
@@ -97,17 +99,17 @@ class MenuDialog : BottomSheetDialogFragment(), View.OnClickListener {
                 InfoManager.setString(requireContext(), "mode", "feed_modify")
             dismiss()
         } else if(v?.id == R.id.delete_btn) {
-            if(tag == "comment")
+            if(tag == "comment" || tag == "comment_answer")
                 InfoManager.setString(requireContext(), "mode", "comment_delete")
-            else if(tag == "comment_answer")
-                InfoManager.setString(requireContext(), "mode", "comment_delete")
-            else if(tag == "feed")
+          else if(tag == "feed")
                 InfoManager.setString(requireContext(), "mode", "feed_delete")
             dismiss()
         } else {
 
         }
     }
+
+
 
     override fun onDismiss(dialog: DialogInterface) {
         super.onDismiss(dialog)

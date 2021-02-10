@@ -1,5 +1,6 @@
 package studio.seno.domain.usecase
 
+import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
@@ -24,18 +25,18 @@ class CommentUseCase {
         callback: LongTaskCallback<Boolean>
     ) {
         var remoteProfilePath = auth.currentUser?.email + "/profile/profileImage"
-        storageRef.child(remoteProfilePath).downloadUrl.addOnSuccessListener {
-            comment.profileUri = it.toString()
+        storageRef.child(remoteProfilePath).downloadUrl.addOnSuccessListener {it1 ->
+            comment.profileUri = it1.toString()
 
             db.collection("feed")
                 .document(targetEmail + targetTimestamp)
                 .collection("comment")
                 .document(comment.email + comment.timestamp)
                 .set(comment)
-                .addOnCompleteListener {
+                .addOnCompleteListener {it2 ->
                     callback.onResponse(Result.Success(true))
-                }.addOnFailureListener {
-                    callback.onResponse(Result.Error(it))
+                }.addOnFailureListener {it3 ->
+                    callback.onResponse(Result.Error(it3))
                 }
         }
     }
@@ -138,43 +139,52 @@ class CommentUseCase {
     ) {
         var totalList = mutableListOf<Comment>()
         var size = commentList.size
-        for (i in 0 until size) {
-            var loadComment = commentList[i]
 
-            db.collection("feed")
-                .document(email + timestamp)
-                .collection("comment")
-                .document(loadComment.email + loadComment.timestamp)
-                .collection("comment_answer")
-                .orderBy("timestamp", Query.Direction.DESCENDING)
-                .get()
-                .addOnCompleteListener {
+        if(size == 0) {
+            var result = Result.Success(totalList.toList())
+            callback.onResponse(result)
+        } else {
+            for (i in 0 until size) {
+                var loadComment = commentList[i]
 
-                    var tempList = mutableListOf<Comment>()
-                    if (it.result != null) {
-                        for (i in 0 until it.result!!.size()) {
-                            var document: DocumentSnapshot = it.result!!.documents[i]
-                            var commentAnswerItem = Comment(
-                                document.getLong("type")!!,
-                                document.getString("email")!!,
-                                document.getString("nickname")!!,
-                                document.getString("content")!!,
-                                document.getString("profileUri"),
-                                document.getLong("timestamp")!!
-                            )
-                            tempList.add(commentAnswerItem)
+                db.collection("feed")
+                    .document(email + timestamp)
+                    .collection("comment")
+                    .document(loadComment.email + loadComment.timestamp)
+                    .collection("comment_answer")
+                    .orderBy("timestamp", Query.Direction.DESCENDING)
+                    .get()
+                    .addOnCompleteListener {
+                        var tempList = mutableListOf<Comment>()
+                        if (it.result != null) {
+                            for (i in 0 until it.result!!.size()) {
+                                var document: DocumentSnapshot = it.result!!.documents[i]
+                                var commentAnswerItem = Comment(
+                                    document.getLong("type")!!,
+                                    document.getString("email")!!,
+                                    document.getString("nickname")!!,
+                                    document.getString("content")!!,
+                                    document.getString("profileUri"),
+                                    document.getLong("timestamp")!!
+                                )
+                                tempList.add(commentAnswerItem)
+                            }
+                            loadComment.setChildren(tempList.toList())
+                            totalList.add(loadComment)
                         }
-                        loadComment.setChildren(tempList.toList())
-                        totalList.add(loadComment)
-                    }
 
-                    if (totalList.size == size) {
-                        Collections.sort(totalList)
-                        var result = Result.Success(totalList.toList())
-                        callback.onResponse(result)
+                        if (totalList.size == size) {
+                            Collections.sort(totalList)
+                            var result = Result.Success(totalList.toList())
+                            callback.onResponse(result)
+                        }
+                    }.addOnFailureListener{
+                        callback.onResponse(Result.Error(it))
                     }
-                }
+            }
         }
+
+
     }
 
     fun deleteComment(
@@ -187,7 +197,6 @@ class CommentUseCase {
         callback: LongTaskCallback<Boolean>
     ) {
         if (type == "parent") {
-            /*
             db.collection("feed")
                 .document(feedEmail + feedTimestamp)
                 .collection("comment")
@@ -202,7 +211,6 @@ class CommentUseCase {
                             element.reference.delete()
                 }
 
-             */
 
             db.collection("feed")
                 .document(feedEmail + feedTimestamp)

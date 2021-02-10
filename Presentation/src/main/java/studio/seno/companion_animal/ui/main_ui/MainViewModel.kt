@@ -1,5 +1,6 @@
 package studio.seno.companion_animal.ui.main_ui
 
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import studio.seno.datamodule.Repository
@@ -20,6 +21,9 @@ class MainViewModel : ViewModel() {
             override fun onResponse(result: Result<User>) {
                 if(result is Result.Success)
                     userLiveData.value = result.data
+                else if(result is Result.Error) {
+                    Log.e("error", "request user data : ${result.exception}")
+                }
             }
         })
     }
