@@ -1,7 +1,6 @@
 package studio.seno.domain.usecase
 
 import android.content.Context
-import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
@@ -14,6 +13,7 @@ import studio.seno.domain.database.InfoManager
 import studio.seno.domain.model.Comment
 import studio.seno.domain.model.Feed
 import java.util.*
+import kotlin.collections.HashMap
 
 class FeedUseCase {
     private val userMangerUseCase = UserManageUseCase()
@@ -111,7 +111,9 @@ class FeedUseCase {
                                 list[i].getLong("comment")!!,
                                 list[i].getLong("timestamp")!!,
                                 list[i].getString("remoteProfileUri")!!,
-                                list[i].data?.get("remoteUri") as MutableList<String>
+                                list[i].data?.get("remoteUri") as MutableList<String>,
+                                list[i].data?.get("heartList") as Map<String, String>,
+                                list[i].data?.get("bookmarkList") as  Map<String, String>
                             )
                             feedList.add(feed)
                         }
@@ -149,6 +151,39 @@ class FeedUseCase {
                 }
             }
 
+        }
+    }
+
+    fun updateStatus(feed: Feed, count: Long, updatedEmail : String, flag : Boolean, db : FirebaseFirestore){
+        var map = hashMapOf<String, Any>()
+        var heartList = feed.heartList!!.toMutableMap()
+
+        if(flag)
+            heartList[updatedEmail] = updatedEmail
+        else
+            heartList.remove(updatedEmail)
+
+
+        map["heartList"] = heartList
+        map["heart"] = count
+
+        db.collection("feed")
+            .document(feed.email + feed.timestamp)
+            .update(map)
+    }
+
+
+
+
+    fun uploadHeart(feed : Feed, heart : Long, db : FirebaseFirestore, flag : Boolean){
+        if(flag){
+            db.collection("feed")
+                .document(feed.email + feed.timestamp)
+                .update("heart", heart + 1L)
+        } else {
+            db.collection("feed")
+                .document(feed.email + feed.timestamp)
+                .update("heart", heart - 1L)
         }
     }
 

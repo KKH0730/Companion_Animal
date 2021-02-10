@@ -12,11 +12,13 @@ data class Feed(
     val hashTags: List<String>?,
     val localUri: List<String>?,
     val content: String?,
-    val heart: Long,
+    var heart: Long,
     val comment: Long,
     val timestamp: Long,
     var remoteProfileUri: String?,
-    var remoteUri: List<String>?
+    var remoteUri: List<String>?,
+    var heartList: Map<String, String>?,
+    var bookmarkList: Map<String, String>?
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readString(),
@@ -29,7 +31,9 @@ data class Feed(
         parcel.readLong(),
         parcel.readLong(),
         parcel.readString(),
-        parcel.createStringArrayList()
+        parcel.createStringArrayList(),
+        parcel.readSerializable() as Map<String, String>,
+        parcel.readSerializable() as Map<String, String>
     ) {
     }
 
@@ -49,6 +53,8 @@ data class Feed(
         dest?.writeLong(timestamp)
         dest?.writeString(remoteProfileUri)
         dest?.writeStringList(remoteUri)
+        dest?.writeValue(heartList)
+        dest?.writeValue(bookmarkList)
     }
 
     companion object CREATOR : Parcelable.Creator<Feed> {

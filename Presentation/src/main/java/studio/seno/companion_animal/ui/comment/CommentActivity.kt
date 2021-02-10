@@ -1,6 +1,7 @@
 package studio.seno.companion_animal.ui.comment
 
 import android.content.DialogInterface
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -78,7 +79,7 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
 
     fun commentEvent() {
         commentAdapter.setOnEventListener(object : OnEventListener {
-            override fun OnReadAnswerClicked(readAnswer: Button, targetComment: Comment) {
+            override fun onReadAnswerClicked(readAnswer: Button, targetComment: Comment) {
                 var currentCommentList = commentAdapter.currentList.toMutableList()
                 var pos = currentCommentList.indexOf(targetComment)
                 var index = pos + 1
@@ -95,7 +96,7 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
                 readAnswer.visibility = View.GONE
             }
 
-            override fun OnWriteAnswerCilcked(targetComment: Comment) {
+            override fun onWriteAnswerCilcked(targetComment: Comment) {
                 curComment = targetComment
 
                 setHint(1)
@@ -103,7 +104,7 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
                 binding.modeLayout.visibility = View.VISIBLE
             }
 
-            override fun OnMenuClicked(comment: Comment, position : Int) {
+            override fun onMenuClicked(comment: Comment, position : Int) {
                 var menuDialog = MenuDialog.newInstance(comment.email)
 
                 if (comment.type == Constants.PARENT) {

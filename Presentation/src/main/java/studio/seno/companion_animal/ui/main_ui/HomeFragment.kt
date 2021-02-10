@@ -1,22 +1,24 @@
 package studio.seno.companion_animal.ui.main_ui
 
-import android.app.Activity
-import android.content.Context
-import android.content.DialogInterface
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.TextView
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.observe
+import com.airbnb.lottie.LottieAnimationView
 import com.google.firebase.auth.FirebaseAuth
+import org.jetbrains.anko.support.v4.intentFor
 import org.jetbrains.anko.support.v4.startActivity
-import studio.seno.commonmodule.CustomToast
+import org.jetbrains.anko.support.v4.startActivityForResult
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.FragmentHomeBinding
 import studio.seno.companion_animal.module.CommonFunction
@@ -26,7 +28,6 @@ import studio.seno.companion_animal.ui.comment.CommentListViewModel
 import studio.seno.companion_animal.ui.feed.*
 import studio.seno.companion_animal.util.Constants
 import studio.seno.domain.database.InfoManager
-import studio.seno.domain.model.Comment
 import studio.seno.domain.model.Feed
 import java.sql.Timestamp
 
@@ -36,7 +37,7 @@ import java.sql.Timestamp
  */
 class HomeFragment : Fragment(){
     private lateinit var binding: FragmentHomeBinding
-    private val viewModel: FeedListViewModel by viewModels()
+    private val feedListViewModel: FeedListViewModel by viewModels()
     private val commentViewModel : CommentListViewModel by viewModels()
     private var currentFeed : Feed? = null
     private val feedAdapter: FeedListAdapter by lazy {
@@ -58,19 +59,24 @@ class HomeFragment : Fragment(){
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.lifecycleOwner = this
-        binding.model = viewModel
+        binding.model = feedListViewModel
         binding.feedRecyclerView.adapter = feedAdapter
 
         itemEvent()
+
+        //게시판 데이터 서버로부터 불러와서 viewmode의 livedata 업데이트
+        feedListViewModel.loadFeedList()
+        observe()
     }
 
 
 
 
     private fun observe() {
-        viewModel.getFeedListLiveData().observe(requireActivity(), {
+        feedListViewModel.getFeedListLiveData().observe(requireActivity(), {
             feedAdapter.submitList(it)
         })
+
     }
 
     private fun itemEvent() {
@@ -100,7 +106,7 @@ class HomeFragment : Fragment(){
                 )
 
                 //서버에 댓글 개수 업로드
-                viewModel.requestUploadCommentCount(feed.email!!, feed.timestamp, commentCount.text.toString().toLong(), true)
+                commentViewModel.requestUploadCommentCount(feed.email!!, feed.timestamp, commentCount.text.toString().toLong(), true)
 
                 //댓글수 업데이트
                 commentCount.apply {
@@ -114,29 +120,63 @@ class HomeFragment : Fragment(){
             }
 
             override fun onCommentShowClicked(commentCount: TextView, feed: Feed) {
-                startActivity<CommentActivity>(
+                startActivityForResult(intentFor<CommentActivity>(
                     "commentCount" to Integer.valueOf(commentCount.text.toString()),
                     "email" to feed.email,
                     "timestamp" to feed.timestamp
-                )
+                ), Constants.COMMENT_REQUEST)
             }
 
-            override fun OnMenuClicked(feed: Feed, position: Int) {
+            override fun onMenuClicked(feed: Feed, position: Int) {
                 currentFeed = feed
-
-
                 val dialog = MenuDialog.newInstance(feed.email!!)
                 dialog.show(parentFragmentManager, "feed")
             }
+
+            override fun onHeartClicked(feed: Feed, heartCount : TextView, heartButton : LottieAnimationView) {
+                var currentUserEmail = FirebaseAuth.getInstance().currentUser?.email.toString()
+                var map = feed.heartList?.toMutableMap()!!
+                var count = feed.heart
+                if(feed.heartList?.get(currentUserEmail) != null) {
+                    count--
+                    updateHeart(feed, count,false)
+                    map.remove(currentUserEmail)
+
+                    heartButton.apply {
+                        cancelAnimation()
+                        progress = 0f
+                    }
+                } else {
+                    count++
+                    updateHeart(feed, count,true)
+                    map[currentUserEmail] = currentUserEmail
+
+                    heartButton.playAnimation()
+                }
+
+                feed.apply {
+                    heartList = map
+                    heart = count
+                }
+                heartCount.text = count.toString()
+                feedAdapter.notifyDataSetChanged()
+            }
         })
+    }
+
+    fun updateHeart(feed: Feed, count : Long, flag : Boolean) {
+        feedListViewModel.updateStatus(
+            feed,
+            count,
+            FirebaseAuth.getInstance().currentUser?.email.toString(),
+            flag
+        )
     }
 
     override fun onResume() {
         super.onResume()
 
-        //게시판 데이터 서버로부터 불러와서 viewmode의 livedata 업데이트
-        viewModel.loadFeedList()
-        observe()
+        feedAdapter.notifyDataSetChanged()
     }
 
     companion object {
@@ -163,5 +203,4 @@ class HomeFragment : Fragment(){
             }
         }
     }
-
 }

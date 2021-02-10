@@ -89,9 +89,9 @@ class CommentAdapter : ListAdapter<Comment, RecyclerView.ViewHolder>(
         }
 
         fun setEvent(comment: Comment){
-            binding.readAnswer.setOnClickListener{ mListener.OnReadAnswerClicked(binding.readAnswer, comment) }
-            binding.writeAnswer.setOnClickListener { mListener.OnWriteAnswerCilcked(comment) }
-            binding.commentMenu.setOnClickListener { mListener.OnMenuClicked(comment, adapterPosition) }
+            binding.readAnswer.setOnClickListener{ mListener.onReadAnswerClicked(binding.readAnswer, comment) }
+            binding.writeAnswer.setOnClickListener { mListener.onWriteAnswerCilcked(comment) }
+            binding.commentMenu.setOnClickListener { mListener.onMenuClicked(comment, adapterPosition) }
         }
     }
 
@@ -107,7 +107,7 @@ class CommentAdapter : ListAdapter<Comment, RecyclerView.ViewHolder>(
         }
 
         fun setEvent(commentAnswer : Comment){
-            binding.commentMenu.setOnClickListener { mListener.OnMenuClicked(commentAnswer, adapterPosition) }
+            binding.commentMenu.setOnClickListener { mListener.onMenuClicked(commentAnswer, adapterPosition) }
         }
     }
 }

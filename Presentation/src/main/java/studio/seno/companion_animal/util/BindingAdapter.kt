@@ -12,9 +12,11 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.viewpager2.widget.ViewPager2
+import com.airbnb.lottie.LottieAnimationView
 import com.aqoong.lib.expandabletextview.ExpandableTextView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.google.firebase.auth.FirebaseAuth
 import com.pchmn.materialchips.ChipView
 import de.hdodenhof.circleimageview.CircleImageView
 import me.relex.circleindicator.CircleIndicator3
@@ -24,6 +26,7 @@ import studio.seno.companion_animal.ui.feed.FeedPagerFragment
 import studio.seno.companion_animal.ui.main_ui.PagerAdapter
 import studio.seno.domain.database.InfoManager
 import studio.seno.companion_animal.util.TextUtils
+import studio.seno.domain.model.Feed
 
 object BindingAdapter {
     @BindingAdapter("setProfileImage")
@@ -84,11 +87,20 @@ object BindingAdapter {
     @JvmStatic
     fun setHeart(view: TextView, heart: Long) {
         try {
-            if (heart != null) {
-                view.text = heart.toString()
-            }
+            view.text = heart.toString()
         } catch (e: Exception) {
             e.printStackTrace()
+        }
+    }
+
+    @BindingAdapter("setHeartButton")
+    @JvmStatic
+    fun setHeartButton(lottie : LottieAnimationView, map : Map<String, String>) {
+        if(map[FirebaseAuth.getInstance().currentUser!!.email.toString()] != null) {
+            lottie.playAnimation()
+        } else {
+            lottie.cancelAnimation()
+            lottie.progress = 0f
         }
     }
 
@@ -96,9 +108,7 @@ object BindingAdapter {
     @JvmStatic
     fun setComment(view: TextView, comment: Long) {
         try {
-            if (comment != null) {
-                view.text = comment.toString()
-            }
+            view.text = comment.toString()
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -109,6 +119,8 @@ object BindingAdapter {
     fun setHashTag(linearLayout: LinearLayout, hashTags: List<String>?) {
         try {
             if (hashTags != null) {
+                linearLayout.removeAllViews()
+
                 for (element in hashTags) {
                     var chipView = ChipView(linearLayout.context)
 
@@ -156,6 +168,8 @@ object BindingAdapter {
             e.printStackTrace()
         }
     }
+
+
 
     @BindingAdapter("addComment", "getLifecycleOwner")
     @JvmStatic

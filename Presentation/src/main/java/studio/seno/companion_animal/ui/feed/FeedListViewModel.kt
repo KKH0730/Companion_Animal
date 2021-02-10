@@ -61,10 +61,6 @@ class FeedListViewModel() : ViewModel() {
     }
 
 
-    fun requestUploadCommentCount(targetEmail : String, targetTimestamp: Long, commentCount : Long, flag : Boolean) {
-        repository.uploadCommentCount(targetEmail, targetTimestamp, commentCount, flag)
-    }
-
     fun requestDeleteFeed(feed: Feed){
         repository.deleteFeed(feed, object : LongTaskCallback<Boolean>{
             override fun onResponse(result: Result<Boolean>) {
@@ -80,6 +76,10 @@ class FeedListViewModel() : ViewModel() {
                 }
             }
         })
+    }
+
+    fun updateStatus(feed: Feed, count: Long, updatedEmail : String, flag : Boolean){
+        repository.requestUpdateStatus(feed, count, updatedEmail, flag)
     }
 
 }

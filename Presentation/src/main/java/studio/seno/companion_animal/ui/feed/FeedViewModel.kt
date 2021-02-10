@@ -14,7 +14,7 @@ import studio.seno.domain.model.Feed
 class FeedViewModel(
     lifecycle: Lifecycle,
     fm: FragmentManager,
-    indicator: CircleIndicator3,
+    indicator: CircleIndicator3?,
     lifecycleOwner: LifecycleOwner
 ) : ViewModel() {
     private var feedLiveData: MutableLiveData<Feed> = MutableLiveData()
@@ -50,7 +50,7 @@ class FeedViewModel(
     }
 
     fun getIndicator(): CircleIndicator3 {
-        return mIndicator
+        return mIndicator!!
     }
 
     fun getLifeCycleOwner() : LifecycleOwner {

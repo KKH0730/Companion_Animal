@@ -10,6 +10,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.auth.FirebaseAuth
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.FeedItemBinding
 import studio.seno.domain.model.Feed
@@ -66,7 +67,7 @@ class FeedListAdapter(
     }
 
     private class FeedViewHolder(feedBinding: FeedItemBinding, listener: OnItemClickListener) :
-        RecyclerView.ViewHolder(feedBinding.root), DialogInterface.OnDismissListener {
+        RecyclerView.ViewHolder(feedBinding.root){
         private var binding: FeedItemBinding = feedBinding
         private var mListener = listener
 
@@ -89,13 +90,10 @@ class FeedListAdapter(
             }
 
             binding.commentShow.setOnClickListener { mListener.onCommentShowClicked(binding.commentCount, feed) }
-
-            binding.feedMenu.setOnClickListener { mListener.OnMenuClicked(feed, adapterPosition) }
+            binding.feedMenu.setOnClickListener { mListener.onMenuClicked(feed, adapterPosition) }
+            binding.heartBtn.setOnClickListener { mListener.onHeartClicked(feed, binding.heartCount, binding.heartBtn) }
         }
 
-        override fun onDismiss(dialog: DialogInterface?) {
-            TODO("Not yet implemented")
-        }
 
     }
 }

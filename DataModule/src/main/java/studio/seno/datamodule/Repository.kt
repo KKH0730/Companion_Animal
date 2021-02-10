@@ -64,6 +64,13 @@ class Repository() {
         feedUseCase.deleteFeed(feed, mDB, mStorageRef, callback)
     }
 
+    fun requestUpdateStatus(feed : Feed, count: Long, updatedEmail : String, flag : Boolean){
+        feedUseCase.updateStatus(feed, count, updatedEmail, flag, mDB)
+    }
+
+    /**
+     * comment
+     **/
     //피드 리스트에서 댓글 작성후 업로드
     fun uploadComment(
         targetEmail: String,

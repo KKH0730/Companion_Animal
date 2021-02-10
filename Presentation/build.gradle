@@ -90,4 +90,7 @@ dependencies {
 
     //ExpandedTextView(https://github.com/aqoong/ExpandableTextView)
     implementation 'com.github.aqoong:ExpandableTextView:1.0.1'
+
+    //lottie(https://github.com/airbnb/lottie-android)
+    implementation 'com.airbnb.android:lottie:3.5.0'
 }

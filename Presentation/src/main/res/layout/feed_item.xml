@@ -126,27 +126,30 @@
             app:layout_constraintTop_toBottomOf="@+id/constraintLayout5">
 
 
-            <ImageButton
+            <com.airbnb.lottie.LottieAnimationView
+                setHeartButton="@{model.feedLiveData.component12()}"
                 android:id="@+id/heart_btn"
-                android:layout_width="35dp"
-                android:layout_height="35dp"
-                android:layout_marginStart="10dp"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:paddingTop="8dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/heart" />
+                app:lottie_autoPlay="false"
+                app:lottie_fileName="heart.json"
+                app:lottie_loop="true"
+                app:lottie_speed="3.5"/>
 
             <TextView
-                android:id="@+id/textView7"
+                android:id="@+id/heart_count"
                 setHeart="@{model.feedLiveData.component7()}"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="5dp"
-                android:layout_marginEnd="10dp"
                 android:padding="3dp"
                 android:textColor="@color/black"
                 android:textSize="14sp"
-                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintBottom_toBottomOf="@+id/heart_btn"
                 app:layout_constraintStart_toEndOf="@+id/heart_btn"
                 app:layout_constraintTop_toTopOf="parent" />
 
@@ -156,7 +159,7 @@
                 android:layout_height="35dp"
                 android:layout_marginStart="20dp"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/textView7"
+                app:layout_constraintStart_toEndOf="@+id/heart_count"
                 app:layout_constraintTop_toTopOf="parent"
                 app:srcCompat="@drawable/comment2" />
 

@@ -65,7 +65,8 @@ class MakeFeedActivity : AppCompatActivity(), View.OnClickListener,
         binding.submitBtn.setOnClickListener(this)
 
         feed = intent.getParcelableExtra<Feed>("feed")
-        mode = intent.getStringExtra("mode")
+        if(feed != null)
+            mode = intent.getStringExtra("mode")
     }
 
     fun setImageRecycler() {
@@ -167,7 +168,7 @@ class MakeFeedActivity : AppCompatActivity(), View.OnClickListener,
             if(currentChecked == "etc")
                 currentChecked = binding.etcContent.text.toString()
 
-            if(feed == null && mode != "write") {
+            if(feed == null && mode == "write") {
                 submitResult(Timestamp(System.currentTimeMillis()).time)
             } else if(feed != null && mode != "write") {
                 if(mode == "modify")
