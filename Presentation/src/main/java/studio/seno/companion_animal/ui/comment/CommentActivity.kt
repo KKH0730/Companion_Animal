@@ -1,26 +1,22 @@
 package studio.seno.companion_animal.ui.comment
 
 import android.content.DialogInterface
-import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.observe
 import com.google.firebase.auth.FirebaseAuth
-import studio.seno.commonmodule.CustomToast
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.ActivityCommentBinding
 import studio.seno.companion_animal.module.CommonFunction
 import studio.seno.companion_animal.ui.MenuDialog
 import studio.seno.companion_animal.util.Constants
-import studio.seno.domain.database.InfoManager
+import studio.seno.domain.util.PrefereceManager
 import studio.seno.domain.model.Comment
 import java.sql.Timestamp
 
@@ -159,7 +155,7 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
             intent.getLongExtra("timestamp", 0L),
             Constants.PARENT,
             FirebaseAuth.getInstance().currentUser?.email.toString(),
-            InfoManager.getString(this, "nickName")!!,
+            PrefereceManager.getString(this, "nickName")!!,
             binding.comment.text.toString(),
             timestamp
         )
@@ -182,7 +178,7 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
             parentComment.timestamp,
             Constants.CHILD,
             FirebaseAuth.getInstance().currentUser?.email.toString(),
-            InfoManager.getString(this, "nickName")!!,
+            PrefereceManager.getString(this, "nickName")!!,
             binding.comment.text.toString(),
             answerTimestamp
         )
@@ -262,17 +258,17 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
     }
 
     override fun onDismiss(dialog: DialogInterface?) {
-        if (InfoManager.getString(applicationContext, "mode") == "comment_modify") {
+        if (PrefereceManager.getString(applicationContext, "mode") == "comment_modify") {
             binding.modeLayout.visibility = View.VISIBLE
             modifyMode = true
             setHint(3)
             CommonFunction.showKeyboard(this)
-        } else if (InfoManager.getString(applicationContext, "mode") == "comment_answer_modify") {
+        } else if (PrefereceManager.getString(applicationContext, "mode") == "comment_answer_modify") {
             binding.modeLayout.visibility = View.VISIBLE
             modifyMode = true
             setHint(2)
             CommonFunction.showKeyboard(this)
-        } else if (InfoManager.getString(applicationContext, "mode") == "comment_delete") {
+        } else if (PrefereceManager.getString(applicationContext, "mode") == "comment_delete") {
             deleteComment()
         } else {
 

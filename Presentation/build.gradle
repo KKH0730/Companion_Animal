@@ -55,6 +55,14 @@ dependencies {
 
     implementation 'com.google.firebase:firebase-messaging:21.0.1'
 
+    //retrofit2
+    implementation 'com.squareup.retrofit2:retrofit:2.8.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.8.0'
+
+    //okhttp3
+    implementation 'com.squareup.okhttp3:okhttp:3.14.7'
+    implementation 'com.squareup.okhttp3:logging-interceptor:3.4.2'
+
 
     implementation "androidx.activity:activity-ktx:1.1.0"
 

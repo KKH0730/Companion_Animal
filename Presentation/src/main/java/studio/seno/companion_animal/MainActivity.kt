@@ -3,17 +3,14 @@ package studio.seno.companion_animal
 import android.content.DialogInterface
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.viewModels
 import androidx.databinding.DataBindingUtil
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.iid.FirebaseInstanceId
-import com.google.firebase.iid.FirebaseInstanceIdReceiver
 import me.ibrahimsn.lib.OnItemSelectedListener
 import studio.seno.companion_animal.databinding.ActivityMainBinding
-import studio.seno.companion_animal.ui.feed.FeedListViewModel
 import studio.seno.companion_animal.ui.main_ui.*
-import studio.seno.domain.database.InfoManager
+import studio.seno.domain.util.PrefereceManager
 
 class MainActivity : AppCompatActivity() , DialogInterface.OnDismissListener{
     private lateinit var binding: ActivityMainBinding
@@ -35,10 +32,10 @@ class MainActivity : AppCompatActivity() , DialogInterface.OnDismissListener{
     }
 
     private fun loadUserInfo(){
-        if(InfoManager.getString(this, "email") == "isEmpty") {
+        if(PrefereceManager.getString(this, "email") == "isEmpty") {
             mainViewModel.requestUserData(FirebaseAuth.getInstance().currentUser?.email.toString())
             mainViewModel.getUserLiveData().observe(this, {
-                InfoManager.setUserInfo(this, it.email, it.nickname, it.follower, it.following, it.feedCount)
+                PrefereceManager.setUserInfo(this, it.email, it.nickname, it.follower, it.following, it.feedCount, it.token)
             })
         }
     }
@@ -59,13 +56,13 @@ class MainActivity : AppCompatActivity() , DialogInterface.OnDismissListener{
     }
 
     override fun onDismiss(dialog: DialogInterface?) {
-        if (InfoManager.getString(applicationContext, "mode") == "feed_modify") {
+        if (PrefereceManager.getString(applicationContext, "mode") == "feed_modify") {
             homeFragment.onDismissed("feed_modify")
-        } else if (InfoManager.getString(applicationContext, "mode") == "feed_delete") {
+        } else if (PrefereceManager.getString(applicationContext, "mode") == "feed_delete") {
             homeFragment.onDismissed("feed_delete")
-        } else if(InfoManager.getString(applicationContext, "mode") == "follow") {
+        } else if(PrefereceManager.getString(applicationContext, "mode") == "follow") {
             homeFragment.onDismissed("follow")
-        } else if(InfoManager.getString(applicationContext, "mode") == "unfollow") {
+        } else if(PrefereceManager.getString(applicationContext, "mode") == "unfollow") {
             homeFragment.onDismissed("unfollow")
         }
     }

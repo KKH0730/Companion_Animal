@@ -9,8 +9,8 @@ import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.storage.StorageReference
 import studio.seno.domain.LongTaskCallback
 import studio.seno.domain.Result
-import studio.seno.domain.database.InfoManager
 import studio.seno.domain.model.Feed
+import studio.seno.domain.util.PrefereceManager
 
 class FeedUseCase {
     private val userMangerUseCase = UserManageUseCase()
@@ -64,10 +64,10 @@ class FeedUseCase {
                                                             result = Result.Success(false)
                                                         callback.onResponse(result)
 
-                                                        InfoManager.setLong(
+                                                        PrefereceManager.setLong(
                                                             context,
                                                             "feedCount",
-                                                            InfoManager.getLong(
+                                                            PrefereceManager.getLong(
                                                                 context,
                                                                 "feedCount"
                                                             ) + 1L

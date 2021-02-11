@@ -1,9 +1,9 @@
-package studio.seno.domain.database
+package studio.seno.domain.util
 
 import android.content.Context
 import android.content.SharedPreferences
 
-object InfoManager {
+object PrefereceManager {
     private fun getPreferences(context: Context): SharedPreferences {
         return context.getSharedPreferences("userData", Context.MODE_PRIVATE)
     }
@@ -51,7 +51,8 @@ object InfoManager {
         nickName: String?,
         follower: Long,
         following: Long,
-        feedCount: Long
+        feedCount: Long,
+        token : String
     ) {
         val sharedPreferences = getPreferences(context)
         val editor = sharedPreferences.edit()
@@ -60,6 +61,7 @@ object InfoManager {
         editor.putLong("follower", follower)
         editor.putLong("following", following)
         editor.putLong("feedCount", feedCount)
+        editor.putString("token", token)
         editor.apply()
     }
 }

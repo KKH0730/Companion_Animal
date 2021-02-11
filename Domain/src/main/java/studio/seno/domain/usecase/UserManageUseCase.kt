@@ -31,7 +31,9 @@ class UserManageUseCase {
                     Log.d("hi", "null")
                 } else {
                     val user = User(result.getLong("id")!!, result.getString("email")!!, result.getString("nickname")!!,
-                        result.getLong("follower")!!, result.getLong("following")!!, result.getLong("feedCount")!!)
+                        result.getLong("follower")!!, result.getLong("following")!!, result.getLong("feedCount")!!,
+                        result.getString("token")!!
+                    )
                     callback.onResponse(Result.Success(user))
                 }
 

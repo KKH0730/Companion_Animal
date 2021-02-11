@@ -11,7 +11,8 @@ data class User(
     var nickname : String,
     var follower : Long,
     var following : Long,
-    var feedCount : Long
+    var feedCount : Long,
+    var token : String
 ) {
 
 }

@@ -1,9 +1,7 @@
 package studio.seno.companion_animal.ui.feed
 
-import android.content.DialogInterface
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.ImageButton
 import android.widget.RadioGroup
@@ -21,7 +19,7 @@ import studio.seno.companion_animal.databinding.ActivityMakeFeedBinding
 import studio.seno.companion_animal.module.CommonFunction
 import studio.seno.companion_animal.util.ItemTouchHelperCallback
 import studio.seno.companion_animal.util.OnItemDeleteListener
-import studio.seno.domain.database.InfoManager
+import studio.seno.domain.util.PrefereceManager
 import studio.seno.domain.model.Feed
 import java.sql.Timestamp
 
@@ -188,7 +186,7 @@ class MakeFeedActivity : AppCompatActivity(), View.OnClickListener,
     }
 
     fun submitResult(timestamp: Long){
-        InfoManager.getString(this, "nickName")?.let {
+        PrefereceManager.getString(this, "nickName")?.let {
             viewModel.requestUploadFeed(
                 this,
                 0,

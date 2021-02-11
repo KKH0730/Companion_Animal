@@ -81,8 +81,8 @@ class UserViewModel() : ViewModel() {
     }
 
     fun uploadUserInfo(id : Long, email: String, nickname: String, follower: Long,
-                        following: Long, feedCount: Long){
-        var user = mapper.mapperToUser(id, email, nickname, follower, following, feedCount)
+                        following: Long, feedCount: Long, token : String){
+        var user = mapper.mapperToUser(id, email, nickname, follower, following, feedCount, token)
         repository.uploadUserInfo(user)
     }
 

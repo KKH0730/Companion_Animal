@@ -83,8 +83,10 @@ class FeedListAdapter(
             binding.commentBtn.setOnClickListener {
                 if (binding.content.text.isNotEmpty()) {
                     mListener.onCommentBtnClicked(
-                        feed, binding.comment,
-                        binding.commentCount, model
+                        feed,
+                        binding.comment,
+                        binding.commentCount,
+                        binding.commentContainer
                     )
                 }
             }

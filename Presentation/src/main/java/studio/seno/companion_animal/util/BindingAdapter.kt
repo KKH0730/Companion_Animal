@@ -2,7 +2,6 @@ package studio.seno.companion_animal.util
 
 import android.net.Uri
 import android.text.SpannableStringBuilder
-import android.util.Log
 import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -13,7 +12,6 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.viewpager2.widget.ViewPager2
-import com.airbnb.lottie.LottieAnimationView
 import com.aqoong.lib.expandabletextview.ExpandableTextView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
@@ -25,9 +23,7 @@ import studio.seno.companion_animal.R
 import studio.seno.companion_animal.module.CommonFunction
 import studio.seno.companion_animal.ui.feed.FeedPagerFragment
 import studio.seno.companion_animal.ui.main_ui.PagerAdapter
-import studio.seno.domain.database.InfoManager
-import studio.seno.companion_animal.util.TextUtils
-import studio.seno.domain.model.Feed
+import studio.seno.domain.util.PrefereceManager
 
 object BindingAdapter {
     @BindingAdapter("setProfileImage")
@@ -179,7 +175,9 @@ object BindingAdapter {
     @JvmStatic
     fun addComment(layout : LinearLayout, liveData : MutableLiveData<String>, lifecycle: LifecycleOwner){
         val textView = TextView(layout.context)
-        val nickname = InfoManager.getString(layout.context, "nickName")
+        val nickname = PrefereceManager.getString(layout.context, "nickName")
+
+
 
         liveData.observe(lifecycle, Observer {
             layout.removeAllViews()

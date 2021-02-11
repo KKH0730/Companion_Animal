@@ -1,11 +1,9 @@
 package studio.seno.companion_animal.ui
 
-import android.app.Activity
 import android.content.DialogInterface
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,11 +11,10 @@ import androidx.databinding.DataBindingUtil
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.firebase.auth.FirebaseAuth
 import org.jetbrains.anko.support.v4.startActivity
-import studio.seno.commonmodule.CustomToast
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.FragmentMenuDialogBinding
 import studio.seno.companion_animal.ui.feed.MakeFeedActivity
-import studio.seno.domain.database.InfoManager
+import studio.seno.domain.util.PrefereceManager
 
 
 class MenuDialog : BottomSheetDialogFragment(), View.OnClickListener {
@@ -45,7 +42,7 @@ class MenuDialog : BottomSheetDialogFragment(), View.OnClickListener {
         }
         setStyle(STYLE_NORMAL, R.style.CustomBottomSheetStyle)
         isCancelable = true
-        InfoManager.setString(requireContext(), "mode", "initial_mode")
+        PrefereceManager.setString(requireContext(), "mode", "initial_mode")
     }
 
     override fun onCreateView(
@@ -76,6 +73,8 @@ class MenuDialog : BottomSheetDialogFragment(), View.OnClickListener {
             binding.modifyBtn.visibility = View.GONE
             binding.deleteBtn.visibility = View.GONE
             binding.reportBtn.visibility = View.GONE
+            binding.followBtn.visibility = View.GONE
+            binding.unfollowBtn.visibility = View.GONE
         } else {
             binding.menuTitle.text = getString(R.string.menu_setting)
 
@@ -103,22 +102,22 @@ class MenuDialog : BottomSheetDialogFragment(), View.OnClickListener {
 
         } else if(v?.id == R.id.modify_btn) {
             if(tag == "comment")
-                InfoManager.setString(requireContext(), "mode", "comment_modify")
+                PrefereceManager.setString(requireContext(), "mode", "comment_modify")
             else if(tag == "comment_answer")
-                InfoManager.setString(requireContext(), "mode", "comment_answer_modify")
+                PrefereceManager.setString(requireContext(), "mode", "comment_answer_modify")
             else if(tag == "feed")
-                InfoManager.setString(requireContext(), "mode", "feed_modify")
+                PrefereceManager.setString(requireContext(), "mode", "feed_modify")
 
         } else if(v?.id == R.id.delete_btn) {
             if(tag == "comment" || tag == "comment_answer")
-                InfoManager.setString(requireContext(), "mode", "comment_delete")
+                PrefereceManager.setString(requireContext(), "mode", "comment_delete")
           else if(tag == "feed")
-                InfoManager.setString(requireContext(), "mode", "feed_delete")
+                PrefereceManager.setString(requireContext(), "mode", "feed_delete")
 
         } else if(v?.id == R.id.follow_btn){
-            InfoManager.setString(requireContext(), "mode", "follow")
+            PrefereceManager.setString(requireContext(), "mode", "follow")
         } else if(v?.id == R.id.unfollow_btn) {
-            InfoManager.setString(requireContext(), "mode", "unfollow")
+            PrefereceManager.setString(requireContext(), "mode", "unfollow")
         } else {
 
         }

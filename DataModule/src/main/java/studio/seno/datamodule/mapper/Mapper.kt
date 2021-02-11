@@ -25,9 +25,10 @@ class Mapper {
         nickname : String,
         follower : Long,
         following : Long,
-        feedCount : Long
+        feedCount : Long,
+        token : String
     ) : User {
-        return User(id, email, nickname, follower, following, feedCount)
+        return User(id, email, nickname, follower, following, feedCount, token)
     }
 
     fun mapperToComment(

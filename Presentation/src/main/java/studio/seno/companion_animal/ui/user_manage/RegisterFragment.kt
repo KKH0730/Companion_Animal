@@ -11,10 +11,8 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import com.google.firebase.iid.FirebaseInstanceId
 import com.royrodriguez.transitionbutton.TransitionButton
 import org.jetbrains.anko.support.v4.startActivity
 import studio.seno.commonmodule.CustomToast
@@ -24,7 +22,7 @@ import studio.seno.companion_animal.util.ViewControlListener
 import studio.seno.companion_animal.databinding.FragmentRegisterBinding
 import studio.seno.companion_animal.module.CommonFunction
 import studio.seno.companion_animal.util.TextUtils
-import studio.seno.domain.database.InfoManager
+import studio.seno.domain.util.PrefereceManager
 
 
 class RegisterFragment : Fragment(), View.OnClickListener {
@@ -94,13 +92,15 @@ class RegisterFragment : Fragment(), View.OnClickListener {
                                 + '/' + resources.getResourceTypeName(R.drawable.no_image)
                                 + '/' + resources.getResourceEntryName(R.drawable.no_image));
                         viewModel.requestUpload(email, imageUri)
-                        viewModel.getUpLoadLiveDate().observe(requireActivity(), {
+                        viewModel.getUpLoadLiveDate().observe(requireActivity(), {it ->
                             if(it) {
                                 binding.registerBtn.stopAnimation(TransitionButton.StopAnimationStyle.EXPAND) {
-                                    viewModel.uploadUserInfo(0L, email, nickName, 0L, 0L, 0L)
-                                    InfoManager.setUserInfo(requireContext(), email, nickName, 0L, 0L, 0L)
-                                    startActivity<MainActivity>()
-                                    viewControlListener.finishCurrentActivity()
+                                    FirebaseInstanceId.getInstance().instanceId.addOnSuccessListener {it2 ->
+                                        viewModel.uploadUserInfo(0L, email, nickName, 0L, 0L, 0L,it2.token)
+                                        PrefereceManager.setUserInfo(requireContext(), email, nickName, 0L, 0L, 0L,it2.token)
+                                        startActivity<MainActivity>()
+                                        viewControlListener.finishCurrentActivity()
+                                    }
                                 }
                             } else
                                 CustomToast(requireContext(), getString(R.string.register_fail)).show()

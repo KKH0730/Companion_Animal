@@ -229,8 +229,6 @@
 
 
             <LinearLayout
-                getLifecycleOwner ="@{model.lifeCycleOwner}"
-                addComment="@{model.feedCommentLiveData}"
                 android:id="@+id/comment_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
