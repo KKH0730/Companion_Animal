@@ -3,9 +3,12 @@ package studio.seno.companion_animal
 import android.content.DialogInterface
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.viewModels
 import androidx.databinding.DataBindingUtil
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.iid.FirebaseInstanceId
+import com.google.firebase.iid.FirebaseInstanceIdReceiver
 import me.ibrahimsn.lib.OnItemSelectedListener
 import studio.seno.companion_animal.databinding.ActivityMainBinding
 import studio.seno.companion_animal.ui.feed.FeedListViewModel
@@ -26,6 +29,9 @@ class MainActivity : AppCompatActivity() , DialogInterface.OnDismissListener{
 
         navigateView()
         supportFragmentManager.beginTransaction().replace(R.id.container, homeFragment).commit()
+
+        FirebaseInstanceId.getInstance().instanceId.addOnSuccessListener {
+        }
     }
 
     private fun loadUserInfo(){
@@ -57,6 +63,10 @@ class MainActivity : AppCompatActivity() , DialogInterface.OnDismissListener{
             homeFragment.onDismissed("feed_modify")
         } else if (InfoManager.getString(applicationContext, "mode") == "feed_delete") {
             homeFragment.onDismissed("feed_delete")
+        } else if(InfoManager.getString(applicationContext, "mode") == "follow") {
+            homeFragment.onDismissed("follow")
+        } else if(InfoManager.getString(applicationContext, "mode") == "unfollow") {
+            homeFragment.onDismissed("unfollow")
         }
     }
 }

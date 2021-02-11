@@ -28,10 +28,10 @@ class UploadUseCase {
 
     fun uploadRemoteFeedImage(feed : Feed, storageRef: StorageReference, path : String, callback: LongTaskCallback<Boolean>){
         if(feed.localUri != null){
-            for (i in 0 until feed.localUri.size) {
-                storageRef.child(path + i).putFile(Uri.parse(feed.localUri[i]))
+            for (i in 0 until feed.localUri!!.size) {
+                storageRef.child(path + i).putFile(Uri.parse(feed.localUri!![i]))
                     .addOnCompleteListener {
-                        if(i == feed.localUri.size - 1){
+                        if(i == feed.localUri!!.size - 1){
                             callback.onResponse(Result.Success(true))
                         }
                     }

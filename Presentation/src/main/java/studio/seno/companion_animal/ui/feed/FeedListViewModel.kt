@@ -92,8 +92,12 @@ class FeedListViewModel() : ViewModel() {
         repository.requestUpdateBookmark(feed, myEmail, flag)
     }
 
-    fun requestUpdateFollower(feed: Feed, myEmail : String, flag : Boolean) {
-        repository.requestUpdateFollower(feed, myEmail, flag)
+    fun requestCheckFollow(targetFeed: Feed, myEmail: String, callback: LongTaskCallback<Boolean>){
+        repository.requestCheckFollow(targetFeed, myEmail, callback)
+    }
+
+    fun requestUpdateFollower(targetFeed: Feed, myEmail : String, flag : Boolean) {
+        repository.requestUpdateFollower(targetFeed, myEmail, flag)
     }
 
 }

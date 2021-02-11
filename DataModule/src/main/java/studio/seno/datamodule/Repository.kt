@@ -69,13 +69,18 @@ class Repository() {
         feedUseCase.updateHeart(feed, count, myEmail, flag, mDB)
     }
 
+    fun requestCheckFollow(targetFeed: Feed, myEmail: String, callback: LongTaskCallback<Boolean>){
+        feedUseCase.checkFollow(targetFeed, myEmail, mDB, callback)
+    }
+
     //북마크 상태 업데이트
     fun requestUpdateBookmark(feed : Feed, myEmail: String, flag: Boolean) {
         feedUseCase.updateBookmark(feed, myEmail, flag, mDB)
     }
 
-    fun requestUpdateFollower(feed : Feed, myEmail: String, flag: Boolean) {
-        feedUseCase.updateFollower(feed, myEmail, flag, mDB)
+    //팔로워 상태 업데이트
+    fun requestUpdateFollower(targetFeed : Feed, myEmail: String, flag: Boolean) {
+        feedUseCase.updateFollower(targetFeed, myEmail, flag, mDB)
     }
 
 

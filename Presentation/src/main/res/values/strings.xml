@@ -50,6 +50,8 @@
     <string name="menu_setting">설정</string>
     <string name="show_animal">반려동물 자랑하기</string>
     <string name="question_animal">반려동물 질문하기\n(다음 버전에서 업데이트 될 예정입니다)</string>
+    <string name="follow">팔로우</string>
+    <string name="unfollow">언팔로우</string>
 
     <!-- MakeFeedActivity -->
     <string name="file_provider" translatable="false">studio.seno.singlelife.fileprovider</string>

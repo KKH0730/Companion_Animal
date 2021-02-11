@@ -1,45 +1,71 @@
 package studio.seno.domain.model
 
+
 import android.os.Parcel
 import android.os.Parcelable
 
 
+class Feed : Parcelable {
+    var email: String = ""
+    var nickname: String = ""
+    var sort: String = ""
+    var hashTags: List<String> = listOf()
+    var localUri: List<String> = listOf()
+    var content: String = ""
+    var heart: Long = 0
+    var comment: Long = 0
+    var timestamp: Long = 0
+    var remoteProfileUri: String = ""
+    var remoteUri: List<String> = listOf()
+    var heartList: Map<String, String> = mapOf()
+    var bookmarkList: Map<String, String> = mapOf()
 
-data class Feed(
-    val email: String?,
-    val nickname: String?,
-    val sort: String?,
-    val hashTags: List<String>?,
-    val localUri: List<String>?,
-    val content: String?,
-    var heart: Long,
-    val comment: Long,
-    val timestamp: Long,
-    var remoteProfileUri: String?,
-    var remoteUri: List<String>?,
-    var heartList: Map<String, String>?,
-    var bookmarkList: Map<String, String>?,
-    var followList: Map<String, String>?
-
-) : Parcelable {
-    constructor(parcel: Parcel) : this(
-        parcel.readString(),
-        parcel.readString(),
-        parcel.readString(),
-        parcel.createStringArrayList(),
-        parcel.createStringArrayList(),
-        parcel.readString(),
-        parcel.readLong(),
-        parcel.readLong(),
-        parcel.readLong(),
-        parcel.readString(),
-        parcel.createStringArrayList(),
-        parcel.readSerializable() as Map<String, String>,
-        parcel.readSerializable() as Map<String, String>,
-        parcel.readSerializable() as Map<String, String>
-
+    constructor(
+        email: String,
+        nickname: String,
+        sort: String,
+        hashTags: List<String>,
+        localUri: List<String>,
+        content: String,
+        heart: Long,
+        comment: Long,
+        timestamp: Long,
+        remoteProfileUri: String,
+        remoteUri: List<String>,
+        heartList: Map<String, String>,
+        bookmarkList: Map<String, String>,
     ) {
+        this.email = email
+        this.nickname = nickname
+        this.sort = sort
+        this.hashTags = hashTags
+        this.localUri = localUri
+        this.content = content
+        this.heart = heart
+        this.comment = comment
+        this.timestamp = timestamp
+        this.remoteProfileUri = remoteProfileUri
+        this.remoteUri = remoteUri
+        this.heartList = heartList
+        this.bookmarkList = bookmarkList
     }
+
+    constructor(parcel: Parcel) {
+        this.email = parcel.readString().toString()
+        this.nickname = parcel.readString().toString()
+        this.sort = parcel.readString().toString()
+        this.hashTags = parcel.createStringArrayList()!!
+        this.localUri = parcel.createStringArrayList()!!
+        this.content = parcel.readString().toString()
+        this.heart = parcel.readLong()
+        this.comment = parcel.readLong()
+        this.timestamp = parcel.readLong()
+        this.remoteProfileUri = parcel.readString()!!
+        this.remoteUri = parcel.createStringArrayList()!!
+        this.heartList = buildTheMap(parcel)
+        this.bookmarkList = buildTheMap(parcel)
+    }
+
 
     override fun describeContents(): Int {
         return 0
@@ -57,9 +83,8 @@ data class Feed(
         dest?.writeLong(timestamp)
         dest?.writeString(remoteProfileUri)
         dest?.writeStringList(remoteUri)
-        dest?.writeValue(heartList)
-        dest?.writeValue(bookmarkList)
-        dest?.writeValue(followList)
+        writeToMap(heartList, dest)
+        writeToMap(bookmarkList, dest)
     }
 
     companion object CREATOR : Parcelable.Creator<Feed> {
@@ -69,6 +94,30 @@ data class Feed(
 
         override fun newArray(size: Int): Array<Feed?> {
             return arrayOfNulls(size)
+        }
+    }
+
+    fun buildTheMap(parcel: Parcel): Map<String, String> {
+        val size = parcel.readInt()
+        val map = HashMap<String, String>()
+
+        for (i in 1..size) {
+            val key = parcel.readString().toString()
+            val value = parcel.readString().toString()
+            map[key] = value
+        }
+        return map
+    }
+
+
+    fun writeToMap(map: Map<String, String>, parcel: Parcel?) {
+        if (parcel != null) {
+            parcel.writeInt(map.size)
+
+            for ((key, value) in map) {
+                parcel.writeString(key)
+                parcel.writeString(value)
+            }
         }
     }
 

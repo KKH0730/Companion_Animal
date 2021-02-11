@@ -105,7 +105,7 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
             }
 
             override fun onMenuClicked(comment: Comment, position : Int) {
-                var menuDialog = MenuDialog.newInstance(comment.email)
+                var menuDialog = MenuDialog.newInstance(comment.email, false)
 
                 if (comment.type == Constants.PARENT) {
                     menuDialog.show(supportFragmentManager, "comment")

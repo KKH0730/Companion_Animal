@@ -23,13 +23,15 @@ import studio.seno.domain.database.InfoManager
 class MenuDialog : BottomSheetDialogFragment(), View.OnClickListener {
     private lateinit var binding : FragmentMenuDialogBinding
     private var email : String? = null
+    private var following : Boolean = false
 
     companion object {
         @JvmStatic
-        fun newInstance(email : String) =
+        fun newInstance(email : String, following : Boolean) =
             MenuDialog().apply {
                 arguments = Bundle().apply {
                     putString("email", email)
+                    putBoolean("following", following)
                 }
             }
     }
@@ -39,6 +41,7 @@ class MenuDialog : BottomSheetDialogFragment(), View.OnClickListener {
         super.onCreate(savedInstanceState)
         arguments?.let {
             email = it.getString("email")
+            following = it.getBoolean("following")
         }
         setStyle(STYLE_NORMAL, R.style.CustomBottomSheetStyle)
         isCancelable = true
@@ -65,6 +68,8 @@ class MenuDialog : BottomSheetDialogFragment(), View.OnClickListener {
         binding.modifyBtn.setOnClickListener(this)
         binding.deleteBtn.setOnClickListener(this)
         binding.reportBtn.setOnClickListener(this)
+        binding.followBtn.setOnClickListener(this)
+        binding.unfollowBtn.setOnClickListener(this)
 
         if(tag == "write") {
             binding.menuTitle.text = getString(R.string.menu_title)
@@ -74,9 +79,17 @@ class MenuDialog : BottomSheetDialogFragment(), View.OnClickListener {
         } else {
             binding.menuTitle.text = getString(R.string.menu_setting)
 
-            if(FirebaseAuth.getInstance().currentUser?.email.toString() != email) {
+            if(FirebaseAuth.getInstance().currentUser?.email.toString() != email) { //글과 보는사람이 동일하지 않음
                 binding.modifyBtn.visibility = View.GONE
                 binding.deleteBtn.visibility = View.GONE
+                if(following)
+                    binding.followBtn.visibility = View.GONE
+                else
+                    binding.unfollowBtn.visibility = View.GONE
+
+            } else {
+                binding.followBtn.visibility = View.GONE
+                binding.unfollowBtn.visibility = View.GONE
             }
             binding.makeFeedBtn.visibility = View.GONE
             binding.makeQuestionBtn.visibility = View.GONE
@@ -86,9 +99,7 @@ class MenuDialog : BottomSheetDialogFragment(), View.OnClickListener {
     override fun onClick(v: View?) {
         if(v?.id == R.id.make_feed_btn) {
             startActivity<MakeFeedActivity>()
-            dismiss()
         } else if(v?.id == R.id.make_question_btn){
-            dismiss()
 
         } else if(v?.id == R.id.modify_btn) {
             if(tag == "comment")
@@ -97,16 +108,21 @@ class MenuDialog : BottomSheetDialogFragment(), View.OnClickListener {
                 InfoManager.setString(requireContext(), "mode", "comment_answer_modify")
             else if(tag == "feed")
                 InfoManager.setString(requireContext(), "mode", "feed_modify")
-            dismiss()
+
         } else if(v?.id == R.id.delete_btn) {
             if(tag == "comment" || tag == "comment_answer")
                 InfoManager.setString(requireContext(), "mode", "comment_delete")
           else if(tag == "feed")
                 InfoManager.setString(requireContext(), "mode", "feed_delete")
-            dismiss()
+
+        } else if(v?.id == R.id.follow_btn){
+            InfoManager.setString(requireContext(), "mode", "follow")
+        } else if(v?.id == R.id.unfollow_btn) {
+            InfoManager.setString(requireContext(), "mode", "unfollow")
         } else {
 
         }
+        dismiss()
     }
 
 

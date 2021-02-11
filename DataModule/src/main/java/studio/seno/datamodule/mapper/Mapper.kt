@@ -16,7 +16,7 @@ class Mapper {
         timestamp: Long
     ) : Feed {
         return Feed(email, nickname, sort, hashTags, localUri, content,
-            0, 0, timestamp, null, null, mapOf(),   mapOf(), mapOf())
+            0, 0, timestamp, "", listOf(), mapOf(),   mapOf())
     }
 
     fun mapperToUser(

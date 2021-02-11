@@ -11,14 +11,33 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Companion_Animal">
-        <activity android:name=".ui.comment.CommentActivity"/>
+        <meta-data
+            android:name="com.google.firebase.messaging.default_display_name_string_id"
+            android:resource="@drawable/logo"/>
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/logo"/>
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_color"
+            android:resource="@color/colorAccent"/>
+
+        <service
+            android:name=".service.FCMService"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+            </intent-filter>
+
+        </service>
+
+        <activity android:name=".ui.comment.CommentActivity" />
         <activity android:name=".ui.feed.MakeFeedActivity" />
         <activity android:name="studio.seno.commonmodule.BaseActivity" />
-
         <activity
             android:name=".MainActivity"
-            android:windowSoftInputMode="adjustUnspecified|adjustPan"/>
-            <activity android:name=".ui.user_manage.UserManageActivity" >
+            android:windowSoftInputMode="adjustUnspecified|adjustPan" />
+        <activity android:name=".ui.user_manage.UserManageActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

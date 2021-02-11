@@ -24,7 +24,7 @@
             app:layout_constraintTop_toTopOf="parent">
 
             <de.hdodenhof.circleimageview.CircleImageView
-                setProfileImage="@{model.feedLiveData.component10()}"
+                setProfileImage="@{model.feedLiveData.remoteProfileUri}"
                 android:id="@+id/profileImageView"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
@@ -35,7 +35,7 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
-                setNickname="@{model.feedLiveData.component2()}"
+                setNickname="@{model.feedLiveData.nickname}"
                 android:id="@+id/nickNameTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -57,7 +57,7 @@
                 app:srcCompat="@drawable/menu" />
 
             <ImageButton
-                setBookmarkButton="@{model.feedLiveData.component13()}"
+                setBookmarkButton="@{model.feedLiveData.bookmarkList}"
                 android:id="@+id/bookmark_btn"
                 android:layout_width="40dp"
                 android:layout_height="25dp"
@@ -75,7 +75,7 @@
             getFm="@{model.fragmentManager}"
             getIndicator="@{model.indicator}"
             getLifecycle="@{model.lifecycle}"
-            setFeedImages="@{model.feedLiveData.component11()}"
+            setFeedImages="@{model.feedLiveData.remoteUri}"
             android:layout_width="match_parent"
             android:layout_height="500dp"
             app:layout_constraintEnd_toEndOf="parent"
@@ -116,7 +116,7 @@
                     android:layout_height="match_parent">
 
                     <LinearLayout
-                        setHashTag="@{model.feedLiveData.component4()}"
+                        setHashTag="@{model.feedLiveData.hashTags}"
                         android:id="@+id/hashTagContainer"
                         android:layout_width="match_parent"
                         android:layout_height="20dp"
@@ -140,7 +140,7 @@
 
             <TextView
                 android:id="@+id/heart_count"
-                setHeart="@{model.feedLiveData.component7()}"
+                setHeart="@{model.feedLiveData.heart}"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="5dp"
@@ -164,7 +164,7 @@
 
             <TextView
                 android:id="@+id/comment_count"
-                setComment="@{model.feedLiveData.component8()}"
+                setComment="@{model.feedLiveData.comment}"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="5dp"
@@ -177,7 +177,7 @@
 
             <ImageButton
                 android:id="@+id/heart_btn"
-                setHeartButton="@{model.feedLiveData.component12()}"
+                setHeartButton="@{model.feedLiveData.heartList}"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
@@ -189,7 +189,6 @@
                 app:srcCompat="@drawable/heart_btn" />
 
             <ImageButton
-                setFollowButton="@{model.feedLiveData.component14()}"
                 android:id="@+id/follow_btn"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
@@ -216,7 +215,7 @@
 
             <com.aqoong.lib.expandabletextview.ExpandableTextView
                 android:id="@+id/content"
-                setContent="@{model.feedLiveData.component6()}"
+                setContent="@{model.feedLiveData.content}"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="10dp"

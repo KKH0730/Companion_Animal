@@ -44,7 +44,7 @@ class HomeFragment : Fragment(){
     private lateinit var binding: FragmentHomeBinding
     private val feedListViewModel: FeedListViewModel by viewModels()
     private val commentViewModel : CommentListViewModel by viewModels()
-    private var currentFeed : Feed? = null
+    private var targetFeed : Feed? = null
     private val currentUserEmail  = FirebaseAuth.getInstance().currentUser?.email.toString()
     private val feedAdapter: FeedListAdapter by lazy {
         FeedListAdapter(
@@ -75,6 +75,8 @@ class HomeFragment : Fragment(){
         //게시판 데이터 서버로부터 불러와서 viewmode의 livedata 업데이트
         feedListViewModel.loadFeedList(null)
         observe()
+
+
     }
 
 
@@ -136,9 +138,22 @@ class HomeFragment : Fragment(){
             }
 
             override fun onMenuClicked(feed: Feed, position: Int) {
-                currentFeed = feed
-                val dialog = MenuDialog.newInstance(feed.email!!)
-                dialog.show(parentFragmentManager, "feed")
+                targetFeed = feed
+                feedListViewModel.requestCheckFollow(feed, currentUserEmail, object : LongTaskCallback<Boolean>{
+                    override fun onResponse(result: Result<Boolean>) {
+                        var dialog : MenuDialog? = null
+
+                        if(result is Result.Success) {
+                            if(result.data)
+                                dialog = MenuDialog.newInstance(feed.email, true)
+                            else
+                                dialog = MenuDialog.newInstance(feed.email, false)
+                            dialog.show(parentFragmentManager, "feed")
+                        } else if(result is Result.Error) {
+                            Log.e("error", "follow check : ${result.exception}")
+                        }
+                    }
+                })
             }
 
             override fun onHeartClicked(feed: Feed, heartCount : TextView, heartButton : ImageButton) {
@@ -180,20 +195,6 @@ class HomeFragment : Fragment(){
                 feedAdapter.notifyDataSetChanged()
             }
 
-            override fun onFollowClicked(feed: Feed, follow_btn: ImageButton) {
-                var map = feed.followList?.toMutableMap()!!
-                if(map[currentUserEmail] != null) {//팔로우 중인 상태에서 클릭
-                    updateFollower(feed, false)
-                    map.remove(currentUserEmail)
-                    follow_btn.isSelected = false
-                } else {
-                    updateFollower(feed, true)
-                    map[currentUserEmail] = currentUserEmail
-                    follow_btn.isSelected = true
-                }
-                feed.followList = map
-                feedAdapter.notifyDataSetChanged()
-            }
         })
     }
 
@@ -234,17 +235,24 @@ class HomeFragment : Fragment(){
     }
 
     fun onDismissed(type: String) {
-        if(currentFeed != null) {
+        if(targetFeed != null) {
             if(type == "feed_modify") {
                 startActivity<MakeFeedActivity>(
-                    "feed" to currentFeed,
+                    "feed" to targetFeed,
                     "mode" to "modify"
                 )
             } else if(type == "feed_delete") {
                 startActivity<MakeFeedActivity>(
-                    "feed" to currentFeed,
+                    "feed" to targetFeed,
                     "mode" to "delete"
                 )
+            } else if(type == "follow") {
+                if(targetFeed != null)
+                    feedListViewModel.requestUpdateFollower(targetFeed!!, currentUserEmail, true)
+            } else if(type == "unfollow") {
+                if(targetFeed != null) {
+                    feedListViewModel.requestUpdateFollower(targetFeed!!, currentUserEmail, false)
+                }
             }
         }
     }

@@ -106,11 +106,7 @@ object BindingAdapter {
         imageButton.isSelected = map[FirebaseAuth.getInstance().currentUser!!.email.toString()] != null
     }
 
-    @BindingAdapter("setFollowButton")
-    @JvmStatic
-    fun setFollowButton(imageButton : ImageButton, map : Map<String, String>) {
-        imageButton.isSelected = map[FirebaseAuth.getInstance().currentUser!!.email.toString()] != null
-    }
+
 
     @BindingAdapter("setComment")
     @JvmStatic
