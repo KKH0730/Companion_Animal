@@ -76,10 +76,10 @@ class FeedListAdapter(
             binding.model = model
             binding.executePendingBindings()
 
-            setEvent(model, feed)
+            setEvent(feed)
         }
 
-        fun setEvent(model: FeedViewModel, feed: Feed) {
+        fun setEvent(feed: Feed) {
             binding.commentBtn.setOnClickListener {
                 if (binding.content.text.isNotEmpty()) {
                     mListener.onCommentBtnClicked(
