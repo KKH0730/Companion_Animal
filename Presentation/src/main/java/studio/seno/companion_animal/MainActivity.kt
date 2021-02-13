@@ -45,6 +45,14 @@ class MainActivity : AppCompatActivity() , DialogInterface.OnDismissListener{
                 }
             })
         }
+        FirebaseInstanceId.getInstance().instanceId.addOnSuccessListener {
+            Log.d("hi", "token - > ${it.token}")
+            mainViewModel.requestUpdateToken(
+                it.token,
+                FirebaseAuth.getInstance().currentUser?.email.toString(),
+            )
+        }
+
     }
 
     private fun navigateView(){

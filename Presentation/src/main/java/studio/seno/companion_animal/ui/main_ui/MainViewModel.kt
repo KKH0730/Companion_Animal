@@ -20,4 +20,8 @@ class MainViewModel : ViewModel() {
         Repository().loadUserInfo(email, callback)
     }
 
+    fun requestUpdateToken(token : String, myEmail: String){
+        Repository().updateToken(token, myEmail)
+    }
+
 }

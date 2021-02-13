@@ -70,6 +70,7 @@ class HomeFragment : Fragment(){
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         binding.lifecycleOwner = this
         binding.model = feedListViewModel
         binding.feedRecyclerView.adapter = feedAdapter
@@ -77,7 +78,6 @@ class HomeFragment : Fragment(){
         feedItemEvent()
         freshFeedList()
 
-        binding.refreshLayout.bringToFront()
         //게시판 데이터 서버로부터 불러와서 viewmode의 livedata 업데이트
         feedListViewModel.loadFeedList(null)
         observe()
@@ -158,20 +158,19 @@ class HomeFragment : Fragment(){
                 mainViewModel.requestUserData(feed.email, object : LongTaskCallback<User> {
                     override fun onResponse(result: Result<User>) {
                         if(result is Result.Success) {
+
                             val notificationModel = NotificationModel(
                                 result.data.token,
                                 NotificationData(
                                     nickname!!,
-                                    "${feed.email + feed.timestamp} $commentContent",
-                                    Timestamp(System.currentTimeMillis()).time,
-                                    feed.email + feed.timestamp
+                                    "${feed.email + Timestamp(System.currentTimeMillis()).time} $commentContent",
+                                    null,
+                                    null
                                 )
                             )
 
                             var apiService = ApiClient.getClient().create(ApiInterface::class.java)
-                            var responseBodyCall: retrofit2.Call<ResponseBody> = apiService.sendNotification(
-                                notificationModel
-                            )
+                            var responseBodyCall: retrofit2.Call<ResponseBody> = apiService.sendNotification(notificationModel)
                             responseBodyCall.enqueue(object : retrofit2.Callback<ResponseBody> {
                                 override fun onResponse(
                                     call: retrofit2.Call<ResponseBody>,

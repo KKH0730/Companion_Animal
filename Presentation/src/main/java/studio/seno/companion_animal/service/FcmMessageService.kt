@@ -1,6 +1,7 @@
 package studio.seno.companion_animal.service
 
 import android.content.Intent
+import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
@@ -15,14 +16,18 @@ class FcmMessageService : FirebaseMessagingService() {
 
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
-
         val title = remoteMessage.notification?.title
         val body = remoteMessage.notification?.body
+        Log.d("hi","onMessageReceived")
         if (body?.isNotEmpty()!!) {
             val array : List<String> = body.split(" ")
             Repository().uploadNotificationInfo(
                 FirebaseAuth.getInstance().currentUser?.email.toString(),
-                NotificationData(title!!, body, Timestamp(System.currentTimeMillis()).time, array.get(0))
+                NotificationData(
+                    title!!,
+                    array.get(1),
+                    Timestamp(System.currentTimeMillis()).time,
+                    array.get(0))
             )
         }
 

@@ -170,31 +170,29 @@ object BindingAdapter {
         }
     }
 
-
-
-    @BindingAdapter("addComment", "getLifecycleOwner")
+    /**
+     * NotificationList
+     */
+    @BindingAdapter("setNotificationTitle")
     @JvmStatic
-    fun addComment(layout : LinearLayout, liveData : MutableLiveData<String>, lifecycle: LifecycleOwner){
-        val textView = TextView(layout.context)
-        val nickname = PrefereceManager.getString(layout.context, "nickName")
-
-
-
-        liveData.observe(lifecycle, Observer {
-            layout.removeAllViews()
-
-            SpannableStringBuilder(nickname).apply {
-                TextModule().setTextColorBold(
-                    this,
-                    layout.context,
-                    R.color.black,
-                    0,
-                    nickname!!.length
-                )
-                append("  $it")
-                textView.text = this
+    fun setNotificationTitle(view: TextView, title: String?) {
+        try {
+            if (title != null) {
+                SpannableStringBuilder(title).apply {
+                    TextModule().setTextColorBold(
+                        this,
+                        view.context,
+                        R.color.black,
+                        0,
+                        title.length
+                    )
+                    append(" ${view.context.getString(R.string.noti_title)}")
+                    view.text = this
+                }
             }
-            layout.addView(textView)
-        })
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
+
 }

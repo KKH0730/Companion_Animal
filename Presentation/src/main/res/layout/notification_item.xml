@@ -11,7 +11,9 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="100dp">
+        android:layout_height="100dp"
+        android:layout_margin="10dp"
+        android:background="@drawable/divider_bottom">
 
 
         <ImageButton
@@ -27,6 +29,7 @@
             app:layout_constraintVertical_bias="0.0" />
 
         <TextView
+            setNotificationTitle="@{model.notificationLiveData.component1()}"
             android:id="@+id/noti_title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -34,12 +37,12 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:textColor="@color/black"
-            android:textStyle="bold"
             app:layout_constraintEnd_toStartOf="@+id/noti_menu"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
+            setNickname="@{model.notificationLiveData.component2()}"
             android:id="@+id/noti_content"
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -49,7 +52,6 @@
             android:layout_marginBottom="5dp"
             android:ellipsize="end"
             android:maxLines="2"
-            android:textColor="@color/black"
             app:layout_constraintBottom_toTopOf="@+id/noti_time"
             app:layout_constraintEnd_toEndOf="@+id/noti_title"
             app:layout_constraintStart_toStartOf="parent"
@@ -57,6 +59,7 @@
 
 
         <TextView
+            setTime="@{model.notificationLiveData.component3()}"
             android:id="@+id/noti_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

@@ -40,6 +40,12 @@ class UserManageUseCase {
             }
     }
 
+    fun updateToken(token : String, myEmail : String, db: FirebaseFirestore) {
+        db.collection("user")
+            .document(myEmail)
+            .update("token", token)
+    }
+
     fun checkRemoteOverlapUser(email : String, db : FirebaseFirestore, callback : LongTaskCallback<Boolean>) {
         db.collection("user_list")
             .document("user_email")
@@ -74,16 +80,5 @@ class UserManageUseCase {
                     }
                 }
         }
-    }
-
-    fun updateToken(email : String, token : String, db : FirebaseFirestore) {
-        db.collection("user")
-            .document(email)
-            .update("token", token)
-            .addOnSuccessListener {
-                Log.d("hi", "success")
-            }.addOnFailureListener{
-                Log.d("hi", "fail : ${it.message}")
-            }
     }
 }

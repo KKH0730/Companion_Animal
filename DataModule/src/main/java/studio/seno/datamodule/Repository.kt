@@ -34,6 +34,10 @@ class Repository() {
         userManagerUseCase.loadRemoteUserInfo(email, mDB, callback)
     }
 
+    fun updateToken(token : String, myEmail: String) {
+        userManagerUseCase.updateToken(token, myEmail, mDB)
+    }
+
     //회원가입시 이메일 중복여부 확인
     fun checkOverlapEmail(email: String, callback: LongTaskCallback<Boolean>) {
         userManagerUseCase.checkRemoteOverlapUser(email, mDB, callback)
@@ -49,10 +53,6 @@ class Repository() {
         )
     }
 
-    //토근 업데이트
-    fun updateToken(email : String, token : String) {
-        userManagerUseCase.updateToken(email, token, mDB)
-    }
 
     //피드 작성후 서버에 업로드
     fun uploadFeed(context: Context, feed: Feed, callback: LongTaskCallback<Boolean>) {
@@ -156,7 +156,13 @@ class Repository() {
      * Notification
      */
 
+    //댓글을 달
     fun uploadNotificationInfo(myEmail : String, notificationData : NotificationData){
         notificationUseCase.uploadNotificationInfo(myEmail, notificationData, mDB)
+    }
+
+    fun requestLoadNotification(myEmail : String, callback : LongTaskCallback<List<NotificationData>>) {
+        notificationUseCase.loadNotification(myEmail, mDB, callback)
+
     }
 }
