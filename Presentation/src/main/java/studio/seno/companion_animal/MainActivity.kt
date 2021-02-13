@@ -3,13 +3,18 @@ package studio.seno.companion_animal
 import android.content.DialogInterface
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.viewModels
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.observe
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.iid.FirebaseInstanceId
 import me.ibrahimsn.lib.OnItemSelectedListener
 import studio.seno.companion_animal.databinding.ActivityMainBinding
 import studio.seno.companion_animal.ui.main_ui.*
+import studio.seno.domain.LongTaskCallback
+import studio.seno.domain.Result
+import studio.seno.domain.model.User
 import studio.seno.domain.util.PrefereceManager
 
 class MainActivity : AppCompatActivity() , DialogInterface.OnDismissListener{
@@ -26,16 +31,18 @@ class MainActivity : AppCompatActivity() , DialogInterface.OnDismissListener{
 
         navigateView()
         supportFragmentManager.beginTransaction().replace(R.id.container, homeFragment).commit()
-
-        FirebaseInstanceId.getInstance().instanceId.addOnSuccessListener {
-        }
     }
 
     private fun loadUserInfo(){
         if(PrefereceManager.getString(this, "email") == "isEmpty") {
-            mainViewModel.requestUserData(FirebaseAuth.getInstance().currentUser?.email.toString())
-            mainViewModel.getUserLiveData().observe(this, {
-                PrefereceManager.setUserInfo(this, it.email, it.nickname, it.follower, it.following, it.feedCount, it.token)
+            mainViewModel.requestUserData(FirebaseAuth.getInstance().currentUser?.email.toString(), object: LongTaskCallback<User>{
+                override fun onResponse(result: Result<User>) {
+                    if(result is Result.Success){
+                        val user = result.data
+                        PrefereceManager.setUserInfo(applicationContext, user.email, user.nickname, user.follower,
+                            user.following, user.feedCount, user.token)
+                    }
+                }
             })
         }
     }

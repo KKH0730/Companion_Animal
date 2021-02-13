@@ -9,17 +9,16 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.royrodriguez.transitionbutton.TransitionButton
 import org.jetbrains.anko.support.v4.startActivity
 import studio.seno.commonmodule.CustomToast
 import studio.seno.companion_animal.MainActivity
 import studio.seno.companion_animal.R
-import studio.seno.companion_animal.util.ViewControlListener
 import studio.seno.companion_animal.databinding.FragmentLoginBinding
 import studio.seno.companion_animal.module.CommonFunction
-import studio.seno.companion_animal.util.TextUtils
+import studio.seno.companion_animal.module.TextModule
+import studio.seno.companion_animal.util.ViewControlListener
 
 
 class LoginFragment : Fragment(), View.OnClickListener {
@@ -49,13 +48,14 @@ class LoginFragment : Fragment(), View.OnClickListener {
     }
 
     private fun initView() {
+        val textModule = TextModule()
         var ssb = SpannableStringBuilder(binding.findPasswordBtn.text.toString())
-        ssb = TextUtils.setTextColorBold(ssb, requireContext(), R.color.red_error, 13, 20).apply {
+        ssb = textModule.setTextColorBold(ssb, requireContext(), R.color.red_error, 13, 20).apply {
             binding.findPasswordBtn.text = ssb
         }
 
         ssb = SpannableStringBuilder(binding.moveRegisterBtn.text.toString())
-        ssb = TextUtils.setTextColorBold(ssb, requireContext(), R.color.red_error, 11, 20).apply {
+        ssb = textModule.setTextColorBold(ssb, requireContext(), R.color.red_error, 11, 20).apply {
             binding.moveRegisterBtn.text = ssb
         }
 

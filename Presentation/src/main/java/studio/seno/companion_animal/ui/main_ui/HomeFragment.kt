@@ -21,12 +21,15 @@ import org.jetbrains.anko.support.v4.startActivity
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.FragmentHomeBinding
 import studio.seno.companion_animal.module.CommonFunction
+import studio.seno.companion_animal.module.TextModule
 import studio.seno.companion_animal.ui.MenuDialog
 import studio.seno.companion_animal.ui.comment.CommentActivity
 import studio.seno.companion_animal.ui.comment.CommentListViewModel
-import studio.seno.companion_animal.ui.feed.*
+import studio.seno.companion_animal.ui.feed.FeedListAdapter
+import studio.seno.companion_animal.ui.feed.FeedListViewModel
+import studio.seno.companion_animal.ui.feed.MakeFeedActivity
+import studio.seno.companion_animal.ui.feed.OnItemClickListener
 import studio.seno.companion_animal.util.Constants
-import studio.seno.companion_animal.util.TextUtils
 import studio.seno.datamodule.api.ApiClient
 import studio.seno.datamodule.api.ApiInterface
 import studio.seno.datamodule.model.NotificationData
@@ -34,6 +37,7 @@ import studio.seno.datamodule.model.NotificationModel
 import studio.seno.domain.LongTaskCallback
 import studio.seno.domain.Result
 import studio.seno.domain.model.Feed
+import studio.seno.domain.model.User
 import studio.seno.domain.util.PrefereceManager
 import java.sql.Timestamp
 
@@ -45,6 +49,7 @@ class HomeFragment : Fragment(){
     private lateinit var binding: FragmentHomeBinding
     private val feedListViewModel: FeedListViewModel by viewModels()
     private val commentViewModel : CommentListViewModel by viewModels()
+    private val mainViewModel : MainViewModel by viewModels()
     private var targetFeed : Feed? = null
     private val currentUserEmail  = FirebaseAuth.getInstance().currentUser?.email.toString()
     private val feedAdapter: FeedListAdapter by lazy {
@@ -98,17 +103,19 @@ class HomeFragment : Fragment(){
                 //model.setFeedCommentLiveData(commentEdit.text.toString())
                 val textView = TextView(requireContext())
                 val nickname = PrefereceManager.getString(requireContext(), "nickName")
-                container.apply{
+                val commentContent = commentEdit.text.toString()
+                    container.apply{
                     removeAllViews()
                     SpannableStringBuilder(nickname).apply {
-                        TextUtils.setTextColorBold(
+
+                        TextModule().setTextColorBold(
                             this,
                             requireContext(),
                             R.color.black,
                             0,
                             nickname!!.length
                         )
-                        append("  ${commentEdit.text}")
+                        append("  $commentContent")
                         textView.text = this
                     }
                     addView(textView)
@@ -147,30 +154,35 @@ class HomeFragment : Fragment(){
                 commentEdit.hint = requireContext().getString(R.string.comment_hint)
                 CommonFunction.closeKeyboard(requireContext(), commentEdit)
 
-                /*
-                val notificationModel = NotificationModel(
-                    "eOB-iGxxTQ-gAsS0h2UW6P:APA91bGB6x7fsDo27VM3tRRRTQ3ZoKGqon532HkMhKMI1stljYhKtHe1iVjbPEf6WkQ7X4bhZxD_-sp_c_Ca2uzRqjrcTkxKWlCuHT6MbFq-VkYNru31LlnCPR9Zkffh88a1nUSrpxy6",
-                    NotificationData("제목", "내용")
-                )
+                //댓글을 작성하면 notification 알림이 전송
+                mainViewModel.requestUserData(feed.email, object : LongTaskCallback<User> {
+                    override fun onResponse(result: Result<User>) {
+                        if(result is Result.Success) {
+                            val notificationModel = NotificationModel(
+                                result.data.token,
+                                NotificationData(nickname!!, commentContent)
+                            )
 
-                var apiService = ApiClient.getClient().create(ApiInterface::class.java)
-                var responseBodyCall: retrofit2.Call<ResponseBody> = apiService.sendNotification(
-                    notificationModel
-                )
-                responseBodyCall.enqueue(object : retrofit2.Callback<ResponseBody> {
-                    override fun onResponse(
-                        call: retrofit2.Call<ResponseBody>,
-                        response: retrofit2.Response<ResponseBody>
-                    ) {
-                        Log.d("hi","success")
+                            var apiService = ApiClient.getClient().create(ApiInterface::class.java)
+                            var responseBodyCall: retrofit2.Call<ResponseBody> = apiService.sendNotification(
+                                notificationModel
+                            )
+                            responseBodyCall.enqueue(object : retrofit2.Callback<ResponseBody> {
+                                override fun onResponse(
+                                    call: retrofit2.Call<ResponseBody>,
+                                    response: retrofit2.Response<ResponseBody>
+                                ) {
+                                    Log.d("hi","success")
+                                }
+
+                                override fun onFailure(call: retrofit2.Call<ResponseBody>, t: Throwable) {
+                                    Log.d("hi","onFailure")
+                                }
+
+                            })
+                        }
                     }
-
-                    override fun onFailure(call: retrofit2.Call<ResponseBody>, t: Throwable) {
-                        Log.d("hi","onFailure")
-                    }
-
                 })
-                 */
             }
 
             override fun onCommentShowClicked(commentCount: TextView, feed: Feed) {

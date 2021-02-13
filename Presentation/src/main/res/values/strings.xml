@@ -99,6 +99,8 @@
     <string name="answer_modify_ing">답글 수정 중</string>
 
 
+    <!-- noticiation module -->
+    <string name="noti_title">님이 댓글을 남기셨습니다.</string>
 
     <!-- common -->
     <string name="submit">확인</string>

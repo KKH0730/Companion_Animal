@@ -10,10 +10,9 @@ import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import studio.seno.companion_animal.R
-import studio.seno.companion_animal.util.ItemTouchHelperListener
-import studio.seno.companion_animal.util.OnItemDeleteListener
 
-class SelectedImageAdapter(context: Context) : RecyclerView.Adapter<RecyclerView.ViewHolder>(), ItemTouchHelperListener{
+class SelectedImageAdapter(context: Context) : RecyclerView.Adapter<RecyclerView.ViewHolder>(),
+    ItemTouchHelperListener {
     private var imageItems = mutableListOf<String>()
     private var deleteListener : OnItemDeleteListener? = null
     private val context = context

@@ -22,7 +22,7 @@
             android:resource="@color/colorAccent"/>
 
         <service
-            android:name=".service.FCMService"
+            android:name=".service.FcmMessageService"
             android:enabled="true"
             android:exported="false">
             <intent-filter>

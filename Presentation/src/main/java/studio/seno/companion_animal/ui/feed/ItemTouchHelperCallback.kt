@@ -1,8 +1,7 @@
-package studio.seno.companion_animal.util
+package studio.seno.companion_animal.ui.feed
 
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
-import studio.seno.companion_animal.ui.feed.SelectedImageAdapter
 
 class ItemTouchHelperCallback(private val listener: ItemTouchHelperListener) :
     ItemTouchHelper.Callback() {

@@ -21,6 +21,7 @@ import de.hdodenhof.circleimageview.CircleImageView
 import me.relex.circleindicator.CircleIndicator3
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.module.CommonFunction
+import studio.seno.companion_animal.module.TextModule
 import studio.seno.companion_animal.ui.feed.FeedPagerFragment
 import studio.seno.companion_animal.ui.main_ui.PagerAdapter
 import studio.seno.domain.util.PrefereceManager
@@ -183,7 +184,7 @@ object BindingAdapter {
             layout.removeAllViews()
 
             SpannableStringBuilder(nickname).apply {
-                TextUtils.setTextColorBold(
+                TextModule().setTextColorBold(
                     this,
                     layout.context,
                     R.color.black,

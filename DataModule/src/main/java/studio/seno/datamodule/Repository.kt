@@ -49,6 +49,11 @@ class Repository() {
         )
     }
 
+    //토근 업데이트
+    fun updateToken(email : String, token : String) {
+        userManagerUseCase.updateToken(email, token, mDB)
+    }
+
     //피드 작성후 서버에 업로드
     fun uploadFeed(context: Context, feed: Feed, callback: LongTaskCallback<Boolean>) {
         feedUseCase.uploadFeed(context, feed, mDB, mStorageRef, callback)

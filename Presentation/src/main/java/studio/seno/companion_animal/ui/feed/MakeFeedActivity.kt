@@ -17,8 +17,6 @@ import studio.seno.commonmodule.CustomToast
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.ActivityMakeFeedBinding
 import studio.seno.companion_animal.module.CommonFunction
-import studio.seno.companion_animal.util.ItemTouchHelperCallback
-import studio.seno.companion_animal.util.OnItemDeleteListener
 import studio.seno.domain.util.PrefereceManager
 import studio.seno.domain.model.Feed
 import java.sql.Timestamp
@@ -46,7 +44,8 @@ class MakeFeedActivity : AppCompatActivity(), View.OnClickListener,
         }
 
 
-        selectedImageAdapter.setOnDeleteItemListener(object : OnItemDeleteListener {
+        selectedImageAdapter.setOnDeleteItemListener(object :
+            OnItemDeleteListener {
             override fun onDeleted(position: Int) {
                 selectedImageAdapter.removeItem(selectedImageAdapter.getItem(position))
                 selectedImageAdapter.notifyDataSetChanged()
@@ -69,7 +68,11 @@ class MakeFeedActivity : AppCompatActivity(), View.OnClickListener,
 
     fun setImageRecycler() {
         binding.imageRecyclerView.adapter = selectedImageAdapter
-        val itemHelper = ItemTouchHelper(ItemTouchHelperCallback(selectedImageAdapter))
+        val itemHelper = ItemTouchHelper(
+            ItemTouchHelperCallback(
+                selectedImageAdapter
+            )
+        )
         itemHelper.attachToRecyclerView(binding.imageRecyclerView)
     }
 

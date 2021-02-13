@@ -27,9 +27,7 @@ class UserManageUseCase {
             .addOnCompleteListener {
 
                 val result = it.result
-                if(result == null) {
-                    Log.d("hi", "null")
-                } else {
+                if(result != null) {
                     val user = User(result.getLong("id")!!, result.getString("email")!!, result.getString("nickname")!!,
                         result.getLong("follower")!!, result.getLong("following")!!, result.getLong("feedCount")!!,
                         result.getString("token")!!
@@ -47,11 +45,14 @@ class UserManageUseCase {
             .document("user_email")
             .get()
             .addOnSuccessListener {
-                if(it.getString(email) == null) {
-                    callback.onResponse(Result.Success(false))
-                } else {
-                    callback.onResponse(Result.Success(true))
+                if(it.data != null) {
+                    if(it?.data!![email] == null) {
+                        callback.onResponse(Result.Success(false))
+                    } else {
+                        callback.onResponse(Result.Success(true))
+                    }
                 }
+
             }.addOnFailureListener {
                 callback.onResponse(Result.Error(it))
             }
@@ -73,5 +74,16 @@ class UserManageUseCase {
                     }
                 }
         }
+    }
+
+    fun updateToken(email : String, token : String, db : FirebaseFirestore) {
+        db.collection("user")
+            .document(email)
+            .update("token", token)
+            .addOnSuccessListener {
+                Log.d("hi", "success")
+            }.addOnFailureListener{
+                Log.d("hi", "fail : ${it.message}")
+            }
     }
 }

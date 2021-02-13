@@ -21,7 +21,7 @@ import studio.seno.companion_animal.R
 import studio.seno.companion_animal.util.ViewControlListener
 import studio.seno.companion_animal.databinding.FragmentRegisterBinding
 import studio.seno.companion_animal.module.CommonFunction
-import studio.seno.companion_animal.util.TextUtils
+import studio.seno.companion_animal.module.TextModule
 import studio.seno.domain.util.PrefereceManager
 
 
@@ -59,8 +59,9 @@ class RegisterFragment : Fragment(), View.OnClickListener {
     }
 
     private fun initView() {
+        val textModule = TextModule()
         var ssb = SpannableStringBuilder(binding.moveLoginBtn.text.toString())
-        ssb = TextUtils.setTextColorBold(ssb, requireContext(), R.color.red_error, 14, 19).apply {
+        ssb = textModule.setTextColorBold(ssb, requireContext(), R.color.red_error, 14, 19).apply {
             binding.moveLoginBtn.text = ssb
         }
 
