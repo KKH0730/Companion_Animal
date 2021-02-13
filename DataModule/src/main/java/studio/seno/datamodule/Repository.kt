@@ -9,11 +9,9 @@ import com.google.firebase.storage.StorageReference
 import studio.seno.domain.LongTaskCallback
 import studio.seno.domain.model.Comment
 import studio.seno.domain.model.Feed
+import studio.seno.domain.model.NotificationData
 import studio.seno.domain.model.User
-import studio.seno.domain.usecase.CommentUseCase
-import studio.seno.domain.usecase.FeedUseCase
-import studio.seno.domain.usecase.UploadUseCase
-import studio.seno.domain.usecase.UserManageUseCase
+import studio.seno.domain.usecase.*
 
 class Repository() {
     private val mAuth = FirebaseAuth.getInstance()
@@ -24,6 +22,8 @@ class Repository() {
     private val uploadUseCase = UploadUseCase()
     private val userManagerUseCase = UserManageUseCase()
     private val commentUseCase = CommentUseCase()
+    private val followUseCase = FollowUseCase()
+    private val notificationUseCase = NotificationUseCase()
 
     //회원가입시 회원정보 서버에 저장
     fun uploadUserInfo(user: User) {
@@ -74,18 +74,20 @@ class Repository() {
         feedUseCase.updateHeart(feed, count, myEmail, flag, mDB)
     }
 
-    fun requestCheckFollow(targetFeed: Feed, myEmail: String, callback: LongTaskCallback<Boolean>){
-        feedUseCase.checkFollow(targetFeed, myEmail, mDB, callback)
-    }
 
     //북마크 상태 업데이트
     fun requestUpdateBookmark(feed : Feed, myEmail: String, flag: Boolean) {
         feedUseCase.updateBookmark(feed, myEmail, flag, mDB)
     }
 
+    fun requestCheckFollow(targetFeed: Feed, myEmail: String, callback: LongTaskCallback<Boolean>){
+        followUseCase.checkFollow(targetFeed, myEmail, mDB, callback)
+    }
+
+
     //팔로워 상태 업데이트
     fun requestUpdateFollower(targetFeed : Feed, myEmail: String, flag: Boolean) {
-        feedUseCase.updateFollower(targetFeed, myEmail, flag, mDB)
+        followUseCase.updateFollower(targetFeed, myEmail, flag, mDB)
     }
 
 
@@ -148,5 +150,13 @@ class Repository() {
         callback: LongTaskCallback<Boolean>
     ){
         commentUseCase.deleteComment(feedEmail, feedTimestamp, parentComment, childComment, type, mDB, callback)
+    }
+
+    /**
+     * Notification
+     */
+
+    fun uploadNotificationInfo(myEmail : String, notificationData : NotificationData){
+        notificationUseCase.uploadNotificationInfo(myEmail, notificationData, mDB)
     }
 }

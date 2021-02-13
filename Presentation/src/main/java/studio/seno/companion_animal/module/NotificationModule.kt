@@ -48,11 +48,12 @@ class NotificationModule(context: Context) {
         val defaultSoundUri: Uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
 
 
+        val array : List<String> = content.split(" ")
         var notificationBuilder = Notification.Builder(mContext, Constants.NOTI_CHANNEL)
             .setLargeIcon(BitmapFactory.decodeResource(mContext.resources, R.drawable.logo))
             .setSmallIcon(R.mipmap.ic_launcher)
             .setContentTitle(title + mContext.getString(R.string.noti_title))
-            .setContentText(content)
+            .setContentText(array[1])
             .setAutoCancel(true)
             .setSound(defaultSoundUri)
             .setPriority(PRIORITY_MAX)

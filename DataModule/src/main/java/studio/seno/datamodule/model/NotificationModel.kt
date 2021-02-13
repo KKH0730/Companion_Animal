@@ -1,6 +1,7 @@
 package studio.seno.datamodule.model
 
 import com.google.gson.annotations.SerializedName
+import studio.seno.domain.model.NotificationData
 
 class NotificationModel {
     @SerializedName("to")

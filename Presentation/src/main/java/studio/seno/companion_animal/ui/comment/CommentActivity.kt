@@ -134,8 +134,8 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
                if(modifyMode && answerComment != null) { //답글 수정 모드
                    findParentComment()?.let { submitCommentAnswer(it,answerComment!!.timestamp) }
 
-               } else if(!modifyMode && curComment != null){
-                       submitCommentAnswer(curComment!!, Timestamp(System.currentTimeMillis()).time) //일반 답글 모드
+               } else if(!modifyMode && curComment != null){ //일반 답글 모드
+                       submitCommentAnswer(curComment!!, Timestamp(System.currentTimeMillis()).time)
                }
             } else {
                 if (modifyMode) { //댓글 수정 모드

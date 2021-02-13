@@ -24,8 +24,7 @@ class CommentAdapter : ListAdapter<Comment, RecyclerView.ViewHolder>(
             return oldItem == newItem
         }
 
-    }
-){
+    }){
     private var listener : OnEventListener? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {

@@ -32,7 +32,7 @@ import studio.seno.companion_animal.ui.feed.OnItemClickListener
 import studio.seno.companion_animal.util.Constants
 import studio.seno.datamodule.api.ApiClient
 import studio.seno.datamodule.api.ApiInterface
-import studio.seno.datamodule.model.NotificationData
+import studio.seno.domain.model.NotificationData
 import studio.seno.datamodule.model.NotificationModel
 import studio.seno.domain.LongTaskCallback
 import studio.seno.domain.Result
@@ -138,7 +138,7 @@ class HomeFragment : Fragment(){
 
                 //서버에 댓글 개수 업로드
                 commentViewModel.requestUploadCommentCount(
-                    feed.email!!,
+                    feed.email,
                     feed.timestamp,
                     commentCount.text.toString().toLong(),
                     true
@@ -160,7 +160,12 @@ class HomeFragment : Fragment(){
                         if(result is Result.Success) {
                             val notificationModel = NotificationModel(
                                 result.data.token,
-                                NotificationData(nickname!!, commentContent)
+                                NotificationData(
+                                    nickname!!,
+                                    "${feed.email + feed.timestamp} $commentContent",
+                                    Timestamp(System.currentTimeMillis()).time,
+                                    feed.email + feed.timestamp
+                                )
                             )
 
                             var apiService = ApiClient.getClient().create(ApiInterface::class.java)
