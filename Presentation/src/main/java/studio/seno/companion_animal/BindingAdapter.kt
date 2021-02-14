@@ -1,16 +1,16 @@
-package studio.seno.companion_animal.util
+package studio.seno.companion_animal
 
 import android.net.Uri
 import android.text.SpannableStringBuilder
+import android.util.Log
+import android.view.View
 import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.databinding.BindingAdapter
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
 import androidx.viewpager2.widget.ViewPager2
 import com.aqoong.lib.expandabletextview.ExpandableTextView
 import com.bumptech.glide.Glide
@@ -19,12 +19,10 @@ import com.google.firebase.auth.FirebaseAuth
 import com.pchmn.materialchips.ChipView
 import de.hdodenhof.circleimageview.CircleImageView
 import me.relex.circleindicator.CircleIndicator3
-import studio.seno.companion_animal.R
 import studio.seno.companion_animal.module.CommonFunction
 import studio.seno.companion_animal.module.TextModule
 import studio.seno.companion_animal.ui.feed.FeedPagerFragment
 import studio.seno.companion_animal.ui.main_ui.PagerAdapter
-import studio.seno.domain.util.PrefereceManager
 
 object BindingAdapter {
     @BindingAdapter("setProfileImage")
@@ -193,6 +191,15 @@ object BindingAdapter {
         } catch (e: Exception) {
             e.printStackTrace()
         }
+    }
+
+    @BindingAdapter("alreadyRead")
+    @JvmStatic
+    fun alreadyRead(imageView : ImageView, flag : Boolean){
+        if(flag)
+            imageView.visibility = View.VISIBLE
+        else
+            imageView.visibility = View.GONE
     }
 
 }

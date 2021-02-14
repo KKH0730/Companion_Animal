@@ -30,9 +30,11 @@ class NotificationAdapter : ListAdapter<NotificationData, RecyclerView.ViewHolde
 
     }
 ) {
+    private var notificationListener : OnNotificationClickedListener? = null
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val binding = DataBindingUtil.inflate<NotificationItemBinding>(LayoutInflater.from(parent.context), R.layout.notification_item, parent, false)
-        return NotificationViewHolder(binding)
+        return NotificationViewHolder(binding, notificationListener!!)
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
@@ -43,14 +45,24 @@ class NotificationAdapter : ListAdapter<NotificationData, RecyclerView.ViewHolde
         holder.setViewModel(model, item)
     }
 
+    fun setOnNotificationListener(notificationListener : OnNotificationClickedListener){
+        this.notificationListener = notificationListener
+    }
 
 
-    private class NotificationViewHolder(binding : NotificationItemBinding) : RecyclerView.ViewHolder(binding.root) {
+    private class NotificationViewHolder(binding : NotificationItemBinding, notificationListener : OnNotificationClickedListener) : RecyclerView.ViewHolder(binding.root) {
         private val binding : NotificationItemBinding = binding
+        private val mNotificationlistener = notificationListener
 
         fun setViewModel(model : NotificationViewModel, item : NotificationData) {
             binding.model = model
             binding.executePendingBindings()
+
+            setEvent(item)
+        }
+
+        fun setEvent(item : NotificationData){
+            binding.layoutItem.setOnClickListener { mNotificationlistener.onNotificationClickced(binding.checkDot, item) }
         }
     }
 

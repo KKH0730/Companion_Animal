@@ -165,7 +165,8 @@ class HomeFragment : Fragment(){
                                     nickname!!,
                                     "${feed.email + Timestamp(System.currentTimeMillis()).time} $commentContent",
                                     null,
-                                    null
+                                    null,
+                                    true
                                 )
                             )
 
@@ -193,8 +194,7 @@ class HomeFragment : Fragment(){
                 startActivityForResult(
                     intentFor<CommentActivity>(
                         "commentCount" to Integer.valueOf(commentCount.text.toString()),
-                        "email" to feed.email,
-                        "timestamp" to feed.timestamp
+                        "feed" to feed,
                     ), Constants.COMMENT_REQUEST
                 )
             }

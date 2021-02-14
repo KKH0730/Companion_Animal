@@ -28,4 +28,9 @@ class NotificationListViewModel : ViewModel() {
             }
         })
     }
+
+    fun requestUpdateCheckDot(myEmail : String, notificationData : NotificationData){
+        repository.requestUpdateCheckDot(myEmail, notificationData)
+
+    }
 }

@@ -165,4 +165,8 @@ class Repository() {
         notificationUseCase.loadNotification(myEmail, mDB, callback)
 
     }
+
+    fun requestUpdateCheckDot(myEmail : String, notificationData : NotificationData){
+        notificationUseCase.updateCheckDot(myEmail, notificationData, mDB)
+    }
 }

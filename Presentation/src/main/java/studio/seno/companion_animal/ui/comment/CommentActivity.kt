@@ -2,6 +2,7 @@ package studio.seno.companion_animal.ui.comment
 
 import android.content.DialogInterface
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.ImageButton
@@ -11,28 +12,40 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.observe
 import com.google.firebase.auth.FirebaseAuth
+import okhttp3.ResponseBody
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.ActivityCommentBinding
 import studio.seno.companion_animal.module.CommonFunction
 import studio.seno.companion_animal.ui.MenuDialog
+import studio.seno.companion_animal.ui.main_ui.MainViewModel
 import studio.seno.companion_animal.util.Constants
+import studio.seno.datamodule.api.ApiClient
+import studio.seno.datamodule.api.ApiInterface
+import studio.seno.datamodule.model.NotificationModel
+import studio.seno.domain.LongTaskCallback
+import studio.seno.domain.Result
 import studio.seno.domain.util.PrefereceManager
 import studio.seno.domain.model.Comment
+import studio.seno.domain.model.Feed
+import studio.seno.domain.model.NotificationData
+import studio.seno.domain.model.User
 import java.sql.Timestamp
 
 class CommentActivity : AppCompatActivity(), View.OnClickListener,
     DialogInterface.OnDismissListener {
     private lateinit var binding: ActivityCommentBinding
     private val viewModel: CommentListViewModel by viewModels()
+    private val mainViewModel : MainViewModel by viewModels()
     private val commentAdapter = CommentAdapter()
     private var answerMode = false
     private var modifyMode = false
     private var backKeyPressedTime = 0L
     private lateinit var commentCountText: TextView
-    private lateinit var headerTitle: TextView
     private var curComment: Comment? = null
     private var answerComment : Comment? = null
     private var answerPosition = 0
+    private val feed : Feed by lazy {intent.getParcelableExtra<Feed>("feed")}
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,29 +55,21 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
 
         initView()
 
-        if (intent.getStringExtra("email") != null && intent.getLongExtra("timestamp", 0L) != 0L)
-            viewModel.requestLoadComment(
-                intent.getStringExtra("email")!!, intent.getLongExtra(
-                    "timestamp",
-                    0
-                )
-            )
-
         commentEvent()
         observe()
     }
 
 
     private fun initView() {
-        headerTitle = binding.header.findViewById(R.id.title)
-        headerTitle.text = getString(R.string.header_title)
-
+        binding.header.findViewById<TextView>(R.id.title).text = getString(R.string.header_title)
         commentCountText = binding.header.findViewById(R.id.comment_count)
-        commentCountText.apply {
+        binding.header.findViewById<TextView>(R.id.comment_count).apply {
             visibility = View.VISIBLE
             text = intent.getIntExtra("commentCount", 0).toString()
         }
 
+        if (intent.getParcelableExtra<Feed>("feed") != null)
+            viewModel.requestLoadComment(feed.email, feed.timestamp)
 
         binding.header.findViewById<ImageButton>(R.id.back_btn).setOnClickListener(this)
         binding.modeCloseBtn.setOnClickListener(this)
@@ -130,18 +135,22 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
         } else if (v?.id == R.id.mode_close_btn) {
             initVariable()
         } else if (v?.id == R.id.comment_btn) {
+            val timestamp = Timestamp(System.currentTimeMillis()).time
+
             if (answerMode) { // 답글쓰기 모드
                if(modifyMode && answerComment != null) { //답글 수정 모드
                    findParentComment()?.let { submitCommentAnswer(it,answerComment!!.timestamp) }
 
                } else if(!modifyMode && curComment != null){ //일반 답글 모드
-                       submitCommentAnswer(curComment!!, Timestamp(System.currentTimeMillis()).time)
+                   submitCommentAnswer(curComment!!, timestamp)
+                   sendNotification(curComment!!.email, binding.comment.text.toString(), timestamp)
                }
             } else {
                 if (modifyMode) { //댓글 수정 모드
                     submitComment(curComment!!.timestamp)
                 } else { // 일반 댓글 모드
-                    submitComment(Timestamp(System.currentTimeMillis()).time)
+                    submitComment(timestamp)
+                    sendNotification(feed.email, binding.comment.text.toString(), timestamp)
                 }
             }
             initVariable()
@@ -151,8 +160,8 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
     fun submitComment(timestamp: Long) {
         //일반 댓글 모드
         viewModel.requestUploadComment(
-            intent.getStringExtra("email"),
-            intent.getLongExtra("timestamp", 0L),
+            feed.email,
+            feed.timestamp,
             Constants.PARENT,
             FirebaseAuth.getInstance().currentUser?.email.toString(),
             PrefereceManager.getString(this, "nickName")!!,
@@ -161,8 +170,8 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
         )
         //총 댓글 수 업로드
         viewModel.requestUploadCommentCount(
-            intent.getStringExtra("email"),
-            intent.getLongExtra("timestamp", 0L),
+            feed.email,
+            feed.timestamp,
             commentCountText.text.toString().toLong(),
             true
         )
@@ -172,8 +181,8 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
     fun submitCommentAnswer(parentComment : Comment, answerTimestamp: Long){
         //답글 업로드
         viewModel.requestUploadCommentAnswer(
-            intent.getStringExtra("email"),
-            intent.getLongExtra("timestamp", 0L),
+            feed.email,
+            feed.timestamp,
             parentComment.email,
             parentComment.timestamp,
             Constants.CHILD,
@@ -191,8 +200,8 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
             type = "child"
         } else{
             viewModel.requestUploadCommentCount(
-                intent.getStringExtra("email"),
-                intent.getLongExtra("timestamp", 0L),
+                feed.email,
+                feed.timestamp,
                 commentCountText.text.toString().toLong(),
                 false
             )
@@ -202,12 +211,49 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
         }
 
         viewModel.requestDeleteComment(
-            intent.getStringExtra("email"),
-            intent.getLongExtra("timestamp", 0L),
+            feed.email,
+            feed.timestamp,
             curComment!!,
             answerComment,
             type
         )
+    }
+
+    fun sendNotification(targetEmail : String, content : String, currentTimestamp : Long){
+        //댓글을 작성하면 notification 알림이 전송
+        mainViewModel.requestUserData(targetEmail, object : LongTaskCallback<User> {
+            override fun onResponse(result: Result<User>) {
+                if(result is Result.Success) {
+
+                    val notificationModel = NotificationModel(
+                        result.data.token,
+                        NotificationData(
+                            PrefereceManager.getString(applicationContext, "nickName")!!,
+                            "${feed.email + currentTimestamp} $content",
+                            null,
+                            null,
+                            true
+                        )
+                    )
+
+                    var apiService = ApiClient.getClient().create(ApiInterface::class.java)
+                    var responseBodyCall: retrofit2.Call<ResponseBody> = apiService.sendNotification(notificationModel)
+                    responseBodyCall.enqueue(object : retrofit2.Callback<ResponseBody> {
+                        override fun onResponse(
+                            call: retrofit2.Call<ResponseBody>,
+                            response: retrofit2.Response<ResponseBody>
+                        ) {
+                            Log.d("hi","success")
+                        }
+
+                        override fun onFailure(call: retrofit2.Call<ResponseBody>, t: Throwable) {
+                            Log.d("hi","onFailure")
+                        }
+
+                    })
+                }
+            }
+        })
     }
 
     fun findParentComment() : Comment?{

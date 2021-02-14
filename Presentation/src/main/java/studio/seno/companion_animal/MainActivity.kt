@@ -1,5 +1,6 @@
 package studio.seno.companion_animal
 
+import android.annotation.SuppressLint
 import android.content.DialogInterface
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -21,16 +22,31 @@ class MainActivity : AppCompatActivity() , DialogInterface.OnDismissListener{
     private lateinit var binding: ActivityMainBinding
     private val mainViewModel : MainViewModel by viewModels()
     private lateinit var homeFragment: HomeFragment
+    private lateinit var searchFragment: SearchFragment
+    private lateinit var notificationFragment: NotificationFragment
+    private lateinit var chatFragment: ChatFragment
+    private lateinit var timeLineFragment: TimeLineFragment
+
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
-        homeFragment = HomeFragment.newInstance()
+        init()
+
         loadUserInfo()
 
         navigateView()
         supportFragmentManager.beginTransaction().replace(R.id.container, homeFragment).commit()
+    }
+
+    fun init(){
+        homeFragment = HomeFragment.newInstance()
+        searchFragment = SearchFragment.newInstance()
+        notificationFragment = NotificationFragment.newInstance()
+        chatFragment = ChatFragment.newInstance()
+        timeLineFragment = TimeLineFragment.newInstance()
     }
 
     private fun loadUserInfo(){
@@ -46,7 +62,6 @@ class MainActivity : AppCompatActivity() , DialogInterface.OnDismissListener{
             })
         }
         FirebaseInstanceId.getInstance().instanceId.addOnSuccessListener {
-            Log.d("hi", "token - > ${it.token}")
             mainViewModel.requestUpdateToken(
                 it.token,
                 FirebaseAuth.getInstance().currentUser?.email.toString(),

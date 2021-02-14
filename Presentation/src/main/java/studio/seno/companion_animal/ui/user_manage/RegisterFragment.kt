@@ -99,7 +99,7 @@ class RegisterFragment : Fragment(), View.OnClickListener {
                                     FirebaseInstanceId.getInstance().instanceId.addOnSuccessListener {it2 ->
                                         viewModel.uploadUserInfo(0L, email, nickName, 0L, 0L, 0L,it2.token)
                                         PrefereceManager.setUserInfo(requireContext(), email, nickName, 0L, 0L, 0L,it2.token)
-                                        startActivity<MainActivity>()
+                                        startActivity<MainActivity>( )
                                         viewControlListener.finishCurrentActivity()
                                     }
                                 }

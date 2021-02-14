@@ -35,7 +35,8 @@ class NotificationUseCase {
                             element.getString("title")!!,
                             element.getString("body")!!,
                             element.getLong("timestamp")!!,
-                            element.getString("targetPath")!!
+                            element.getString("targetPath")!!,
+                            element.getBoolean("check")!!
                         )
                         resultList.add(notiData)
                     }
@@ -46,6 +47,13 @@ class NotificationUseCase {
             }.addOnFailureListener{
                 callback.onResponse(Result.Error(it))
             }
+    }
 
+    fun updateCheckDot(myEmail : String, notificationData : NotificationData, db : FirebaseFirestore){
+        db.collection("user")
+            .document(myEmail)
+            .collection("notification")
+            .document(notificationData.targetPath!!)
+            .update("check",false)
     }
 }

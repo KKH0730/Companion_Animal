@@ -26,30 +26,30 @@ object CommonFunction {
         pastCalendar.timeInMillis = millisecond
 
         if(result in 0..1000L) {
-            return "1초"
+            return "1초 전"
         } else if(result in 1000L..59999L) {
             val second = currentCalendar[Calendar.SECOND] - pastCalendar[Calendar.SECOND]
-            return if(second < 0) "${60 - pastCalendar[Calendar.SECOND] + currentCalendar[Calendar.SECOND]} 초 전" else "${second.toString()}  초 전"
+            return if(second < 0) "${60 - pastCalendar[Calendar.SECOND] + currentCalendar[Calendar.SECOND]}초 전" else "${second.toString()}초 전"
 
         } else if (result in 60000L..3599999L) {
             val minute = currentCalendar[Calendar.MINUTE] - pastCalendar[Calendar.MINUTE]
-            return if (minute < 0) "${60 - pastCalendar[Calendar.MINUTE] + currentCalendar[Calendar.MINUTE]}  분 전" else "${minute.toString()}  분 전"
+            return if (minute < 0) "${60 - pastCalendar[Calendar.MINUTE] + currentCalendar[Calendar.MINUTE]}분 전" else "${minute.toString()}분 전"
 
         } else if (result in 3600000L..86399999L) {
             val hour = currentCalendar[Calendar.HOUR_OF_DAY] - pastCalendar[Calendar.HOUR_OF_DAY]
-            return if (hour < 0) "${24 - pastCalendar[Calendar.HOUR_OF_DAY] + currentCalendar[Calendar.HOUR_OF_DAY]}  시간 전" else "${hour.toString()}  시간 전"
+            return if (hour < 0) "${24 - pastCalendar[Calendar.HOUR_OF_DAY] + currentCalendar[Calendar.HOUR_OF_DAY]}시간 전" else "${hour.toString()}시간 전"
 
         } else if (result in 86400000L..2591999999L) {
             val day = currentCalendar[Calendar.DATE] - pastCalendar[Calendar.DATE]
-            return if (day < 0) "${30 - pastCalendar[Calendar.DATE] + currentCalendar[Calendar.DATE]}  일 전" else "${day.toString()}  일 전"
+            return if (day < 0) "${30 - pastCalendar[Calendar.DATE] + currentCalendar[Calendar.DATE]}일 전" else "${day.toString()}일 전"
 
         } else if (result in 2592000000L..31535999999L) {
             val month = currentCalendar[Calendar.MONTH] - pastCalendar[Calendar.MONTH]
-            return if (month < 0) "${12 - pastCalendar[Calendar.MONTH] + currentCalendar[Calendar.MONTH]}  달 전" else "${month.toString()}  달 전"
+            return if (month < 0) "${12 - pastCalendar[Calendar.MONTH] + currentCalendar[Calendar.MONTH]}달 전" else "${month.toString()}달 전"
 
         } else {
             val year = currentCalendar[Calendar.YEAR] - pastCalendar[Calendar.YEAR]
-            return "${year.toString()}  년 전"
+            return "${year.toString()}년 전"
         }
     }
 }

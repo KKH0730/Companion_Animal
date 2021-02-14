@@ -5,6 +5,7 @@ import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import studio.seno.companion_animal.MainActivity
 import studio.seno.companion_animal.module.NotificationModule
 import studio.seno.companion_animal.ui.feed.MakeFeedActivity
 import studio.seno.datamodule.Repository
@@ -18,7 +19,7 @@ class FcmMessageService : FirebaseMessagingService() {
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         val title = remoteMessage.notification?.title
         val body = remoteMessage.notification?.body
-        Log.d("hi","onMessageReceived")
+
         if (body?.isNotEmpty()!!) {
             val array : List<String> = body.split(" ")
             Repository().uploadNotificationInfo(
@@ -27,14 +28,17 @@ class FcmMessageService : FirebaseMessagingService() {
                     title!!,
                     array.get(1),
                     Timestamp(System.currentTimeMillis()).time,
-                    array.get(0))
+                    array.get(0),
+                    true
+                )
             )
         }
 
 
         remoteMessage.notification?.let {
             var notificationModel = NotificationModule(applicationContext)
-            val intent = Intent(applicationContext, MakeFeedActivity::class.java)
+            val intent = Intent(applicationContext, MainActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
 
             if (title != null && body != null) {
                 notificationModel.makeNotification(title, body, intent)

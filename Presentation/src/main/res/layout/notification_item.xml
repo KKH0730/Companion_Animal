@@ -10,10 +10,13 @@
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layout_item"
         android:layout_width="match_parent"
         android:layout_height="100dp"
-        android:layout_margin="10dp"
-        android:background="@drawable/divider_bottom">
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:foreground="@drawable/divider_bottom"
+        android:background="?attr/selectableItemBackground">
 
 
         <ImageButton
@@ -29,45 +32,57 @@
             app:layout_constraintVertical_bias="0.0" />
 
         <TextView
-            setNotificationTitle="@{model.notificationLiveData.component1()}"
             android:id="@+id/noti_title"
+            setNotificationTitle="@{model.notificationLiveData.component1()}"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="10dp"
             android:ellipsize="end"
             android:maxLines="1"
             android:textColor="@color/black"
             app:layout_constraintEnd_toStartOf="@+id/noti_menu"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/check_dot"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            setNickname="@{model.notificationLiveData.component2()}"
             android:id="@+id/noti_content"
+            setNickname="@{model.notificationLiveData.component2()}"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_marginStart="10dp"
             android:layout_marginTop="5dp"
-            android:layout_marginEnd="10dp"
             android:layout_marginBottom="5dp"
             android:ellipsize="end"
             android:maxLines="2"
             app:layout_constraintBottom_toTopOf="@+id/noti_time"
             app:layout_constraintEnd_toEndOf="@+id/noti_title"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/noti_title"
             app:layout_constraintTop_toBottomOf="@+id/noti_title" />
 
 
         <TextView
-            setTime="@{model.notificationLiveData.component3()}"
             android:id="@+id/noti_time"
+            setTime="@{model.notificationLiveData.component3()}"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:layout_marginBottom="5dp"
+            android:layout_marginBottom="10dp"
+            android:textSize="12sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="@+id/noti_content" />
+
+        <ImageView
+            alreadyRead = "@{model.notificationLiveData.component5()}"
+            android:id="@+id/check_dot"
+            android:layout_width="10dp"
+            android:layout_height="10dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="10dp"
+            app:layout_constraintBottom_toBottomOf="@+id/noti_title"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/circle" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
