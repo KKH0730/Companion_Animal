@@ -14,6 +14,7 @@ import studio.seno.domain.util.PrefereceManager
 
 class FeedUseCase {
     private val userMangerUseCase = UserManageUseCase()
+    private val uploadUseCase = UploadUseCase()
 
     //피드 사진들, 게시자 프로필 사진, 게시자 팔로워를 업로드 후 Feed 객체에 저장한 후 db에 저장
     fun uploadFeed(
@@ -24,7 +25,7 @@ class FeedUseCase {
         var remoteImagePath = feed.email + "/feed/" + feed.timestamp + "/"
 
         //Feed 이미지 업로드
-        UploadUseCase().uploadRemoteFeedImage(
+        uploadUseCase.uploadRemoteFeedImage(
             feed,
             storageRef,
             remoteImagePath,
@@ -32,54 +33,56 @@ class FeedUseCase {
                 override fun onResponse(result: Result<Boolean>) {
 
                     //프로필 이미지 객체 불러와 객체에 저장
-                    storageRef.child(remoteProfilePath)
-                        .downloadUrl
-                        .addOnSuccessListener { it ->
-                            feed.remoteProfileUri = it.toString()
+                    uploadUseCase.loadRemoteProfileImage(feed.email, storageRef, object : LongTaskCallback<String>{
+                        override fun onResponse(result: Result<String>) {
+                            if(result is Result.Success) {
+                                feed.remoteProfileUri = result.data
+
+                                storageRef.child(remoteImagePath).listAll()
+                                    .addOnCompleteListener { it2 ->
+                                        var listResult = it2.result?.items!!
 
 
-                            storageRef.child(remoteImagePath).listAll()
-                                .addOnCompleteListener { it2 ->
-                                    var listResult = it2.result?.items!!
+                                        //Feed 이미지 로드 후 객체에 저장
+                                        UploadUseCase().loadRemoteFeedImage(
+                                            listResult,
+                                            object : LongTaskCallback<MutableList<String>> {
+                                                override fun onResponse(result: Result<MutableList<String>>) {
+                                                    var res = (result as Result.Success).data
+                                                    feed.remoteUri = res
 
 
-                                    //Feed 이미지 로드 후 객체에 저장
-                                    UploadUseCase().loadRemoteFeedImage(
-                                        listResult,
-                                        object : LongTaskCallback<MutableList<String>> {
-                                            override fun onResponse(result: Result<MutableList<String>>) {
-                                                var res = (result as Result.Success).data
-                                                feed.remoteUri = res
+                                                    //db에 객체 데이터 저장
+                                                    mDB.collection("feed")
+                                                        .document(feed.email + feed.timestamp)
+                                                        .set(feed)
+                                                        .addOnCompleteListener {
+                                                            var result: Result<Boolean>? = null
+                                                            if (it.isSuccessful)
+                                                                result = Result.Success(true)
+                                                            else
+                                                                result = Result.Success(false)
+                                                            callback.onResponse(result)
 
-
-                                                //db에 객체 데이터 저장
-                                                mDB.collection("feed")
-                                                    .document(feed.email + feed.timestamp)
-                                                    .set(feed)
-                                                    .addOnCompleteListener {
-                                                        var result: Result<Boolean>? = null
-                                                        if (it.isSuccessful)
-                                                            result = Result.Success(true)
-                                                        else
-                                                            result = Result.Success(false)
-                                                        callback.onResponse(result)
-
-                                                        PrefereceManager.setLong(
-                                                            context,
-                                                            "feedCount",
-                                                            PrefereceManager.getLong(
+                                                            PrefereceManager.setLong(
                                                                 context,
-                                                                "feedCount"
-                                                            ) + 1L
-                                                        )
-                                                    }.addOnFailureListener {
-                                                        callback.onResponse(Result.Error(it))
-                                                    }
-                                            }
-                                        })
+                                                                "feedCount",
+                                                                PrefereceManager.getLong(
+                                                                    context,
+                                                                    "feedCount"
+                                                                ) + 1L
+                                                            )
+                                                        }.addOnFailureListener {
+                                                            callback.onResponse(Result.Error(it))
+                                                        }
+                                                }
+                                            })
 
-                                }.addOnFailureListener { callback.onResponse(Result.Error(it)) }
-                        }.addOnFailureListener { callback.onResponse(Result.Error(it)) }
+                                    }.addOnFailureListener { callback.onResponse(Result.Error(it)) }
+
+                            }
+                        }
+                    })
                 }
             })
         var list = mutableListOf("feedCount")

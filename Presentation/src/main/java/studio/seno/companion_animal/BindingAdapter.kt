@@ -23,6 +23,9 @@ import studio.seno.companion_animal.module.CommonFunction
 import studio.seno.companion_animal.module.TextModule
 import studio.seno.companion_animal.ui.feed.FeedPagerFragment
 import studio.seno.companion_animal.ui.main_ui.PagerAdapter
+import studio.seno.datamodule.Repository
+import studio.seno.domain.LongTaskCallback
+import studio.seno.domain.Result
 
 object BindingAdapter {
     @BindingAdapter("setProfileImage")
@@ -125,9 +128,12 @@ object BindingAdapter {
 
                     chipView.setChipBackgroundColor(linearLayout.context.getColor(R.color.main_color))
                     chipView.setLabelColor(linearLayout.context.getColor(R.color.white))
-                    chipView.setPadding(30, 0, 0, 0)
+                    chipView.setPadding(0, 0, 0, 0)
 
-                    chipView.label = element
+                    if(element[0] != '#')
+                        chipView.label = "#$element"
+                    else
+                        chipView.label = element
                     linearLayout.addView(chipView)
                 }
             }
@@ -160,13 +166,39 @@ object BindingAdapter {
     @JvmStatic
     fun setTime(textView: TextView, timestamp : Long) {
         try {
-            if (timestamp != null) {
-                textView.text = CommonFunction.calTime(timestamp)
-            }
+            textView.text = CommonFunction.calTime(timestamp)
         } catch (e: Exception) {
             e.printStackTrace()
         }
     }
+
+    @BindingAdapter("setMyProfileImage")
+    @JvmStatic
+    fun setMyProfileImage(circleImageView: CircleImageView, imageUri : String) {
+        try {
+           Repository().loadRemoteProfileImage(
+               FirebaseAuth.getInstance().currentUser?.email!!,
+               object : LongTaskCallback<String>{
+                   override fun onResponse(result: Result<String>) {
+                       if(result is Result.Success) {
+                           Glide.with(circleImageView.context)
+                               .load(Uri.parse(result.data))
+                               .centerCrop()
+                               .into(circleImageView)
+                       } else if(result is Result.Error) {
+                           Log.e("error", "setMyProfileImage : ${result.exception}")
+
+                       }
+                   }
+               }
+           )
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+
+
 
     /**
      * NotificationList

@@ -40,6 +40,19 @@ class UploadUseCase {
 
     }
 
+    fun loadRemoteProfileImage(email : String, storageRef: StorageReference, callback: LongTaskCallback<String>){
+        var profileUri = "$email/profile/profileImage"
+
+        storageRef.child(profileUri).downloadUrl
+            .addOnCompleteListener {
+            if(it.result != null) {
+                callback.onResponse(Result.Success(it.result.toString()))
+            }
+        }.addOnFailureListener {
+                callback.onResponse(Result.Error(it))
+        }
+    }
+
 
     fun loadRemoteFeedImage(listResult : MutableList<StorageReference>, callback : LongTaskCallback<MutableList<String>>)  {
         var list = mutableListOf<String>()

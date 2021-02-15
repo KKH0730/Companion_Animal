@@ -53,6 +53,11 @@ class Repository() {
         )
     }
 
+    //profile image 로드
+    fun loadRemoteProfileImage(email : String, callback: LongTaskCallback<String>){
+        uploadUseCase.loadRemoteProfileImage(email, mStorageRef, callback)
+    }
+
 
     //피드 작성후 서버에 업로드
     fun uploadFeed(context: Context, feed: Feed, callback: LongTaskCallback<Boolean>) {

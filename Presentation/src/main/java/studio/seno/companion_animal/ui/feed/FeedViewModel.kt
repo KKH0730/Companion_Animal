@@ -15,14 +15,11 @@ class FeedViewModel(
     lifecycle: Lifecycle,
     fm: FragmentManager,
     indicator: CircleIndicator3?,
-    lifecycleOwner: LifecycleOwner
 ) : ViewModel() {
     private var feedLiveData: MutableLiveData<Feed> = MutableLiveData()
-    private var feedCommentData: MutableLiveData<String> = MutableLiveData()
     private var mLifecycle: Lifecycle = lifecycle
     private var mFm: FragmentManager = fm
     private var mIndicator = indicator
-    private val mLifecycleOwner = lifecycleOwner
 
 
     fun setFeedLiveData(feed: Feed) {
@@ -33,13 +30,7 @@ class FeedViewModel(
         return feedLiveData
     }
 
-    fun setFeedCommentLiveData(str: String) {
-        feedCommentData.value = str
-    }
 
-    fun getFeedCommentLiveData():MutableLiveData<String> {
-        return feedCommentData
-    }
 
     fun getLifecycle(): Lifecycle {
         return mLifecycle
@@ -53,7 +44,4 @@ class FeedViewModel(
         return mIndicator!!
     }
 
-    fun getLifeCycleOwner() : LifecycleOwner {
-        return mLifecycleOwner
-    }
 }

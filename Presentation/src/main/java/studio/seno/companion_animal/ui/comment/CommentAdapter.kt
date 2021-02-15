@@ -1,6 +1,5 @@
 package studio.seno.companion_animal.ui.comment
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -25,15 +24,15 @@ class CommentAdapter : ListAdapter<Comment, RecyclerView.ViewHolder>(
         }
 
     }){
-    private var listener : OnEventListener? = null
+    private var listenerComment : OnCommentEventListener? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         if(viewType == Constants.PARENT.toInt()) {
             val binding = DataBindingUtil.inflate<CommentParentBinding>(LayoutInflater.from(parent.context), R.layout.comment_parent, parent, false)
-            return ParentCommentViewHolder(binding, listener!!)
+            return ParentCommentViewHolder(binding, listenerComment!!)
         } else {
             val binding = DataBindingUtil.inflate<CommentChildBinding>(LayoutInflater.from(parent.context), R.layout.comment_child, parent, false)
-            return ChildCommentViewHolder(binding, listener!!)
+            return ChildCommentViewHolder(binding, listenerComment!!)
         }
     }
 
@@ -64,13 +63,13 @@ class CommentAdapter : ListAdapter<Comment, RecyclerView.ViewHolder>(
         return getItem(position).type.toInt()
     }
 
-    fun setOnEventListener(listener : OnEventListener) {
-        this.listener = listener
+    fun setOnEventListener(listenerComment : OnCommentEventListener) {
+        this.listenerComment = listenerComment
     }
 
-    private class ParentCommentViewHolder(binding : CommentParentBinding, listener : OnEventListener) : RecyclerView.ViewHolder(binding.root){
+    private class ParentCommentViewHolder(binding : CommentParentBinding, listenerComment : OnCommentEventListener) : RecyclerView.ViewHolder(binding.root){
         private val binding : CommentParentBinding = binding
-        private var mListener = listener
+        private var mListener = listenerComment
 
 
 
@@ -94,9 +93,9 @@ class CommentAdapter : ListAdapter<Comment, RecyclerView.ViewHolder>(
         }
     }
 
-    private class ChildCommentViewHolder(binding : CommentChildBinding, listener : OnEventListener) : RecyclerView.ViewHolder(binding.root){
+    private class ChildCommentViewHolder(binding : CommentChildBinding, listenerComment : OnCommentEventListener) : RecyclerView.ViewHolder(binding.root){
         private var binding : CommentChildBinding = binding
-        private var mListener = listener
+        private var mListener = listenerComment
 
         fun setViewModel(model : CommentChildViewModel, commentAnswer: Comment) {
             binding.model = model

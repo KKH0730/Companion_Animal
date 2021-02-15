@@ -1,7 +1,11 @@
 package studio.seno.companion_animal.ui.feed
 
 import android.content.DialogInterface
+import android.text.Editable
+import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.FragmentManager
@@ -11,6 +15,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.auth.FirebaseAuth
+import org.jetbrains.anko.sdk27.coroutines.textChangedListener
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.FeedItemBinding
 import studio.seno.domain.model.Feed
@@ -18,7 +23,6 @@ import studio.seno.domain.model.Feed
 class FeedListAdapter(
     fm: FragmentManager,
     lifecycle: Lifecycle,
-    lifecycleOwner: LifecycleOwner
 ) : ListAdapter<Feed, RecyclerView.ViewHolder>(
 
     object : DiffUtil.ItemCallback<Feed>() {
@@ -34,7 +38,6 @@ class FeedListAdapter(
 ) {
     private val mLifecycle = lifecycle
     private val mFm = fm
-    private val mLifecycleOwner = lifecycleOwner
     private var listener: OnItemClickListener? = null
     private lateinit var binding: FeedItemBinding
 
@@ -54,8 +57,7 @@ class FeedListAdapter(
         val model = FeedViewModel(
             mLifecycle,
             mFm,
-            holder.itemView.findViewById(R.id.indicator),
-            mLifecycleOwner
+            holder.itemView.findViewById(R.id.indicator)
         )
         model.setFeedLiveData(item)
         holder.setViewModel(model, item)
@@ -90,10 +92,28 @@ class FeedListAdapter(
                     )
                 }
             }
+
+            binding.comment.addTextChangedListener(textWatcher)
+
             binding.commentShow.setOnClickListener { mListener.onCommentShowClicked(binding.commentCount, feed) }
             binding.feedMenu.setOnClickListener { mListener.onMenuClicked(feed, adapterPosition) }
             binding.heartBtn.setOnClickListener { mListener.onHeartClicked(feed, binding.heartCount, binding.heartBtn) }
             binding.bookmarkBtn.setOnClickListener { mListener.onBookmarkClicked(feed, binding.bookmarkBtn) }
+            binding.detailBtn.setOnClickListener { mListener.onDetailClicked(feed) }
+
+        }
+
+        private val textWatcher : TextWatcher = object : TextWatcher{
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                if(binding.comment.text.isEmpty())
+                    binding.commentBtn.visibility = View.INVISIBLE
+                else
+                    binding.commentBtn.visibility = View.VISIBLE
+            }
+
+            override fun afterTextChanged(s: Editable?) {}
         }
     }
 }

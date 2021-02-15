@@ -79,7 +79,7 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
     }
 
     fun commentEvent() {
-        commentAdapter.setOnEventListener(object : OnEventListener {
+        commentAdapter.setOnEventListener(object : OnCommentEventListener {
             override fun onReadAnswerClicked(readAnswer: Button, targetComment: Comment) {
                 var currentCommentList = commentAdapter.currentList.toMutableList()
                 var pos = currentCommentList.indexOf(targetComment)
@@ -91,6 +91,7 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
                         index++
                     }
                 }
+
                 targetComment.initChildren()
                 currentCommentList.set(pos, targetComment)
                 viewModel.setCommentListLiveData(currentCommentList.toList())
@@ -194,7 +195,7 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
     }
 
     fun deleteComment(){
-        var type : String? = null
+        val type : String?
         if(answerMode) {
             curComment = findParentComment()
             type = "child"

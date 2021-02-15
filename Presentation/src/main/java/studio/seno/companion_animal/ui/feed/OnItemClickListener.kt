@@ -15,4 +15,5 @@ interface OnItemClickListener {
     fun onMenuClicked(feed : Feed, position : Int)
     fun onHeartClicked(feed : Feed, heartCount : TextView, heart_btn : ImageButton)
     fun onBookmarkClicked(feed : Feed, bookmark_btn : ImageButton)
+    fun onDetailClicked(feed : Feed)
 }
