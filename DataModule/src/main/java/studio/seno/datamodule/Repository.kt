@@ -69,6 +69,11 @@ class Repository() {
         feedUseCase.loadFeedList( mDB, callback)
     }
 
+    //하나의 피드 로드
+    fun loadFeed(path: String, callback: LongTaskCallback<Feed>) {
+        feedUseCase.loadFeed(path, mDB, callback)
+    }
+
     //피드 삭제
     fun deleteFeed(feed: Feed, callback : LongTaskCallback<Boolean>){
         feedUseCase.deleteFeed(feed, mDB, mStorageRef, callback)
@@ -103,8 +108,7 @@ class Repository() {
     fun uploadComment(
         targetEmail: String,
         targetTimestamp: Long,
-        comment: Comment,
-        callback: LongTaskCallback<Boolean>
+        comment: Comment
     ) {
         commentUseCase.uploadComment(
             targetEmail,
@@ -112,8 +116,7 @@ class Repository() {
             comment,
             mAuth,
             mDB,
-            mStorageRef,
-            callback
+            mStorageRef
         )
     }
 
@@ -122,8 +125,7 @@ class Repository() {
         feedTimestamp: Long,
         targetEmail: String,
         targetTimestamp: Long,
-        commentAnswer: Comment,
-        callback: LongTaskCallback<Boolean>
+        commentAnswer: Comment
     ) {
         commentUseCase.uploadCommentAnswer(
             feedEmail,
@@ -133,8 +135,7 @@ class Repository() {
             commentAnswer,
             mAuth,
             mDB,
-            mStorageRef,
-            callback
+            mStorageRef
         )
     }
 

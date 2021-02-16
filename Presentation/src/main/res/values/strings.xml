@@ -92,6 +92,7 @@
     <string name="header_title">댓글</string>
     <string name="comment_write_answer">답글 달기</string>
     <string name="comment_read_answer">----------답글 보기</string>
+    <string name="comment_fold_answer">답글 접기</string>
     <string name="comment_modify_ing">댓글 수정 중</string>
     <string name="answer_write_hint">답글 달기</string>
     <string name="answer_write_ing">답글 작성 중</string>
@@ -100,6 +101,10 @@
 
     <!-- noticiation module -->
     <string name="noti_title">님이 댓글을 남기셨습니다.</string>
+
+    <!--Binding Adapter-->
+    <string name="binding_heart">좋아요</string>
+    <string name="binding_comment">댓글</string>
 
     <!-- common -->
     <string name="submit">확인</string>

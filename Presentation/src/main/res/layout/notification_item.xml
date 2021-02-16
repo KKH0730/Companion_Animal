@@ -74,7 +74,7 @@
             app:layout_constraintStart_toStartOf="@+id/noti_content" />
 
         <ImageView
-            alreadyRead = "@{model.notificationLiveData.component5()}"
+            alreadyRead = "@{model.notificationLiveData.component6()}"
             android:id="@+id/check_dot"
             android:layout_width="10dp"
             android:layout_height="10dp"

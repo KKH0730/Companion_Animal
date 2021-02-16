@@ -21,8 +21,7 @@ class CommentUseCase {
         comment: Comment,
         auth: FirebaseAuth,
         db: FirebaseFirestore,
-        storageRef: StorageReference,
-        callback: LongTaskCallback<Boolean>
+        storageRef: StorageReference
     ) {
         var remoteProfilePath = auth.currentUser?.email + "/profile/profileImage"
         storageRef.child(remoteProfilePath).downloadUrl.addOnSuccessListener {it1 ->
@@ -33,11 +32,6 @@ class CommentUseCase {
                 .collection("comment")
                 .document(comment.email + comment.timestamp)
                 .set(comment)
-                .addOnCompleteListener {it2 ->
-                    callback.onResponse(Result.Success(true))
-                }.addOnFailureListener {it3 ->
-                    callback.onResponse(Result.Error(it3))
-                }
         }
     }
 
@@ -49,8 +43,7 @@ class CommentUseCase {
         comment: Comment,
         auth: FirebaseAuth,
         db: FirebaseFirestore,
-        storageRef: StorageReference,
-        callback: LongTaskCallback<Boolean>
+        storageRef: StorageReference
     ) {
         var remoteProfilePath = auth.currentUser?.email + "/profile/profileImage"
         storageRef.child(remoteProfilePath).downloadUrl.addOnSuccessListener {
@@ -63,11 +56,6 @@ class CommentUseCase {
                 .collection("comment_answer")
                 .document(comment.email + comment.timestamp)
                 .set(comment)
-                .addOnCompleteListener {
-                    callback.onResponse(Result.Success(true))
-                }.addOnFailureListener { it2 ->
-                    callback.onResponse(Result.Error(it2))
-                }
         }
     }
 

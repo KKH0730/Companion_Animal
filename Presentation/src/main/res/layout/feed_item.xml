@@ -18,7 +18,7 @@
             android:id="@+id/constraintLayout4"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:background="@color/main_color"
+            android:background="@color/white"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
@@ -56,17 +56,7 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:srcCompat="@drawable/menu" />
 
-            <ImageButton
-                setBookmarkButton="@{model.feedLiveData.bookmarkList}"
-                android:id="@+id/bookmark_btn"
-                android:layout_width="40dp"
-                android:layout_height="25dp"
-                android:layout_marginEnd="10dp"
-                android:background="@color/main_color"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/feed_menu"
-                app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/bookmark_btn" />
+
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -91,77 +81,128 @@
             app:layout_constraintStart_toStartOf="parent" />
 
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <LinearLayout
             android:id="@+id/constraintLayout3"
             android:layout_width="match_parent"
             android:layout_height="50dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:background="@drawable/divider_bottom"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/feedViewPager">
-
-
-            <TextView
-                android:id="@+id/heart_count"
-                setHeart="@{model.feedLiveData.heart}"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="5dp"
-                android:padding="3dp"
-                android:textColor="@color/black"
-                android:textSize="14sp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/heart_btn"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <ImageButton
-                android:id="@+id/comment_show"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:background="@color/white"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/heart_count"
-                app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/comment2" />
-
-            <TextView
-                android:id="@+id/comment_count"
-                setComment="@{model.feedLiveData.comment}"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="5dp"
-                android:padding="3dp"
-                android:textColor="@color/black"
-                android:textSize="14sp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/comment_show"
-                app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@+id/linearLayout2">
 
             <ImageButton
                 android:id="@+id/heart_btn"
                 setHeartButton="@{model.feedLiveData.heartList}"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_weight="1"
                 android:background="@color/white"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:srcCompat="@drawable/heart_btn" />
 
+
+            <ImageButton
+                android:id="@+id/comment_show"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_weight="1"
+                android:background="@color/white"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/heart_count"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/comment2" />
+
+            <ImageButton
+                android:id="@+id/bookmark_btn"
+                setBookmarkButton="@{model.feedLiveData.bookmarkList}"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_weight="1"
+                android:background="@color/white"
+                app:srcCompat="@drawable/bookmark_btn" />
+
             <ImageButton
                 android:id="@+id/detail_btn"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
-                android:layout_marginEnd="10dp"
+                android:layout_weight="1"
                 android:background="@color/white"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:srcCompat="@drawable/detail" />
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:id="@+id/linearLayout2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/divider_bottom"
+            android:orientation="horizontal"
+            android:paddingTop = "15dp"
+            android:paddingBottom="15dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/feedViewPager">
+
+            <TextView
+                android:id="@+id/textView6"
+                setTime="@{model.feedLiveData.timestamp}"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"
+                android:textSize="12sp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/binding_heart"
+                android:textColor="@color/black"
+                android:textSize="12sp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="5dp"/>
+
+            <TextView
+                android:id="@+id/heart_count"
+                setHeart="@{model.feedLiveData.heart}"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"
+                android:textSize="12sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/heart_btn"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/binding_comment"
+                android:textColor="@color/black"
+                android:textSize="12sp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="5dp"/>
+
+            <TextView
+                android:id="@+id/comment_count"
+                setComment="@{model.feedLiveData.comment}"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"
+                android:textSize="12sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/comment_show"
+                app:layout_constraintTop_toTopOf="parent" />
+        </LinearLayout>
 
 
         <LinearLayout
@@ -172,6 +213,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
+
             app:layout_constraintTop_toBottomOf="@+id/constraintLayout3"
             app:layout_constraintVertical_bias="0.0">
 
@@ -182,12 +224,12 @@
                 android:layout_height="wrap_content"
                 android:padding="10dp"
                 android:textColor="@color/black"
-                app:text_more="@string/more"
                 app:collapseLine="2"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/constraintLayout3" />
+                app:layout_constraintTop_toBottomOf="@+id/constraintLayout3"
+                app:text_more="@string/more" />
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/constraintLayout5"
@@ -214,8 +256,8 @@
                         android:layout_height="match_parent">
 
                         <LinearLayout
-                            setHashTag="@{model.feedLiveData.hashTags}"
                             android:id="@+id/hashTagContainer"
+                            setHashTag="@{model.feedLiveData.hashTags}"
                             android:layout_width="match_parent"
                             android:layout_height="20dp"
                             android:layout_marginTop="5dp"
@@ -243,8 +285,8 @@
                 android:layout_marginTop="10dp">
 
                 <de.hdodenhof.circleimageview.CircleImageView
-                    setMyProfileImage="@{model.feedLiveData.remoteProfileUri}"
                     android:id="@+id/profileImageVIew"
+                    setMyProfileImage="@{model.feedLiveData.remoteProfileUri}"
                     android:layout_width="50dp"
                     android:layout_height="0dp"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -259,10 +301,10 @@
                     android:layout_height="match_parent"
                     android:layout_marginStart="5dp"
                     android:layout_marginEnd="10dp"
+                    android:background="@null"
                     android:hint="@string/comment_hint"
                     android:inputType="text"
                     android:textSize="14sp"
-                    android:background="@null"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/comment_btn"
                     app:layout_constraintHorizontal_bias="0.0"

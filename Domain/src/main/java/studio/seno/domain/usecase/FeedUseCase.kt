@@ -33,56 +33,60 @@ class FeedUseCase {
                 override fun onResponse(result: Result<Boolean>) {
 
                     //프로필 이미지 객체 불러와 객체에 저장
-                    uploadUseCase.loadRemoteProfileImage(feed.email, storageRef, object : LongTaskCallback<String>{
-                        override fun onResponse(result: Result<String>) {
-                            if(result is Result.Success) {
-                                feed.remoteProfileUri = result.data
+                    uploadUseCase.loadRemoteProfileImage(
+                        feed.email,
+                        storageRef,
+                        object : LongTaskCallback<String> {
+                            override fun onResponse(result: Result<String>) {
+                                if (result is Result.Success) {
+                                    feed.remoteProfileUri = result.data
 
-                                storageRef.child(remoteImagePath).listAll()
-                                    .addOnCompleteListener { it2 ->
-                                        var listResult = it2.result?.items!!
-
-
-                                        //Feed 이미지 로드 후 객체에 저장
-                                        UploadUseCase().loadRemoteFeedImage(
-                                            listResult,
-                                            object : LongTaskCallback<MutableList<String>> {
-                                                override fun onResponse(result: Result<MutableList<String>>) {
-                                                    var res = (result as Result.Success).data
-                                                    feed.remoteUri = res
+                                    storageRef.child(remoteImagePath).listAll()
+                                        .addOnCompleteListener { it2 ->
+                                            var listResult = it2.result?.items!!
 
 
-                                                    //db에 객체 데이터 저장
-                                                    mDB.collection("feed")
-                                                        .document(feed.email + feed.timestamp)
-                                                        .set(feed)
-                                                        .addOnCompleteListener {
-                                                            var result: Result<Boolean>? = null
-                                                            if (it.isSuccessful)
-                                                                result = Result.Success(true)
-                                                            else
-                                                                result = Result.Success(false)
-                                                            callback.onResponse(result)
+                                            //Feed 이미지 로드 후 객체에 저장
+                                            UploadUseCase().loadRemoteFeedImage(
+                                                listResult,
+                                                object : LongTaskCallback<MutableList<String>> {
+                                                    override fun onResponse(result: Result<MutableList<String>>) {
+                                                        var res = (result as Result.Success).data
+                                                        feed.remoteUri = res
 
-                                                            PrefereceManager.setLong(
-                                                                context,
-                                                                "feedCount",
-                                                                PrefereceManager.getLong(
+
+                                                        //db에 객체 데이터 저장
+                                                        mDB.collection("feed")
+                                                            .document(feed.email + feed.timestamp)
+                                                            .set(feed)
+                                                            .addOnCompleteListener {
+                                                                var result: Result<Boolean>? = null
+                                                                if (it.isSuccessful)
+                                                                    result = Result.Success(true)
+                                                                else
+                                                                    result = Result.Success(false)
+                                                                callback.onResponse(result)
+
+                                                                PrefereceManager.setLong(
                                                                     context,
-                                                                    "feedCount"
-                                                                ) + 1L
-                                                            )
-                                                        }.addOnFailureListener {
-                                                            callback.onResponse(Result.Error(it))
-                                                        }
-                                                }
-                                            })
+                                                                    "feedCount",
+                                                                    PrefereceManager.getLong(
+                                                                        context,
+                                                                        "feedCount"
+                                                                    ) + 1L
+                                                                )
+                                                            }.addOnFailureListener {
+                                                                callback.onResponse(Result.Error(it))
+                                                            }
+                                                    }
+                                                })
 
-                                    }.addOnFailureListener { callback.onResponse(Result.Error(it)) }
+                                        }
+                                        .addOnFailureListener { callback.onResponse(Result.Error(it)) }
 
+                                }
                             }
-                        }
-                    })
+                        })
                 }
             })
         var list = mutableListOf("feedCount")
@@ -118,12 +122,41 @@ class FeedUseCase {
                                 list[i].getString("remoteProfileUri")!!,
                                 list[i].data?.get("remoteUri") as MutableList<String>,
                                 list[i].data?.get("heartList") as Map<String, String>,
-                                list[i].data?.get("bookmarkList") as Map<String, String>,
+                                list[i].data?.get("bookmarkList") as Map<String, String>
                             )
                             feedList.add(feed)
                         }
-                        var result = Result.Success(feedList.toList())
-                        callback.onResponse(result)
+                        callback.onResponse(Result.Success(feedList.toList()))
+                    }
+                }
+            }.addOnFailureListener {
+                callback.onResponse(Result.Error(it))
+            }
+    }
+
+    fun loadFeed(path: String, db: FirebaseFirestore, callback: LongTaskCallback<Feed>) {
+        db.collection("feed")
+            .document(path)
+            .get()
+            .addOnCompleteListener {
+                if (it.isSuccessful) {
+                    if (it.result != null) {
+                        var feed = Feed(
+                            it.result!!.getString("email")!!,
+                            it.result!!.getString("nickname")!!,
+                            it.result!!.getString("sort")!!,
+                            it.result!!.data?.get("hashTags") as MutableList<String>,
+                            it.result!!.data?.get("localUri") as MutableList<String>,
+                            it.result!!.getString("content")!!,
+                            it.result!!.getLong("heart")!!,
+                            it.result!!.getLong("comment")!!,
+                            it.result!!.getLong("timestamp")!!,
+                            it.result!!.getString("remoteProfileUri")!!,
+                            it.result!!.data?.get("remoteUri") as MutableList<String>,
+                            it.result!!.data?.get("heartList") as Map<String, String>,
+                            it.result!!.data?.get("bookmarkList") as Map<String, String>
+                        )
+                        callback.onResponse(Result.Success(feed))
                     }
                 }
             }.addOnFailureListener {

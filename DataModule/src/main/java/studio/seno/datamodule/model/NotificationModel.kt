@@ -7,7 +7,7 @@ class NotificationModel {
     @SerializedName("to")
     private var token : String? = null
 
-    @SerializedName("notification")
+    @SerializedName("data")
     private var notificationData : NotificationData? = null
 
     constructor(token : String, notificationData: NotificationData) {

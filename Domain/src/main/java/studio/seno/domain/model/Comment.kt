@@ -5,7 +5,7 @@ data class Comment (
     val type : Long,
     val email : String,
     val nickname : String,
-    val content : String,
+    var content : String,
     var profileUri : String?,
     val timestamp : Long
 ) : Comparable<Comment> {

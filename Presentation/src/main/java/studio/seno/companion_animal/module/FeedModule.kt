@@ -186,13 +186,15 @@ class FeedModule(
             override fun onResponse(result: Result<User>) {
                 if(result is Result.Success) {
 
+                    val timestamp = Timestamp(System.currentTimeMillis()).time
                     val notificationModel = NotificationModel(
                         result.data.token,
                         NotificationData(
                             nickname!!,
-                            "${feed.email + Timestamp(System.currentTimeMillis()).time} $commentContent",
-                            null,
-                            null,
+                            commentContent,
+                            timestamp,
+                            feed.email + timestamp,
+                            feed.email + feed.timestamp,
                             true
                         )
                     )

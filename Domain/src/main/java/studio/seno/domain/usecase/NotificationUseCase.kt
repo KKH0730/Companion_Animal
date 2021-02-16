@@ -14,7 +14,7 @@ class NotificationUseCase {
         db.collection("user")
             .document(myEmail)
             .collection("notification")
-           .document(notificationData.targetPath!!)
+           .document(notificationData.myPath!!)
             .set(notificationData)
     }
     
@@ -35,6 +35,7 @@ class NotificationUseCase {
                             element.getString("title")!!,
                             element.getString("body")!!,
                             element.getLong("timestamp")!!,
+                            element.getString("myPath")!!,
                             element.getString("targetPath")!!,
                             element.getBoolean("check")!!
                         )

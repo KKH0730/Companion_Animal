@@ -52,20 +52,7 @@ class CommentListViewModel : ViewModel() {
         timestamp: Long
     ) {
         var comment = mapper.mapperToComment(type, email, nickname, content, null, timestamp)
-        repository.uploadComment(
-            targetEmail,
-            targetTimestamp,
-            comment,
-            object : LongTaskCallback<Boolean> {
-                override fun onResponse(result: Result<Boolean>) {
-                    if (result is Result.Success) {
-                        //댓글 업로드 후, 댓글 로드하여 라이브 데이터 갱신
-                        requestLoadComment(targetEmail, targetTimestamp)
-                    } else if(result is Result.Error){
-                        Log.e("error", "comment upload error : ${result.exception}")
-                    }
-                }
-            })
+        repository.uploadComment(targetEmail, targetTimestamp, comment)
     }
 
     fun requestUploadCommentAnswer(
@@ -80,16 +67,7 @@ class CommentListViewModel : ViewModel() {
         timestamp: Long
     ) {
         var commentAnswer = mapper.mapperToComment(type, email, nickname, content, null, timestamp)
-        repository.uploadCommentAnswer(feedEmail, feedTimestamp, targetEmail, targetTimestamp, commentAnswer,
-        object : LongTaskCallback<Boolean>{
-            override fun onResponse(result: Result<Boolean>) {
-                if(result is Result.Success) {
-                    requestLoadComment(feedEmail, feedTimestamp)
-                }else if(result is Result.Error){
-                    Log.e("error", "comment upload error : ${result.exception}")
-                }
-            }
-        })
+        repository.uploadCommentAnswer(feedEmail, feedTimestamp, targetEmail, targetTimestamp, commentAnswer)
     }
 
     fun requestUploadCommentCount(targetEmail: String, targetTimestamp: Long, commentCount: Long, flag : Boolean) {

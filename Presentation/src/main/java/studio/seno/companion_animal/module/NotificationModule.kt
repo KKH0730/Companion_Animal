@@ -11,6 +11,7 @@ import android.graphics.BitmapFactory
 import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Build
+import android.util.Log
 import androidx.core.app.NotificationCompat.PRIORITY_DEFAULT
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.util.Constants
@@ -47,13 +48,11 @@ class NotificationModule(context: Context) {
 
         val defaultSoundUri: Uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
 
-
-        val array : List<String> = content.split(" ")
         var notificationBuilder = Notification.Builder(mContext, Constants.NOTI_CHANNEL)
             .setLargeIcon(BitmapFactory.decodeResource(mContext.resources, R.drawable.logo))
             .setSmallIcon(R.mipmap.ic_launcher)
             .setContentTitle(title + mContext.getString(R.string.noti_title))
-            .setContentText(array[1])
+            .setContentText(content)
             .setAutoCancel(true)
             .setSound(defaultSoundUri)
             .setPriority(PRIORITY_MAX)

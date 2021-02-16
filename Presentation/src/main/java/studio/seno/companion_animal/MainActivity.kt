@@ -11,10 +11,15 @@ import androidx.lifecycle.observe
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.iid.FirebaseInstanceId
 import me.ibrahimsn.lib.OnItemSelectedListener
+import org.jetbrains.anko.startActivity
+import org.jetbrains.anko.support.v4.startActivity
 import studio.seno.companion_animal.databinding.ActivityMainBinding
+import studio.seno.companion_animal.ui.feed.FeedDetailActivity
 import studio.seno.companion_animal.ui.main_ui.*
+import studio.seno.datamodule.Repository
 import studio.seno.domain.LongTaskCallback
 import studio.seno.domain.Result
+import studio.seno.domain.model.Feed
 import studio.seno.domain.model.User
 import studio.seno.domain.util.PrefereceManager
 
@@ -36,9 +41,21 @@ class MainActivity : AppCompatActivity() , DialogInterface.OnDismissListener{
         init()
 
         loadUserInfo()
-
         navigateView()
+
         supportFragmentManager.beginTransaction().replace(R.id.container, homeFragment).commit()
+
+        if(intent.getStringExtra("from") != null && intent.getStringExtra("from") == "notification") {
+            Repository().loadFeed(intent.getStringExtra("target_path"), object : LongTaskCallback<Feed>{
+                override fun onResponse(result: Result<Feed>) {
+                    if(result is Result.Success){
+                        startActivity<FeedDetailActivity>("feed" to result.data)
+                    } else if(result is Result.Error) {
+                        Log.e("error", "MainActivity notification intent error: ${result.exception}")
+                    }
+                }
+            })
+        }
     }
 
     fun init(){

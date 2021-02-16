@@ -42,9 +42,12 @@ class CommentAdapter : ListAdapter<Comment, RecyclerView.ViewHolder>(
         if(viewType == Constants.PARENT.toInt()) {
             val holder = holder as ParentCommentViewHolder
             val item = getItem(position)
+            var item2 : Comment? = null
+            if(position + 1 < itemCount)
+                item2  = getItem(position + 1)
             val model = CommentParentViewModel()
             model.setParentCommentLiveData(item)
-            holder.setViewModel(model, item)
+            holder.setViewModel(model, item, item2)
         } else {
             val holder = holder as ChildCommentViewHolder
             val item = getItem(position)
@@ -73,11 +76,17 @@ class CommentAdapter : ListAdapter<Comment, RecyclerView.ViewHolder>(
 
 
 
-        fun setViewModel(model : CommentParentViewModel, comment : Comment) {
-            if(comment.getChildren()!!.isEmpty()) {
+        fun setViewModel(model : CommentParentViewModel, comment : Comment, nextComment : Comment?) {
+            if(comment.getChildren()!!.size == 0) {
                 binding.readAnswer.visibility = View.GONE
+
+                if(nextComment != null && nextComment.type == Constants.CHILD) {
+                    binding.readAnswer.visibility = View.VISIBLE
+                    binding.readAnswer.text = binding.readAnswer.context.getString(R.string.comment_fold_answer)
+                }
             } else {
                 binding.readAnswer.visibility = View.VISIBLE
+                binding.readAnswer.text = binding.readAnswer.context.getString(R.string.comment_read_answer)
             }
 
             binding.model = model

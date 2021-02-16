@@ -11,13 +11,19 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
 import com.google.firebase.auth.FirebaseAuth
+import org.jetbrains.anko.support.v4.startActivity
 import studio.seno.commonmodule.CustomToast
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.FragmentNotificationBinding
+import studio.seno.companion_animal.ui.feed.FeedDetailActivity
 import studio.seno.companion_animal.ui.feed.FeedListAdapter
 import studio.seno.companion_animal.ui.notification.NotificationAdapter
 import studio.seno.companion_animal.ui.notification.NotificationListViewModel
 import studio.seno.companion_animal.ui.notification.OnNotificationClickedListener
+import studio.seno.datamodule.Repository
+import studio.seno.domain.LongTaskCallback
+import studio.seno.domain.Result
+import studio.seno.domain.model.Feed
 import studio.seno.domain.model.NotificationData
 
 class NotificationFragment : Fragment() {
@@ -61,6 +67,17 @@ class NotificationFragment : Fragment() {
                     FirebaseAuth.getInstance().currentUser?.email.toString(),
                     item
                 )
+
+                Repository().loadFeed(item.targetPath!!, object : LongTaskCallback<Feed>{
+                    override fun onResponse(result: Result<Feed>) {
+                        if(result is Result.Success){
+                            startActivity<FeedDetailActivity>("feed" to result.data)
+                        } else if(result is Result.Error) {
+                            Log.e("error", "NotificationFragment intent error : ${result.exception}")
+                        }
+                    }
+                })
+
             }
         })
     }

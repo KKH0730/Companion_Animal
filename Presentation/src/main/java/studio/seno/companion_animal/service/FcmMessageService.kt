@@ -17,32 +17,28 @@ class FcmMessageService : FirebaseMessagingService() {
 
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
-        val title = remoteMessage.notification?.title
-        val body = remoteMessage.notification?.body
+        val title = remoteMessage.data["title"].toString()
+        val body = remoteMessage.data["body"].toString()
 
-        if (body?.isNotEmpty()!!) {
-            val array : List<String> = body.split(" ")
-            Repository().uploadNotificationInfo(
-                FirebaseAuth.getInstance().currentUser?.email.toString(),
-                NotificationData(
-                    title!!,
-                    array.get(1),
-                    Timestamp(System.currentTimeMillis()).time,
-                    array.get(0),
-                    true
-                )
+
+        Repository().uploadNotificationInfo(
+            FirebaseAuth.getInstance().currentUser?.email.toString(), //notification 저장경로
+            NotificationData(
+                remoteMessage.data["title"].toString(),
+                remoteMessage.data["body"].toString(), //content
+                remoteMessage.data["timestamp"]?.toLong(),
+                remoteMessage.data["myPath"].toString(), //알림받은 피드의 경로
+                remoteMessage.data["targetPath"].toString(),
+                true
             )
-        }
+        )
 
-
-        remoteMessage.notification?.let {
+        remoteMessage.data.let {
             var notificationModel = NotificationModule(applicationContext)
             val intent = Intent(applicationContext, MainActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
-
-            if (title != null && body != null) {
-                notificationModel.makeNotification(title, body, intent)
-            }
+            intent.putExtra("from", "notification")
+            intent.putExtra("target_path", remoteMessage.data["targetPath"].toString())
+            notificationModel.makeNotification(title, body, intent)
         }
     }
 
