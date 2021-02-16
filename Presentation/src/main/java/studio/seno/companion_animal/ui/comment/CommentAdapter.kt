@@ -88,7 +88,7 @@ class CommentAdapter : ListAdapter<Comment, RecyclerView.ViewHolder>(
 
         fun setEvent(comment: Comment){
             binding.readAnswer.setOnClickListener{ mListener.onReadAnswerClicked(binding.readAnswer, comment) }
-            binding.writeAnswer.setOnClickListener { mListener.onWriteAnswerCilcked(comment) }
+            binding.writeAnswer.setOnClickListener { mListener.onWriteAnswerClicked(comment,adapterPosition) }
             binding.commentMenu.setOnClickListener { mListener.onMenuClicked(comment, adapterPosition) }
         }
     }

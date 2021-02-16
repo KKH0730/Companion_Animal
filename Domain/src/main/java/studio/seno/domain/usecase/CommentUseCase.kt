@@ -193,8 +193,7 @@ class CommentUseCase {
         parentComment : Comment,
         childComment : Comment?,
         type : String,
-        db : FirebaseFirestore,
-        callback: LongTaskCallback<Boolean>
+        db : FirebaseFirestore
     ) {
         if (type == "parent") {
             db.collection("feed")
@@ -217,13 +216,7 @@ class CommentUseCase {
                 .collection("comment")
                 .document(parentComment.email + parentComment.timestamp)
                 .delete()
-                .addOnCompleteListener {
-                    if (it.isSuccessful) {
-                        callback.onResponse(Result.Success(true))
-                    }
-                }.addOnFailureListener {
-                    callback.onResponse(Result.Error(it))
-                }
+
         } else {
             db.collection("feed")
                 .document(feedEmail + feedTimestamp)
@@ -232,13 +225,7 @@ class CommentUseCase {
                 .collection("comment_answer")
                 .document(childComment?.email + childComment?.timestamp)
                 .delete()
-                .addOnCompleteListener {
-                    if (it.isSuccessful) {
-                        callback.onResponse(Result.Success(true))
-                    }
-                }.addOnFailureListener {
-                    callback.onResponse(Result.Error(it))
-                }
+
         }
     }
 }

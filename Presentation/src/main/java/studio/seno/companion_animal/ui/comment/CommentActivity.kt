@@ -44,6 +44,7 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
     private var curComment: Comment? = null
     private var answerComment : Comment? = null
     private var answerPosition = 0
+    private var commentPosition = 0
     private val feed : Feed by lazy {intent.getParcelableExtra<Feed>("feed")}
 
 
@@ -98,7 +99,7 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
                 readAnswer.visibility = View.GONE
             }
 
-            override fun onWriteAnswerCilcked(targetComment: Comment) {
+            override fun onWriteAnswerClicked(targetComment: Comment, position : Int) {
                 curComment = targetComment
 
                 setHint(1)
@@ -113,6 +114,7 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
                     menuDialog.show(supportFragmentManager, "comment")
                     answerMode = false
                     curComment = comment
+                    commentPosition = position
                 } else {
                     menuDialog.show(supportFragmentManager, "comment_answer")
                     answerMode = true
@@ -196,10 +198,23 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
 
     fun deleteComment(){
         val type : String?
+        val list = commentAdapter.currentList.toMutableList()
+
+
         if(answerMode) {
+            list.removeAt(answerPosition)
             curComment = findParentComment()
             type = "child"
         } else{
+            var size = findNextParentComment(commentPosition) - 1
+            var idx = 1
+            for(i in commentPosition .. size) {
+                if(i != commentPosition)
+                    list.removeAt(i - idx++)
+                else
+                    list.removeAt(i)
+            }
+
             viewModel.requestUploadCommentCount(
                 feed.email,
                 feed.timestamp,
@@ -216,7 +231,8 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
             feed.timestamp,
             curComment!!,
             answerComment,
-            type
+            type,
+            list
         )
     }
 
@@ -264,6 +280,18 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
                 return list[i]
         }
         return null
+    }
+
+    fun findNextParentComment(commentPosition : Int) : Int {
+        var list = commentAdapter.currentList
+        for(i in commentPosition + 1 until list.size) {
+            if(list[i].type == Constants.PARENT) {
+                return i
+            } else if(i == list.size - 1) {
+                return i + 1
+            }
+        }
+        return commentPosition + 1
     }
 
     fun setHint(method: Int) {

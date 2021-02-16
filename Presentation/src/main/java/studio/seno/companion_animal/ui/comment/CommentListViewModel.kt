@@ -20,6 +20,7 @@ class CommentListViewModel : ViewModel() {
     }
 
     fun setCommentListLiveData(list: List<Comment>) {
+        commentListLiveData.value = null
         commentListLiveData.value = list
     }
 
@@ -100,19 +101,11 @@ class CommentListViewModel : ViewModel() {
         feedTimestamp: Long,
         parentComment: Comment,
         childComment: Comment?,
-        type: String
+        type: String,
+        list: MutableList<Comment>
     ){
-        repository.deleteComment(feedEmail, feedTimestamp, parentComment, childComment, type,
-        object : LongTaskCallback<Boolean>{
-            override fun onResponse(result: Result<Boolean>) {
-                if(result is Result.Success) {
-                    requestLoadComment(feedEmail, feedTimestamp)
-                } else if(result is Result.Error){
-                    Log.e("error", "delete Comment : ${result.exception}")
-                }
-
-            }
-        })
+        repository.deleteComment(feedEmail, feedTimestamp, parentComment, childComment, type)
+        commentListLiveData.value = list
     }
 
 

@@ -151,10 +151,9 @@ class Repository() {
         feedTimestamp: Long,
         parentComment: Comment,
         childComment: Comment?,
-        type: String,
-        callback: LongTaskCallback<Boolean>
+        type: String
     ){
-        commentUseCase.deleteComment(feedEmail, feedTimestamp, parentComment, childComment, type, mDB, callback)
+        commentUseCase.deleteComment(feedEmail, feedTimestamp, parentComment, childComment, type, mDB)
     }
 
     /**
