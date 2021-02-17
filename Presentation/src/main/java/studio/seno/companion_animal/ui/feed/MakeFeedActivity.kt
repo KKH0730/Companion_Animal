@@ -2,6 +2,7 @@ package studio.seno.companion_animal.ui.feed
 
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.ImageButton
 import android.widget.RadioGroup
@@ -25,7 +26,7 @@ class MakeFeedActivity : AppCompatActivity(), View.OnClickListener,
     BottomSheetImagePicker.OnImagesSelectedListener, RadioGroup.OnCheckedChangeListener {
     private lateinit var binding: ActivityMakeFeedBinding
     private lateinit var selectedImageAdapter: SelectedImageAdapter
-    private val viewModel: FeedListViewModel by viewModels()
+    private val feedListViewModel: FeedListViewModel by viewModels()
     private var feed : Feed? = null
     private var mode = "write"
 
@@ -78,7 +79,7 @@ class MakeFeedActivity : AppCompatActivity(), View.OnClickListener,
 
     fun setModifyInfo(){
         // 이미지 업로드
-        for(element in feed!!.remoteUri!!) {
+        for(element in feed!!.remoteUri) {
             selectedImageAdapter.addItem(element)
         }
         selectedImageAdapter.notifyDataSetChanged()
@@ -100,8 +101,7 @@ class MakeFeedActivity : AppCompatActivity(), View.OnClickListener,
             }
         }
         //해시태그
-        hashTags = feed!!.hashTags!!.toMutableList()
-        for(element in feed!!.hashTags!!) {
+        for(element in feed!!.hashTags.toMutableList()) {
             makeHashTag(element)
         }
 
@@ -170,16 +170,16 @@ class MakeFeedActivity : AppCompatActivity(), View.OnClickListener,
                 currentChecked = binding.etcContent.text.toString()
 
             if(feed == null && mode == "write") {
-                submitResult(Timestamp(System.currentTimeMillis()).time)
+                submitResult(Timestamp(System.currentTimeMillis()).time, "write", 0)
             } else if(feed != null && mode != "write") {
                 if(mode == "modify")
-                    submitResult(feed!!.timestamp)
+                    submitResult(feed!!.timestamp, "modify", intent.getIntExtra("targetFeedPosition", 0))
                 else
-                    viewModel.requestDeleteFeed(feed!!)
+                    feedListViewModel.requestDeleteFeed(feed!!)
             }
 
 
-            viewModel.getFeedListSaveStatus().observe(this, {
+            feedListViewModel.getFeedListSaveStatus().observe(this, {
                 if(it) {
                     finish()
                 }
@@ -188,9 +188,9 @@ class MakeFeedActivity : AppCompatActivity(), View.OnClickListener,
         }
     }
 
-    fun submitResult(timestamp: Long){
+    fun submitResult(timestamp: Long, mode : String, targetFeedPosition : Int){
         PrefereceManager.getString(this, "nickName")?.let {
-            viewModel.requestUploadFeed(
+            feedListViewModel.requestUploadFeed(
                 this,
                 0,
                 FirebaseAuth.getInstance().currentUser?.email.toString(),
@@ -199,14 +199,26 @@ class MakeFeedActivity : AppCompatActivity(), View.OnClickListener,
                 hashTags,
                 selectedImageAdapter.getItems(),
                 binding.content.text.toString(),
-                timestamp
+                timestamp,
+                mode,
+                targetFeedPosition
             )
         }
     }
 
     fun makeHashTag(str : String){
+        var sb = StringBuilder()
         val chipView = ChipView(this)
-        chipView.label = str
+        if(str.length == 0) {
+            sb.append("#")
+        } else if(str.length != 0 && str[0] != '#'){
+            sb.append("#")
+            sb.append(str)
+        } else {
+            sb.append(str)
+        }
+
+        chipView.label = sb.toString()
         chipView.setDeletable(true)
         chipView.setPadding(30, 0, 0, 0)
         chipView.setChipBackgroundColor(getColor(R.color.main_color))

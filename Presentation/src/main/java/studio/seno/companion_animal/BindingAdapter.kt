@@ -19,6 +19,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.pchmn.materialchips.ChipView
 import de.hdodenhof.circleimageview.CircleImageView
 import me.relex.circleindicator.CircleIndicator3
+import org.jetbrains.anko.dimen
 import studio.seno.companion_animal.module.CommonFunction
 import studio.seno.companion_animal.module.TextModule
 import studio.seno.companion_animal.ui.feed.FeedPagerFragment
@@ -128,12 +129,8 @@ object BindingAdapter {
 
                     chipView.setChipBackgroundColor(linearLayout.context.getColor(R.color.main_color))
                     chipView.setLabelColor(linearLayout.context.getColor(R.color.white))
-                    chipView.setPadding(0, 0, 0, 0)
-
-                    if(element[0] != '#')
-                        chipView.label = "#$element"
-                    else
-                        chipView.label = element
+                    chipView.setPadding(20, 0, 0, 0)
+                    chipView.label = element
                     linearLayout.addView(chipView)
                 }
             }
@@ -233,5 +230,27 @@ object BindingAdapter {
         else
             imageView.visibility = View.GONE
     }
+
+    /**
+     * Search
+     */
+    @BindingAdapter("setImage")
+    @JvmStatic
+    fun setImage(imageView: ImageView, uri: List<String>) {
+        try {
+            if (uri != null) {
+                Glide.with(imageView.context)
+                    .load(Uri.parse(uri[0]))
+                    .override(200, 200)
+                    .centerCrop()
+                    .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
+                    .into(imageView)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+
 
 }

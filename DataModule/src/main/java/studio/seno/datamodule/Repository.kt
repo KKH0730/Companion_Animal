@@ -7,10 +7,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import studio.seno.domain.LongTaskCallback
-import studio.seno.domain.model.Comment
-import studio.seno.domain.model.Feed
-import studio.seno.domain.model.NotificationData
-import studio.seno.domain.model.User
+import studio.seno.domain.model.*
 import studio.seno.domain.usecase.*
 
 class Repository() {
@@ -24,6 +21,7 @@ class Repository() {
     private val commentUseCase = CommentUseCase()
     private val followUseCase = FollowUseCase()
     private val notificationUseCase = NotificationUseCase()
+    private val searchUseCase = SearchUseCase()
 
     //회원가입시 회원정보 서버에 저장
     fun uploadUserInfo(user: User) {
@@ -60,7 +58,7 @@ class Repository() {
 
 
     //피드 작성후 서버에 업로드
-    fun uploadFeed(context: Context, feed: Feed, callback: LongTaskCallback<Boolean>) {
+    fun uploadFeed(context: Context, feed: Feed, callback: LongTaskCallback<Feed>) {
         feedUseCase.uploadFeed(context, feed, mDB, mStorageRef, callback)
     }
 
@@ -161,7 +159,7 @@ class Repository() {
      * Notification
      */
 
-    //댓글을 달
+
     fun uploadNotificationInfo(myEmail : String, notificationData : NotificationData){
         notificationUseCase.uploadNotificationInfo(myEmail, notificationData, mDB)
     }
@@ -173,5 +171,24 @@ class Repository() {
 
     fun requestUpdateCheckDot(myEmail : String, notificationData : NotificationData){
         notificationUseCase.updateCheckDot(myEmail, notificationData, mDB)
+    }
+
+    /**
+     * Search
+     */
+
+    //최근 검색 키워드 업로드
+    fun requestUploadLastSearch(myEmail : String, lastSearch: LastSearch) {
+        searchUseCase.uploadLastSearch(myEmail, lastSearch, mDB)
+    }
+
+    //최근 검색 키워드 로드
+    fun requestLoadLastSearch(myEmail: String, callback : LongTaskCallback<List<LastSearch>>) {
+        searchUseCase.loadLastSearch(myEmail, mDB, callback)
+    }
+
+    //최근 검색 삭제
+    fun requestDeleteLastSearch(myEmail : String, lastSearch: LastSearch){
+        searchUseCase.deleteLastSearch(myEmail, lastSearch, mDB)
     }
 }

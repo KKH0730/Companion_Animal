@@ -98,6 +98,9 @@
     <string name="answer_write_ing">답글 작성 중</string>
     <string name="answer_modify_ing">답글 수정 중</string>
 
+    <!-- SearchFragment -->
+    <string name="last_search">최근 검색어</string>
+
 
     <!-- noticiation module -->
     <string name="noti_title">님이 댓글을 남기셨습니다.</string>

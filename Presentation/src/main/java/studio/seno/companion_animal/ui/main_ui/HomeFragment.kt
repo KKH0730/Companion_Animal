@@ -1,6 +1,8 @@
 package studio.seno.companion_animal.ui.main_ui
 
+import android.content.Context
 import android.os.Bundle
+import android.os.Parcelable
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -13,9 +15,12 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.auth.FirebaseAuth
 import org.jetbrains.anko.support.v4.intentFor
 import org.jetbrains.anko.support.v4.startActivity
+import studio.seno.commonmodule.CustomToast
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.FragmentHomeBinding
 import studio.seno.companion_animal.module.FeedModule
@@ -23,6 +28,7 @@ import studio.seno.companion_animal.ui.comment.CommentActivity
 import studio.seno.companion_animal.ui.comment.CommentListViewModel
 import studio.seno.companion_animal.ui.feed.*
 import studio.seno.companion_animal.util.Constants
+import studio.seno.companion_animal.util.ViewControlListener
 import studio.seno.domain.LongTaskCallback
 import studio.seno.domain.Result
 import studio.seno.domain.model.Feed
@@ -40,12 +46,17 @@ class HomeFragment : Fragment(){
         FeedModule(feedListViewModel, commentViewModel, mainViewModel)
     }
     private var targetFeed : Feed? = null
+    private var targetFeedPosition = 0
     private val currentUserEmail  = FirebaseAuth.getInstance().currentUser?.email.toString()
-    private val feedAdapter: FeedListAdapter by lazy {
-        FeedListAdapter(
-            parentFragmentManager,
-            lifecycle
-        )
+    private val feedAdapter: FeedListAdapter by lazy { FeedListAdapter(parentFragmentManager, lifecycle) }
+
+    companion object {
+        @JvmStatic
+        fun newInstance() =
+            HomeFragment().apply {
+                arguments = Bundle().apply {
+                }
+            }
     }
 
     override fun onCreateView(
@@ -59,7 +70,7 @@ class HomeFragment : Fragment(){
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.lifecycleOwner = this
+        binding.lifecycleOwner = requireActivity()
         binding.model = feedListViewModel
         binding.feedRecyclerView.adapter = feedAdapter
 
@@ -96,11 +107,11 @@ class HomeFragment : Fragment(){
                         "feed" to feed,
                     ), Constants.COMMENT_REQUEST
                 )
-
             }
 
             override fun onMenuClicked(feed: Feed, position: Int) {
                 targetFeed = feed
+                targetFeedPosition = position
                 feedModule.menuButtonEvent(feed, parentFragmentManager)
             }
 
@@ -121,7 +132,6 @@ class HomeFragment : Fragment(){
                 override fun onResponse(result: Result<List<Feed>>) {
                     if (result is Result.Success) {
                         binding.refreshLayout.isRefreshing = false
-                        binding.feedRecyclerView.smoothScrollToPosition(0)
                     } else if (result is Result.Error) {
                         Log.e("error", "feed refresh error : ${result.exception}")
                     }
@@ -130,29 +140,18 @@ class HomeFragment : Fragment(){
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-
-        feedAdapter.notifyDataSetChanged()
-    }
-
-    companion object {
-        @JvmStatic
-        fun newInstance() =
-            HomeFragment().apply {
-                arguments = Bundle().apply {
-                }
-            }
-    }
 
     fun onDismissed(type: String) {
         if(targetFeed != null) {
             if(type == "feed_modify") {
+
                 startActivity<MakeFeedActivity>(
                     "feed" to targetFeed,
-                    "mode" to "modify"
+                    "mode" to "modify",
                 )
+
             } else if(type == "feed_delete") {
+                feedListViewModel.setFeedListLiveData(feedAdapter.currentList.toMutableList())
                 startActivity<MakeFeedActivity>(
                     "feed" to targetFeed,
                     "mode" to "delete"

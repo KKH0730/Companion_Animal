@@ -2,6 +2,7 @@ package studio.seno.companion_animal.ui.feed
 
 import android.content.Context
 import android.util.Log
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import studio.seno.datamodule.Repository
@@ -21,12 +22,19 @@ class FeedListViewModel() : ViewModel() {
         return feedListLiveData
     }
 
+    fun setFeedListLiveData(list : List<Feed>) {
+        feedListLiveData.value = null
+        feedListLiveData.value = list
+    }
+
     fun getFeedListSaveStatus() : MutableLiveData<Boolean>{
         return feedSaveStatus
     }
 
+
+
     fun requestUploadFeed(context : Context, id : Long, email : String, nickname : String, sort : String, hashTags : List<String>,
-        localUri : List<String>, content : String, timestamp : Long
+        localUri : List<String>, content : String, timestamp : Long, mode: String, targetFeedPosition : Int
     ) {
 
         var feed = mapper.mapperToFeed(
@@ -34,12 +42,12 @@ class FeedListViewModel() : ViewModel() {
             localUri, content, timestamp
         )
 
-        repository.uploadFeed(context, feed, object : LongTaskCallback<Boolean> {
-            override fun onResponse(result: Result<Boolean>) {
+        repository.uploadFeed(context, feed, object : LongTaskCallback<Feed> {
+            override fun onResponse(result: Result<Feed>) {
                 if (result is Result.Success) {
-                    feedSaveStatus.value = result.data
+                    feedSaveStatus.value = true
+
                 } else if(result is Result.Error) {
-                    feedSaveStatus.value = false
                     Log.e("error", "upload feed error : ${result.exception}")
                 }
             }

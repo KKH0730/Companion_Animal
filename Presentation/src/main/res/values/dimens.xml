@@ -6,5 +6,8 @@
     <dimen name="peekHeight">260dp</dimen>
     <dimen name="columnSize">92dp</dimen>
 
+    <dimen name="search_height">500</dimen>
+    <dimen name="search_width">500</dimen>
+
 
 </resources>

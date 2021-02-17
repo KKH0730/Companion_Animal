@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.viewModels
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.iid.FirebaseInstanceId
@@ -15,7 +16,9 @@ import org.jetbrains.anko.startActivity
 import org.jetbrains.anko.support.v4.startActivity
 import studio.seno.companion_animal.databinding.ActivityMainBinding
 import studio.seno.companion_animal.ui.feed.FeedDetailActivity
+import studio.seno.companion_animal.ui.feed.FeedListViewModel
 import studio.seno.companion_animal.ui.main_ui.*
+import studio.seno.companion_animal.util.ViewControlListener
 import studio.seno.datamodule.Repository
 import studio.seno.domain.LongTaskCallback
 import studio.seno.domain.Result
@@ -32,16 +35,15 @@ class MainActivity : AppCompatActivity() , DialogInterface.OnDismissListener{
     private lateinit var chatFragment: ChatFragment
     private lateinit var timeLineFragment: TimeLineFragment
 
-
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         init()
 
+
         loadUserInfo()
         navigateView()
+
 
         supportFragmentManager.beginTransaction().replace(R.id.container, homeFragment).commit()
 
@@ -113,4 +115,6 @@ class MainActivity : AppCompatActivity() , DialogInterface.OnDismissListener{
             homeFragment.onDismissed("unfollow")
         }
     }
+
+
 }

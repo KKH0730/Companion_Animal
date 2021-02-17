@@ -19,7 +19,7 @@ class FeedUseCase {
     //피드 사진들, 게시자 프로필 사진, 게시자 팔로워를 업로드 후 Feed 객체에 저장한 후 db에 저장
     fun uploadFeed(
         context: Context, feed: Feed, mDB: FirebaseFirestore,
-        storageRef: StorageReference, callback: LongTaskCallback<Boolean>
+        storageRef: StorageReference, callback: LongTaskCallback<Feed>
     ) {
         var remoteProfilePath = feed.email + "/profile/profileImage"
         var remoteImagePath = feed.email + "/feed/" + feed.timestamp + "/"
@@ -60,12 +60,7 @@ class FeedUseCase {
                                                             .document(feed.email + feed.timestamp)
                                                             .set(feed)
                                                             .addOnCompleteListener {
-                                                                var result: Result<Boolean>? = null
-                                                                if (it.isSuccessful)
-                                                                    result = Result.Success(true)
-                                                                else
-                                                                    result = Result.Success(false)
-                                                                callback.onResponse(result)
+                                                                callback.onResponse(Result.Success(feed))
 
                                                                 PrefereceManager.setLong(
                                                                     context,

@@ -2,6 +2,7 @@ package studio.seno.datamodule.mapper
 
 import studio.seno.domain.model.Comment
 import studio.seno.domain.model.Feed
+import studio.seno.domain.model.LastSearch
 import studio.seno.domain.model.User
 
 class Mapper {
@@ -40,5 +41,12 @@ class Mapper {
         timestamp: Long
     ): Comment {
         return Comment(type, email, nickname, content, profileUri, timestamp)
+    }
+
+    fun mapperToLastSearch(
+        content : String,
+        timestamp : Long
+    ) : LastSearch{
+        return LastSearch(content, timestamp)
     }
 }
