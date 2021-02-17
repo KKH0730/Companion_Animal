@@ -41,6 +41,7 @@ class MainActivity : AppCompatActivity() , DialogInterface.OnDismissListener{
         init()
 
 
+
         loadUserInfo()
         navigateView()
 

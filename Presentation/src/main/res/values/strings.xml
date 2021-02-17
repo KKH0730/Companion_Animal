@@ -100,6 +100,7 @@
 
     <!-- SearchFragment -->
     <string name="last_search">최근 검색어</string>
+    <string name="search_result">검색 결과</string>
 
 
     <!-- noticiation module -->

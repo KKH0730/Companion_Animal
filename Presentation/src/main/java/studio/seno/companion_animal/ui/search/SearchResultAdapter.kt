@@ -6,11 +6,10 @@ import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import studio.seno.companion_animal.R
-import studio.seno.companion_animal.databinding.LastSearchItemBinding
 import studio.seno.companion_animal.databinding.SearchItemBinding
 import studio.seno.domain.model.Feed
-import studio.seno.domain.model.LastSearch
 
 class SearchResultAdapter : ListAdapter<Feed, RecyclerView.ViewHolder>(
     object : DiffUtil.ItemCallback<Feed>() {
@@ -27,6 +26,10 @@ class SearchResultAdapter : ListAdapter<Feed, RecyclerView.ViewHolder>(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val binding : SearchItemBinding = DataBindingUtil.inflate(LayoutInflater.from(parent.context), R.layout.search_item, parent, false)
+        var params = binding.root.layoutParams as StaggeredGridLayoutManager.LayoutParams
+        params.leftMargin = 5
+        params.rightMargin = 5
+        binding.root.layoutParams = params
         return SearchViewHolder(binding, listener!!)
     }
 

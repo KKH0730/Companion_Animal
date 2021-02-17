@@ -1,5 +1,6 @@
 package studio.seno.companion_animal
 
+import android.graphics.Point
 import android.net.Uri
 import android.text.SpannableStringBuilder
 import android.util.Log
@@ -20,6 +21,7 @@ import com.pchmn.materialchips.ChipView
 import de.hdodenhof.circleimageview.CircleImageView
 import me.relex.circleindicator.CircleIndicator3
 import org.jetbrains.anko.dimen
+import org.jetbrains.anko.windowManager
 import studio.seno.companion_animal.module.CommonFunction
 import studio.seno.companion_animal.module.TextModule
 import studio.seno.companion_animal.ui.feed.FeedPagerFragment
@@ -95,16 +97,17 @@ object BindingAdapter {
 
     @BindingAdapter("setHeartButton")
     @JvmStatic
-    fun setHeartButton(imageButton : ImageButton, map : Map<String, String>) {
-        imageButton.isSelected = map[FirebaseAuth.getInstance().currentUser!!.email.toString()] != null
+    fun setHeartButton(imageButton: ImageButton, map: Map<String, String>) {
+        imageButton.isSelected =
+            map[FirebaseAuth.getInstance().currentUser!!.email.toString()] != null
     }
 
     @BindingAdapter("setBookmarkButton")
     @JvmStatic
-    fun setBookmarkButton(imageButton : ImageButton, map : Map<String, String>) {
-        imageButton.isSelected = map[FirebaseAuth.getInstance().currentUser!!.email.toString()] != null
+    fun setBookmarkButton(imageButton: ImageButton, map: Map<String, String>) {
+        imageButton.isSelected =
+            map[FirebaseAuth.getInstance().currentUser!!.email.toString()] != null
     }
-
 
 
     @BindingAdapter("setComment")
@@ -161,7 +164,7 @@ object BindingAdapter {
 
     @BindingAdapter("setTime")
     @JvmStatic
-    fun setTime(textView: TextView, timestamp : Long) {
+    fun setTime(textView: TextView, timestamp: Long) {
         try {
             textView.text = CommonFunction.calTime(timestamp)
         } catch (e: Exception) {
@@ -171,30 +174,28 @@ object BindingAdapter {
 
     @BindingAdapter("setMyProfileImage")
     @JvmStatic
-    fun setMyProfileImage(circleImageView: CircleImageView, imageUri : String) {
+    fun setMyProfileImage(circleImageView: CircleImageView, imageUri: String) {
         try {
-           Repository().loadRemoteProfileImage(
-               FirebaseAuth.getInstance().currentUser?.email!!,
-               object : LongTaskCallback<String>{
-                   override fun onResponse(result: Result<String>) {
-                       if(result is Result.Success) {
-                           Glide.with(circleImageView.context)
-                               .load(Uri.parse(result.data))
-                               .centerCrop()
-                               .into(circleImageView)
-                       } else if(result is Result.Error) {
-                           Log.e("error", "setMyProfileImage : ${result.exception}")
+            Repository().loadRemoteProfileImage(
+                FirebaseAuth.getInstance().currentUser?.email!!,
+                object : LongTaskCallback<String> {
+                    override fun onResponse(result: Result<String>) {
+                        if (result is Result.Success) {
+                            Glide.with(circleImageView.context)
+                                .load(Uri.parse(result.data))
+                                .centerCrop()
+                                .into(circleImageView)
+                        } else if (result is Result.Error) {
+                            Log.e("error", "setMyProfileImage : ${result.exception}")
 
-                       }
-                   }
-               }
-           )
+                        }
+                    }
+                }
+            )
         } catch (e: Exception) {
             e.printStackTrace()
         }
     }
-
-
 
 
     /**
@@ -224,8 +225,8 @@ object BindingAdapter {
 
     @BindingAdapter("alreadyRead")
     @JvmStatic
-    fun alreadyRead(imageView : ImageView, flag : Boolean){
-        if(flag)
+    fun alreadyRead(imageView: ImageView, flag: Boolean) {
+        if (flag)
             imageView.visibility = View.VISIBLE
         else
             imageView.visibility = View.GONE
@@ -238,19 +239,23 @@ object BindingAdapter {
     @JvmStatic
     fun setImage(imageView: ImageView, uri: List<String>) {
         try {
-            if (uri != null) {
-                Glide.with(imageView.context)
-                    .load(Uri.parse(uri[0]))
-                    .override(200, 200)
-                    .centerCrop()
-                    .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
-                    .into(imageView)
-            }
+            var display = imageView.context.windowManager.defaultDisplay
+            val size = Point()
+            display.getRealSize(size)
+            val width = size.x
+
+            Glide.with(imageView.context)
+                .load(Uri.parse(uri[0]))
+                .override(width / 3, width / 3)
+                .centerCrop()
+                .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
+                .into(imageView)
+
+
         } catch (e: Exception) {
             e.printStackTrace()
         }
     }
-
 
 
 }

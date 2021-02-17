@@ -117,7 +117,7 @@ class SearchFragment : Fragment(), View.OnClickListener {
                 tempList.add(0, LastSearch(content, timestamp))
                 listViewModel.setLastSearchLiveData(tempList.toList())
             }
-
+            binding.searchAnnounce.text = getString(R.string.search_result)
             binding.lastSearchRecyclerView.layoutManager = StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL)
             binding.lastSearchRecyclerView.adapter = searchAdapter
 
