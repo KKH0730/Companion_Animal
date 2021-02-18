@@ -7,10 +7,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
-import android.widget.ImageButton
-import android.widget.LinearLayout
-import android.widget.TextView
+import android.widget.*
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -27,17 +24,19 @@ import studio.seno.companion_animal.module.FeedModule
 import studio.seno.companion_animal.ui.comment.CommentActivity
 import studio.seno.companion_animal.ui.comment.CommentListViewModel
 import studio.seno.companion_animal.ui.feed.*
+import studio.seno.companion_animal.ui.search.SearchActivity
 import studio.seno.companion_animal.util.Constants
 import studio.seno.companion_animal.util.ViewControlListener
 import studio.seno.domain.LongTaskCallback
 import studio.seno.domain.Result
 import studio.seno.domain.model.Feed
+import studio.seno.domain.usecase.PagingModule
 
 /**
  * HomeFragment는 FeedViewListModel과 연결.
  * FeedViewModel는 FeedListAdapter와 연결.
  */
-class HomeFragment : Fragment(){
+class HomeFragment : Fragment(), View.OnClickListener{
     private lateinit var binding: FragmentHomeBinding
     private val feedListViewModel: FeedListViewModel by viewModels()
     private val commentViewModel : CommentListViewModel by viewModels()
@@ -74,12 +73,24 @@ class HomeFragment : Fragment(){
         binding.model = feedListViewModel
         binding.feedRecyclerView.adapter = feedAdapter
 
+        init()
+
         feedItemEvent()
         freshFeedList()
 
         //게시판 데이터 서버로부터 불러와서 viewmode의 livedata 업데이트
-        feedListViewModel.loadFeedList(null)
+        feedListViewModel.requestLoadFeedList(null, binding.feedRecyclerView, null)
         observe()
+    }
+
+    private fun init(){
+        binding.header.findViewById<ImageButton>(R.id.back_btn).visibility = View.GONE
+        binding.header.findViewById<TextView>(R.id.title).visibility = View.GONE
+        binding.header.findViewById<ImageView>(R.id.logo).visibility = View.VISIBLE
+        binding.header.findViewById<LinearLayout>(R.id.menu_set).visibility = View.VISIBLE
+        binding.header.findViewById<ImageButton>(R.id.setting).visibility = View.GONE
+        binding.header.findViewById<ImageButton>(R.id.add).setOnClickListener(this)
+        binding.header.findViewById<ImageButton>(R.id.search).setOnClickListener(this)
     }
 
     private fun observe() {
@@ -128,7 +139,7 @@ class HomeFragment : Fragment(){
 
     private fun freshFeedList(){
         binding.refreshLayout.setOnRefreshListener {
-            feedListViewModel.loadFeedList(object : LongTaskCallback<List<Feed>> {
+            feedListViewModel.requestLoadFeedList(null, binding.feedRecyclerView, object : LongTaskCallback<List<Feed>> {
                 override fun onResponse(result: Result<List<Feed>>) {
                     if (result is Result.Success) {
                         binding.refreshLayout.isRefreshing = false
@@ -164,6 +175,14 @@ class HomeFragment : Fragment(){
                     feedListViewModel.requestUpdateFollower(targetFeed!!, currentUserEmail, false)
                 }
             }
+        }
+    }
+
+    override fun onClick(v: View?) {
+        if(v?.id == R.id.add) {
+            startActivity<MakeFeedActivity>()
+        } else if(v?.id == R.id.search) {
+            startActivity<SearchActivity>()
         }
     }
 }

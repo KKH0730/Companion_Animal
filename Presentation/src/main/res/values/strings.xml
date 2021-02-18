@@ -38,6 +38,7 @@
     <string name="menu_timeline">타임라인</string>
 
     <!-- TimeLineFragment -->
+    <string name="timeline_title">타임라인</string>
     <string name="timeLine_menu1">내 글</string>
     <string name="timeLine_menu2">팔로워</string>
     <string name="timeLine_menu3">팔로잉</string>
@@ -98,10 +99,16 @@
     <string name="answer_write_ing">답글 작성 중</string>
     <string name="answer_modify_ing">답글 수정 중</string>
 
-    <!-- SearchFragment -->
+    <!-- SearchActivity -->
     <string name="last_search">최근 검색어</string>
     <string name="search_result">검색 결과</string>
+    <string name="no_result">에 관한 검색결과가 없습니다</string>
 
+    <!-- NotificationFragment-->
+    <string name="notification_title">알림</string>
+
+    <!-- ErrorActivity -->
+    <string name="no_exist_feed">해당 피드는 삭제되었습니다.</string>
 
     <!-- noticiation module -->
     <string name="noti_title">님이 댓글을 남기셨습니다.</string>
@@ -121,6 +128,9 @@
     <string name="unit1">개</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <!-- Toast -->
+    <string name="toast1">한 번 더 터치하면 종료됩니다.</string>
 
 
 </resources>

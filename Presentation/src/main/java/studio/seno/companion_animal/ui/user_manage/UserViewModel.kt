@@ -2,7 +2,6 @@ package studio.seno.companion_animal.ui.user_manage
 
 import android.net.Uri
 import android.util.Log
-import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import studio.seno.companion_animal.module.UserViewModelModule
@@ -10,7 +9,6 @@ import studio.seno.datamodule.Repository
 import studio.seno.datamodule.mapper.Mapper
 import studio.seno.domain.LongTaskCallback
 import studio.seno.domain.Result
-import studio.seno.domain.usecase.UploadUseCase
 
 class UserViewModel() : ViewModel() {
     private val memberViewModelModule = UserViewModelModule(this)

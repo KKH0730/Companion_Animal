@@ -2,6 +2,7 @@ package studio.seno.datamodule
 
 import android.content.Context
 import android.net.Uri
+import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
@@ -173,6 +174,10 @@ class Repository() {
         notificationUseCase.updateCheckDot(myEmail, notificationData, mDB)
     }
 
+    //Notification 삭제
+    fun requestDeleteNotification(myEmail: String, notificationData : NotificationData, callback: LongTaskCallback<Boolean>){
+        notificationUseCase.deleteNotification(myEmail, notificationData, mDB, callback)
+    }
     /**
      * Search
      */
@@ -191,4 +196,11 @@ class Repository() {
     fun requestDeleteLastSearch(myEmail : String, lastSearch: LastSearch){
         searchUseCase.deleteLastSearch(myEmail, lastSearch, mDB)
     }
+
+    fun requestLoadFeedList(keyword: String?, recyclerView: RecyclerView, callback: LongTaskCallback<List<Feed>>){
+        searchUseCase.searchFeed(keyword, recyclerView, mDB, callback)
+    }
+
+
+
 }

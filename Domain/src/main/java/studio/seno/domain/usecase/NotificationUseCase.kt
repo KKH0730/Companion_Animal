@@ -57,4 +57,17 @@ class NotificationUseCase {
             .document(notificationData.targetPath!!)
             .update("check",false)
     }
+
+    fun deleteNotification(myEmail: String, notificationData : NotificationData, db : FirebaseFirestore, callback: LongTaskCallback<Boolean>){
+        db.collection("user")
+            .document(myEmail)
+            .collection("notification")
+            .document(notificationData.myPath!!)
+            .delete()
+            .addOnCompleteListener {
+                callback.onResponse(Result.Success(true))
+            }.addOnFailureListener {
+                callback.onResponse(Result.Error(it))
+            }
+    }
 }

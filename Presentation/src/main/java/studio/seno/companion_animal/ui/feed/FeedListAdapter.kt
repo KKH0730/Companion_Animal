@@ -36,6 +36,7 @@ class FeedListAdapter(
 
     }
 ) {
+
     private val mLifecycle = lifecycle
     private val mFm = fm
     private var listener: OnItemClickListener? = null

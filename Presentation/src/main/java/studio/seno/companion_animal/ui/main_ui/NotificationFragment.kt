@@ -6,13 +6,16 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
 import com.google.firebase.auth.FirebaseAuth
 import org.jetbrains.anko.support.v4.startActivity
 import studio.seno.commonmodule.CustomToast
+import studio.seno.companion_animal.ErrorActivity
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.FragmentNotificationBinding
 import studio.seno.companion_animal.ui.feed.FeedDetailActivity
@@ -53,15 +56,22 @@ class NotificationFragment : Fragment() {
         binding.lifecycleOwner = this
         binding.model = notiListViewModel
         binding.notiRecyclerView.adapter = notiAdater
+
+        init()
         itemEvent()
 
         notiListViewModel.requestLoadNotification(FirebaseAuth.getInstance().currentUser?.email.toString())
         observe()
     }
 
-    fun itemEvent(){
+    private fun init(){
+        binding.header.findViewById<ImageButton>(R.id.back_btn).visibility = View.GONE
+        binding.header.findViewById<TextView>(R.id.title).text = getString(R.string.notification_title)
+    }
+
+    private fun itemEvent(){
         notiAdater.setOnNotificationListener(object : OnNotificationClickedListener{
-            override fun onNotificationClickced(checkImage : ImageView, item: NotificationData) {
+            override fun onNotificationClicked(checkImage : ImageView, item: NotificationData) {
                 checkImage.visibility = View.GONE
                 notiListViewModel.requestUpdateCheckDot(
                     FirebaseAuth.getInstance().currentUser?.email.toString(),
@@ -71,13 +81,24 @@ class NotificationFragment : Fragment() {
                 Repository().loadFeed(item.targetPath!!, object : LongTaskCallback<Feed>{
                     override fun onResponse(result: Result<Feed>) {
                         if(result is Result.Success){
-                            startActivity<FeedDetailActivity>("feed" to result.data)
+                            if(result.data != null)
+                                startActivity<FeedDetailActivity>("feed" to result.data)
+                            else
+                                startActivity<ErrorActivity>()
+
                         } else if(result is Result.Error) {
                             Log.e("error", "NotificationFragment intent error : ${result.exception}")
                         }
                     }
                 })
 
+            }
+
+            override fun onDeleteClicked(item: NotificationData) {
+                notiListViewModel.deleteNotification(
+                    FirebaseAuth.getInstance().currentUser?.email.toString(),
+                    item
+                )
             }
         })
     }

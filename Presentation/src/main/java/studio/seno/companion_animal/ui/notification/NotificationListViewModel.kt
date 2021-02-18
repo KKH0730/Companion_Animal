@@ -31,6 +31,23 @@ class NotificationListViewModel : ViewModel() {
 
     fun requestUpdateCheckDot(myEmail : String, notificationData : NotificationData){
         repository.requestUpdateCheckDot(myEmail, notificationData)
+    }
 
+    fun deleteNotification(myEmail: String, notificationData : NotificationData){
+        repository.requestDeleteNotification(myEmail, notificationData, object : LongTaskCallback<Boolean> {
+            override fun onResponse(result: Result<Boolean>) {
+                if(result is Result.Success) {
+                    val list = notificationListLiveData.value?.toMutableList()
+                    if(list != null) {
+                        list.remove(notificationData)
+                        list.toList()
+                    }
+                    notificationListLiveData.value = list
+
+                } else if(result is Result.Error) {
+                    Log.e("error", "deleteNotification error : ${result.exception}")
+                }
+            }
+        })
     }
 }

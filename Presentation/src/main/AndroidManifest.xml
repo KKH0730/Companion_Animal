@@ -11,7 +11,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Companion_Animal">
-        <activity android:name=".ui.feed.FeedDetailActivity"/>
+        <activity android:name=".ErrorActivity"></activity>
+        <activity android:name=".ui.search.SearchActivity" />
+        <activity android:name=".ui.feed.FeedDetailActivity" />
 
         <meta-data
             android:name="com.google.firebase.messaging.default_display_name_string_id"

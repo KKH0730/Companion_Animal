@@ -30,7 +30,6 @@ class MainActivity : AppCompatActivity() , DialogInterface.OnDismissListener{
     private lateinit var binding: ActivityMainBinding
     private val mainViewModel : MainViewModel by viewModels()
     private lateinit var homeFragment: HomeFragment
-    private lateinit var searchFragment: SearchFragment
     private lateinit var notificationFragment: NotificationFragment
     private lateinit var chatFragment: ChatFragment
     private lateinit var timeLineFragment: TimeLineFragment
@@ -49,10 +48,13 @@ class MainActivity : AppCompatActivity() , DialogInterface.OnDismissListener{
         supportFragmentManager.beginTransaction().replace(R.id.container, homeFragment).commit()
 
         if(intent.getStringExtra("from") != null && intent.getStringExtra("from") == "notification") {
-            Repository().loadFeed(intent.getStringExtra("target_path"), object : LongTaskCallback<Feed>{
+            Repository().loadFeed(intent.getStringExtra("target_path")!!, object : LongTaskCallback<Feed>{
                 override fun onResponse(result: Result<Feed>) {
                     if(result is Result.Success){
-                        startActivity<FeedDetailActivity>("feed" to result.data)
+                        if(result.data != null)
+                            startActivity<FeedDetailActivity>("feed" to result.data)
+                        else
+                            startActivity<ErrorActivity>()
                     } else if(result is Result.Error) {
                         Log.e("error", "MainActivity notification intent error: ${result.exception}")
                     }
@@ -63,7 +65,6 @@ class MainActivity : AppCompatActivity() , DialogInterface.OnDismissListener{
 
     fun init(){
         homeFragment = HomeFragment.newInstance()
-        searchFragment = SearchFragment.newInstance()
         notificationFragment = NotificationFragment.newInstance()
         chatFragment = ChatFragment.newInstance()
         timeLineFragment = TimeLineFragment.newInstance()
@@ -95,10 +96,9 @@ class MainActivity : AppCompatActivity() , DialogInterface.OnDismissListener{
             override fun onItemSelect(pos: Int): Boolean {
                 when(pos) {
                     0 -> supportFragmentManager.beginTransaction().replace(R.id.container, homeFragment).commit()
-                    1 -> supportFragmentManager.beginTransaction().replace(R.id.container, SearchFragment.newInstance()).commit()
-                    2 -> supportFragmentManager.beginTransaction().replace(R.id.container, NotificationFragment.newInstance()).commit()
-                    3 -> supportFragmentManager.beginTransaction().replace(R.id.container, ChatFragment.newInstance()).commit()
-                    4 -> supportFragmentManager.beginTransaction().replace(R.id.container, TimeLineFragment.newInstance()).commit()
+                    1 -> supportFragmentManager.beginTransaction().replace(R.id.container, NotificationFragment.newInstance()).commit()
+                    2 -> supportFragmentManager.beginTransaction().replace(R.id.container, ChatFragment.newInstance()).commit()
+                    3 -> supportFragmentManager.beginTransaction().replace(R.id.container, TimeLineFragment.newInstance()).commit()
                 }
                 return true
             }

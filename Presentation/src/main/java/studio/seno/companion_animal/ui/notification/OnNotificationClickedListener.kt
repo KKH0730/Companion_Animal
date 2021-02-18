@@ -4,5 +4,6 @@ import android.widget.ImageView
 import studio.seno.domain.model.NotificationData
 
 interface OnNotificationClickedListener {
-    fun onNotificationClickced(checkImage : ImageView, item : NotificationData)
+    fun onNotificationClicked(checkImage : ImageView, item : NotificationData)
+    fun onDeleteClicked(item : NotificationData)
 }

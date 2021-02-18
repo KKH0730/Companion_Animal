@@ -3,10 +3,12 @@ package studio.seno.companion_animal.ui.search
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.recyclerview.widget.RecyclerView
 import studio.seno.datamodule.Repository
 import studio.seno.datamodule.mapper.Mapper
 import studio.seno.domain.LongTaskCallback
 import studio.seno.domain.Result
+import studio.seno.domain.model.Feed
 import studio.seno.domain.model.LastSearch
 
 class LastSearchListViewModel : ViewModel() {
@@ -44,4 +46,5 @@ class LastSearchListViewModel : ViewModel() {
     fun requestDeleteLastSearch(myEmail : String, lastSearch: LastSearch){
         repository.requestDeleteLastSearch(myEmail, lastSearch)
     }
+
 }

@@ -7,14 +7,9 @@
         android:icon="@drawable/menu_home"/>
 
     <item
-        android:id="@+id/boardFragment"
-        android:title="@string/menu_search"
-        android:icon="@drawable/search"/>
-
-    <item
         android:id="@+id/writeFragment"
         android:title="@string/menu_noti"
-        android:icon="@drawable/menu_noti"/>
+        android:icon="@drawable/notification"/>
 
     <item
         android:id="@+id/chattingFragment"

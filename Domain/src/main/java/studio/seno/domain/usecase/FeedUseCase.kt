@@ -104,7 +104,7 @@ class FeedUseCase {
                         val feedList: MutableList<Feed> = mutableListOf()
 
                         for (i in 0 until list.size) {
-                            var feed = Feed(
+                            val feed = Feed(
                                 list[i].getString("email")!!,
                                 list[i].getString("nickname")!!,
                                 list[i].getString("sort")!!,
@@ -136,22 +136,26 @@ class FeedUseCase {
             .addOnCompleteListener {
                 if (it.isSuccessful) {
                     if (it.result != null) {
-                        var feed = Feed(
-                            it.result!!.getString("email")!!,
-                            it.result!!.getString("nickname")!!,
-                            it.result!!.getString("sort")!!,
-                            it.result!!.data?.get("hashTags") as MutableList<String>,
-                            it.result!!.data?.get("localUri") as MutableList<String>,
-                            it.result!!.getString("content")!!,
-                            it.result!!.getLong("heart")!!,
-                            it.result!!.getLong("comment")!!,
-                            it.result!!.getLong("timestamp")!!,
-                            it.result!!.getString("remoteProfileUri")!!,
-                            it.result!!.data?.get("remoteUri") as MutableList<String>,
-                            it.result!!.data?.get("heartList") as Map<String, String>,
-                            it.result!!.data?.get("bookmarkList") as Map<String, String>
-                        )
-                        callback.onResponse(Result.Success(feed))
+                        if(it.result!!.exists()) {
+                            var feed = Feed(
+                                it.result!!.getString("email")!!,
+                                it.result!!.getString("nickname")!!,
+                                it.result!!.getString("sort")!!,
+                                it.result!!.data?.get("hashTags") as MutableList<String>,
+                                it.result!!.data?.get("localUri") as MutableList<String>,
+                                it.result!!.getString("content")!!,
+                                it.result!!.getLong("heart")!!,
+                                it.result!!.getLong("comment")!!,
+                                it.result!!.getLong("timestamp")!!,
+                                it.result!!.getString("remoteProfileUri")!!,
+                                it.result!!.data?.get("remoteUri") as MutableList<String>,
+                                it.result!!.data?.get("heartList") as Map<String, String>,
+                                it.result!!.data?.get("bookmarkList") as Map<String, String>
+                            )
+                            callback.onResponse(Result.Success(feed))
+                        } else {
+                            callback.onResponse(Result.Success(null))
+                        }
                     }
                 }
             }.addOnFailureListener {

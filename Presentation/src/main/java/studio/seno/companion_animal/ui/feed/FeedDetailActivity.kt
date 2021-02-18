@@ -33,25 +33,30 @@ import studio.seno.domain.util.PrefereceManager
 import java.sql.Timestamp
 
 class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
-    DialogInterface.OnDismissListener{
-    private var feed : Feed? = null
-    private lateinit var binding : ActivityFeedDetailBinding
+    DialogInterface.OnDismissListener {
+    private var feed: Feed? = null
+    private lateinit var binding: ActivityFeedDetailBinding
     private lateinit var feedViewModel: FeedViewModel
     private val feedListViewModel: FeedListViewModel by viewModels()
-    private val commentViewModel : CommentListViewModel by viewModels()
-    private val mainViewModel : MainViewModel by viewModels()
+    private val commentViewModel: CommentListViewModel by viewModels()
+    private val mainViewModel: MainViewModel by viewModels()
     private val commentListViewModel: CommentListViewModel by viewModels()
-    private val feedModule : FeedModule by lazy{ FeedModule(feedListViewModel, commentViewModel, mainViewModel) }
+    private val feedModule: FeedModule by lazy {
+        FeedModule(
+            feedListViewModel,
+            commentViewModel,
+            mainViewModel
+        )
+    }
     private var curComment: Comment? = null
-    private var curCommentPosition = 0
-    private var answerComment : Comment? = null
+    private var answerComment: Comment? = null
     private var answerPosition = 0
     private var commentPosition = 0
     private val commentAdapter = CommentAdapter()
     private var answerMode = false
     private var modifyMode = false
     private var backKeyPressedTime = 0L
-    private val commentModule : CommentModule by lazy {
+    private val commentModule: CommentModule by lazy {
         CommentModule(
             mainViewModel, commentListViewModel, feed!!,
             FirebaseAuth.getInstance().currentUser?.email.toString(),
@@ -67,6 +72,7 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
 
         init()
 
+
         binding.feedLayout.lifecycleOwner = this
         binding.feedLayout.model = feedViewModel
         binding.feedLayout.executePendingBindings()
@@ -74,19 +80,23 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
         binding.commentLayout.lifecycleOwner = this
         binding.commentLayout.model = commentListViewModel
 
-
         commentItemEvent()
         observe()
+
     }
 
-    fun init(){
-        feedViewModel = ViewModelProvider(this, object : ViewModelProvider.Factory{
+    fun init() {
+        feedViewModel = ViewModelProvider(this, object : ViewModelProvider.Factory {
             override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-                return FeedViewModel(lifecycle, supportFragmentManager, binding.feedLayout.indicator) as T
+                return FeedViewModel(
+                    lifecycle,
+                    supportFragmentManager,
+                    binding.feedLayout.indicator
+                ) as T
             }
         }).get(FeedViewModel::class.java)
 
-        if(intent.getParcelableExtra<Feed>("feed") == null)
+        if (intent.getParcelableExtra<Feed>("feed") == null)
             finish()
         else {
             feed = intent.getParcelableExtra<Feed>("feed")
@@ -94,6 +104,7 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
             binding.feedLayout.commentShow.visibility = View.GONE
             commentListViewModel.requestLoadComment(feed!!.email, feed!!.timestamp)
         }
+
 
         binding.header.findViewById<TextView>(R.id.title).visibility = View.GONE
         binding.header.findViewById<ImageButton>(R.id.back_btn).setOnClickListener(this)
@@ -110,8 +121,8 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
         binding.commentLayout.commentRecyclerView.adapter = commentAdapter
     }
 
-    fun commentItemEvent(){
-        commentAdapter.setOnEventListener(object : OnCommentEventListener{
+    fun commentItemEvent() {
+        commentAdapter.setOnEventListener(object : OnCommentEventListener {
             override fun onReadAnswerClicked(readAnswer: Button, targetComment: Comment) {
                 if (targetComment.getChildren()!!.isNotEmpty())
                     commentModule.showComment(readAnswer, targetComment)
@@ -124,7 +135,11 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
                 curComment = targetComment
                 commentPosition = position
 
-                commentModule.setHint(binding.feedLayout.comment, binding.commentLayout.modeTitle, 1)
+                commentModule.setHint(
+                    binding.feedLayout.comment,
+                    binding.commentLayout.modeTitle,
+                    1
+                )
                 answerMode = true
                 binding.commentLayout.modeLayout.visibility = View.VISIBLE
             }
@@ -148,14 +163,13 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
     }
 
 
-
-    private val textWatcher : TextWatcher = object: TextWatcher{
+    private val textWatcher: TextWatcher = object : TextWatcher {
         override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
 
         override fun afterTextChanged(s: Editable?) {
-            if(binding.feedLayout.comment.text.isEmpty())
+            if (binding.feedLayout.comment.text.isEmpty())
                 binding.feedLayout.commentBtn.visibility = View.INVISIBLE
             else
                 binding.feedLayout.commentBtn.visibility = View.VISIBLE
@@ -169,34 +183,43 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
     }
 
     override fun onClick(v: View?) {
-        if(v?.id == R.id.back_btn) {
+        if (v?.id == R.id.back_btn) {
             finish()
-        }else if(v?.id == R.id.bookmark_btn) {
+        } else if (v?.id == R.id.bookmark_btn) {
             feedModule.bookmarkButtonEvent(feed!!, binding.feedLayout.bookmarkBtn, null)
-        } else if(v?.id == R.id.heart_btn) {
-            feedModule.heartButtonEvent(feed!!, binding.feedLayout.heartCount, binding.feedLayout.heartBtn, null)
-        } else if(v?.id == R.id.feed_menu) {
+        } else if (v?.id == R.id.heart_btn) {
+            feedModule.heartButtonEvent(
+                feed!!,
+                binding.feedLayout.heartCount,
+                binding.feedLayout.heartBtn,
+                null
+            )
+        } else if (v?.id == R.id.feed_menu) {
             feedModule.menuButtonEvent(feed!!, supportFragmentManager)
-        } else if(v?.id == R.id.mode_close_btn) {
+        } else if (v?.id == R.id.mode_close_btn) {
             initVariable()
-        } else if(v?.id == R.id.comment_btn) {
+        } else if (v?.id == R.id.comment_btn) {
             val timestamp = Timestamp(System.currentTimeMillis()).time
 
-            if(answerMode){
+            if (answerMode) {
                 if (modifyMode && answerComment != null) {
                     commentModule.submitCommentAnswer(
                         commentModule.findParentComment(answerPosition)!!, timestamp, modifyMode,
                         answerComment!!, answerPosition, commentPosition, binding.feedLayout.comment
                     )
-                } else if(!modifyMode && curComment != null){
+                } else if (!modifyMode && curComment != null) {
                     commentModule.submitCommentAnswer(
                         curComment!!, timestamp, modifyMode, answerComment,
                         answerPosition, commentPosition, binding.feedLayout.comment
                     )
-                    commentModule.sendNotification(curComment!!.email, binding.feedLayout.comment.text.toString(), timestamp)
+                    commentModule.sendNotification(
+                        curComment!!.email,
+                        binding.feedLayout.comment.text.toString(),
+                        timestamp
+                    )
                 }
             } else {
-                if(modifyMode){
+                if (modifyMode) {
                     commentModule.submitComment(
                         curComment!!.timestamp, modifyMode, curComment, commentPosition,
                         binding.feedLayout.commentCount, binding.feedLayout.comment
@@ -206,7 +229,11 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
                         timestamp, modifyMode, curComment, commentPosition,
                         binding.feedLayout.commentCount, binding.feedLayout.comment
                     )
-                    commentModule.sendNotification(feed!!.email, binding.feedLayout.comment.text.toString(), timestamp)
+                    commentModule.sendNotification(
+                        feed!!.email,
+                        binding.feedLayout.comment.text.toString(),
+                        timestamp
+                    )
                 }
             }
             initVariable()
@@ -221,7 +248,7 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
         modifyMode = false
         CommonFunction.closeKeyboard(applicationContext, binding.feedLayout.comment)
         binding.feedLayout.comment.setText("")
-        commentModule.setHint(binding.feedLayout.comment, binding.commentLayout.modeTitle,0)
+        commentModule.setHint(binding.feedLayout.comment, binding.commentLayout.modeTitle, 0)
         binding.commentLayout.modeLayout.visibility = View.INVISIBLE
     }
 
@@ -231,7 +258,11 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
             modifyMode = true
             commentModule.setHint(binding.feedLayout.comment, binding.commentLayout.modeTitle, 3)
             CommonFunction.showKeyboard(this)
-        } else if (PrefereceManager.getString(applicationContext, "mode") == "comment_answer_modify") {
+        } else if (PrefereceManager.getString(
+                applicationContext,
+                "mode"
+            ) == "comment_answer_modify"
+        ) {
             binding.commentLayout.modeLayout.visibility = View.VISIBLE
             modifyMode = true
             commentModule.setHint(binding.feedLayout.comment, binding.commentLayout.modeTitle, 2)
