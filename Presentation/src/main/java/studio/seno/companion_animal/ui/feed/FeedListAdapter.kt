@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -23,6 +24,7 @@ import studio.seno.domain.model.Feed
 class FeedListAdapter(
     fm: FragmentManager,
     lifecycle: Lifecycle,
+    lifecycleCoroutineScope: LifecycleCoroutineScope
 ) : ListAdapter<Feed, RecyclerView.ViewHolder>(
 
     object : DiffUtil.ItemCallback<Feed>() {
@@ -39,6 +41,7 @@ class FeedListAdapter(
 
     private val mLifecycle = lifecycle
     private val mFm = fm
+    private val lifecycleScope = lifecycleCoroutineScope
     private var listener: OnItemClickListener? = null
     private lateinit var binding: FeedItemBinding
 
@@ -58,7 +61,8 @@ class FeedListAdapter(
         val model = FeedViewModel(
             mLifecycle,
             mFm,
-            holder.itemView.findViewById(R.id.indicator)
+            holder.itemView.findViewById(R.id.indicator),
+            lifecycleScope
         )
         model.setFeedLiveData(item)
         holder.setViewModel(model, item)
@@ -101,6 +105,7 @@ class FeedListAdapter(
             binding.heartBtn.setOnClickListener { mListener.onHeartClicked(feed, binding.heartCount, binding.heartBtn) }
             binding.bookmarkBtn.setOnClickListener { mListener.onBookmarkClicked(feed, binding.bookmarkBtn) }
             binding.detailBtn.setOnClickListener { mListener.onDetailClicked(feed) }
+            binding.imageBtn.setOnClickListener{ mListener.onImageBtnClicked(feed) }
 
         }
 

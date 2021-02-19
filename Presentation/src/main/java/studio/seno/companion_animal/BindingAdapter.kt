@@ -12,6 +12,7 @@ import android.widget.TextView
 import androidx.databinding.BindingAdapter
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.viewpager2.widget.ViewPager2
 import com.aqoong.lib.expandabletextview.ExpandableTextView
 import com.bumptech.glide.Glide
@@ -26,9 +27,11 @@ import studio.seno.companion_animal.module.CommonFunction
 import studio.seno.companion_animal.module.TextModule
 import studio.seno.companion_animal.ui.feed.FeedPagerFragment
 import studio.seno.companion_animal.ui.main_ui.PagerAdapter
+import studio.seno.datamodule.LocalRepository
 import studio.seno.datamodule.Repository
 import studio.seno.domain.LongTaskCallback
 import studio.seno.domain.Result
+import studio.seno.domain.model.User
 
 object BindingAdapter {
     @BindingAdapter("setProfileImage")
@@ -149,13 +152,11 @@ object BindingAdapter {
         lifecycle: Lifecycle, fm: FragmentManager, indicator: CircleIndicator3
     ) {
         try {
-            if (remoteUri != null) {
-                var pagerAdapter = PagerAdapter(fm, lifecycle)
-                for (element in remoteUri) {
-                    pagerAdapter.addItem(FeedPagerFragment.newInstance(element))
-                    viewPager.adapter = pagerAdapter
-                    indicator.setViewPager(viewPager)
-                }
+            var pagerAdapter = PagerAdapter(fm, lifecycle)
+            for (element in remoteUri) {
+                pagerAdapter.addItem(FeedPagerFragment.newInstance(element, "BindingAdapter"))
+                viewPager.adapter = pagerAdapter
+                indicator.setViewPager(viewPager)
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -172,28 +173,29 @@ object BindingAdapter {
         }
     }
 
-    @BindingAdapter("setMyProfileImage")
+    @BindingAdapter("setMyProfileImage", "getLifecycleScope")
     @JvmStatic
-    fun setMyProfileImage(circleImageView: CircleImageView, imageUri: String) {
+    fun setMyProfileImage(circleImageView: CircleImageView, imageUri: String, lifecycleCoroutineScope: LifecycleCoroutineScope) {
         try {
-            Repository().loadRemoteProfileImage(
-                FirebaseAuth.getInstance().currentUser?.email!!,
-                object : LongTaskCallback<String> {
-                    override fun onResponse(result: Result<String>) {
-                        if (result is Result.Success) {
-                            Glide.with(circleImageView.context)
-                                .load(Uri.parse(result.data))
-                                .centerCrop()
-                                .into(circleImageView)
-                        } else if (result is Result.Error) {
-                            Log.e("error", "setMyProfileImage : ${result.exception}")
+            LocalRepository(circleImageView.context).getUserInfo(lifecycleCoroutineScope, object  : LongTaskCallback<User>{
+                override fun onResponse(result: Result<User>) {
+                    if(result is Result.Success) {
+                        val user = result.data
 
-                        }
+                        Glide.with(circleImageView.context)
+                            .load(Uri.parse(user.profileUri))
+                            .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
+                            .centerCrop()
+                            .into(circleImageView)
+
+                    } else if(result is Result.Error) {
+                        Log.e("error", "databinding setMyProfileImage error : ${result.exception}")
                     }
                 }
-            )
-        } catch (e: Exception) {
-            e.printStackTrace()
+            })
+
+        }catch (e : Exception) {
+
         }
     }
 

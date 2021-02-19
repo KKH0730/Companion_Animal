@@ -48,9 +48,7 @@ class CommentModule(
             mCommentListViewModel.setCommentListLiveData(currentCommentList.toList())
 
         } else {
-            Repository().loadRemoteProfileImage(
-                FirebaseAuth.getInstance().currentUser?.email.toString(),
-                object : LongTaskCallback<String>{
+            Repository().loadRemoteProfileImage(object : LongTaskCallback<String>{
 
                     override fun onResponse(result: Result<String>) {
                         if(result is Result.Success) {
@@ -86,7 +84,7 @@ class CommentModule(
             currentCommentList.set(answerPosition, tempComment!!)
             mCommentListViewModel.setCommentListLiveData(currentCommentList)
         } else {
-            Repository().loadRemoteProfileImage(myEmail, object :LongTaskCallback<String>{
+            Repository().loadRemoteProfileImage(object :LongTaskCallback<String>{
                 override fun onResponse(result: Result<String>) {
                     if(result is Result.Success) {
 
@@ -206,9 +204,12 @@ class CommentModule(
         }
         return commentPosition + 1
     }
-
+/*
     fun sendNotification(targetEmail: String, content: String, currentTimestamp: Long) {
         //댓글을 작성하면 notification 알림이 전송
+        if(targetEmail == myEmail)
+            return
+
         mMainViewModel.requestUserData(targetEmail, object : LongTaskCallback<User> {
             override fun onResponse(result: Result<User>) {
                 if (result is Result.Success) {
@@ -246,6 +247,8 @@ class CommentModule(
         })
     }
 
+ */
+
     fun setHint(commentEditText : EditText, modeTitleTextView : TextView, method: Int) {
         if (method == 0) {
             commentEditText.setHint(R.string.comment_hint)
@@ -260,4 +263,6 @@ class CommentModule(
             modeTitleTextView.setText(R.string.comment_modify_ing)
         }
     }
+
+
 }

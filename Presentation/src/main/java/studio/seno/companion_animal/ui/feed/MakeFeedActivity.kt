@@ -9,6 +9,7 @@ import android.widget.RadioGroup
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
 import androidx.recyclerview.widget.ItemTouchHelper
 import com.google.firebase.auth.FirebaseAuth
@@ -18,6 +19,7 @@ import studio.seno.commonmodule.CustomToast
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.ActivityMakeFeedBinding
 import studio.seno.companion_animal.module.CommonFunction
+import studio.seno.datamodule.LocalRepository
 import studio.seno.domain.util.PrefereceManager
 import studio.seno.domain.model.Feed
 import java.sql.Timestamp
@@ -27,6 +29,7 @@ class MakeFeedActivity : AppCompatActivity(), View.OnClickListener,
     private lateinit var binding: ActivityMakeFeedBinding
     private lateinit var selectedImageAdapter: SelectedImageAdapter
     private val feedListViewModel: FeedListViewModel by viewModels()
+    private val localRepository = LocalRepository(this)
     private var feed : Feed? = null
     private var mode = "write"
 
@@ -170,12 +173,15 @@ class MakeFeedActivity : AppCompatActivity(), View.OnClickListener,
                 currentChecked = binding.etcContent.text.toString()
 
             if(feed == null && mode == "write") {
+                localRepository.updateFeedCount(lifecycleScope, true)
                 submitResult(Timestamp(System.currentTimeMillis()).time, "write", 0)
             } else if(feed != null && mode != "write") {
                 if(mode == "modify")
                     submitResult(feed!!.timestamp, "modify", intent.getIntExtra("targetFeedPosition", 0))
-                else
+                else {
+                    localRepository.updateFeedCount(lifecycleScope, false)
                     feedListViewModel.requestDeleteFeed(feed!!)
+                }
             }
 
 
@@ -200,8 +206,7 @@ class MakeFeedActivity : AppCompatActivity(), View.OnClickListener,
                 selectedImageAdapter.getItems(),
                 binding.content.text.toString(),
                 timestamp,
-                mode,
-                targetFeedPosition
+                lifecycleScope
             )
         }
     }

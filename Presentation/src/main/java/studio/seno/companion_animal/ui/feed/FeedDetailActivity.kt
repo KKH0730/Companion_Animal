@@ -14,13 +14,16 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
 import com.google.firebase.auth.FirebaseAuth
+import org.jetbrains.anko.startActivity
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.ActivityFeedDetailBinding
 import studio.seno.companion_animal.module.CommentModule
 import studio.seno.companion_animal.module.CommonFunction
 import studio.seno.companion_animal.module.FeedModule
+import studio.seno.companion_animal.module.NotificationModule
 import studio.seno.companion_animal.ui.MenuDialog
 import studio.seno.companion_animal.ui.comment.CommentAdapter
 import studio.seno.companion_animal.ui.comment.CommentListViewModel
@@ -91,7 +94,8 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
                 return FeedViewModel(
                     lifecycle,
                     supportFragmentManager,
-                    binding.feedLayout.indicator
+                    binding.feedLayout.indicator,
+                    lifecycleScope
                 ) as T
             }
         }).get(FeedViewModel::class.java)
@@ -116,6 +120,7 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
         binding.feedLayout.heartBtn.setOnClickListener(this)
         binding.feedLayout.feedMenu.setOnClickListener(this)
         binding.feedLayout.commentBtn.setOnClickListener(this)
+        binding.feedLayout.imageBtn.setOnClickListener(this)
         binding.feedLayout.comment.addTextChangedListener(textWatcher)
 
         binding.commentLayout.commentRecyclerView.adapter = commentAdapter
@@ -196,10 +201,13 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
             )
         } else if (v?.id == R.id.feed_menu) {
             feedModule.menuButtonEvent(feed!!, supportFragmentManager)
+        } else if(v?.id == R.id.image_btn){
+            startActivity<FeedImageActivity>("feed" to feed)
         } else if (v?.id == R.id.mode_close_btn) {
             initVariable()
         } else if (v?.id == R.id.comment_btn) {
             val timestamp = Timestamp(System.currentTimeMillis()).time
+            val notificationModule = NotificationModule(applicationContext, mainViewModel)
 
             if (answerMode) {
                 if (modifyMode && answerComment != null) {
@@ -212,11 +220,8 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
                         curComment!!, timestamp, modifyMode, answerComment,
                         answerPosition, commentPosition, binding.feedLayout.comment
                     )
-                    commentModule.sendNotification(
-                        curComment!!.email,
-                        binding.feedLayout.comment.text.toString(),
-                        timestamp
-                    )
+                    //commentModule.sendNotification(curComment!!.email, binding.feedLayout.comment.text.toString(), timestamp)
+                    notificationModule.sendNotification(curComment!!.email, binding.feedLayout.comment.text.toString(), timestamp, feed!!)
                 }
             } else {
                 if (modifyMode) {
@@ -229,11 +234,8 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
                         timestamp, modifyMode, curComment, commentPosition,
                         binding.feedLayout.commentCount, binding.feedLayout.comment
                     )
-                    commentModule.sendNotification(
-                        feed!!.email,
-                        binding.feedLayout.comment.text.toString(),
-                        timestamp
-                    )
+                   // commentModule.sendNotification(feed!!.email, binding.feedLayout.comment.text.toString(), timestamp)
+                    notificationModule.sendNotification(feed!!.email, binding.feedLayout.comment.text.toString(), timestamp, feed!!)
                 }
             }
             initVariable()

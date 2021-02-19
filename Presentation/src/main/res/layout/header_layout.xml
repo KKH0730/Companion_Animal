@@ -74,10 +74,19 @@
             app:layout_constraintTop_toTopOf="parent">
 
             <ImageButton
+                android:id="@+id/refresh"
+                android:layout_width="40dp"
+                android:layout_height="match_parent"
+                android:layout_marginTop="3dp"
+                android:layout_marginBottom="3dp"
+                android:background="@color/white"
+                android:src="@drawable/refresh" />
+
+            <ImageButton
                 android:id="@+id/add"
                 android:layout_width="40dp"
                 android:layout_height="match_parent"
-                android:layout_marginLeft="5dp"
+                android:layout_marginLeft="10dp"
                 android:layout_marginTop="3dp"
                 android:layout_marginBottom="3dp"
                 android:background="@color/white"
@@ -87,7 +96,7 @@
                 android:id="@+id/search"
                 android:layout_width="40dp"
                 android:layout_height="match_parent"
-                android:layout_marginLeft="5dp"
+                android:layout_marginLeft="10dp"
                 android:layout_marginTop="3dp"
                 android:layout_marginBottom="3dp"
                 android:background="@color/white"
@@ -97,7 +106,7 @@
                 android:id="@+id/setting"
                 android:layout_width="40dp"
                 android:layout_height="match_parent"
-                android:layout_marginLeft="5dp"
+                android:layout_marginLeft="10dp"
                 android:layout_marginTop="3dp"
                 android:layout_marginBottom="3dp"
                 android:background="@color/white"

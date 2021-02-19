@@ -32,8 +32,8 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
-    dataBinding{
-        enabled = true
+    buildFeatures{
+        dataBinding = true
     }
 }
 
@@ -106,6 +106,10 @@ dependencies {
     implementation 'com.airbnb.android:lottie:3.5.0'
 
 
-    //refresh layout
-    implementation 'com.github.KKH0730:RefreshLayout:1.0'
+    def room_version = "2.2.6"
+    implementation "androidx.room:room-runtime:$room_version"
+    kapt "androidx.room:room-compiler:$room_version"
+
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.1'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.3.0'
 }

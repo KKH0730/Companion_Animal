@@ -34,7 +34,7 @@ class FcmMessageService : FirebaseMessagingService() {
         )
 
         remoteMessage.data.let {
-            var notificationModel = NotificationModule(applicationContext)
+            var notificationModel = NotificationModule(applicationContext, null)
             val intent = Intent(applicationContext, MainActivity::class.java)
             intent.putExtra("from", "notification")
             intent.putExtra("target_path", remoteMessage.data["targetPath"].toString())

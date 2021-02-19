@@ -11,17 +11,23 @@ import studio.seno.domain.model.User
 
 class MainViewModel : ViewModel() {
     private val userLiveData : MutableLiveData<User> = MutableLiveData()
+    private val repository = Repository()
 
     fun getUserLiveData() : MutableLiveData<User>{
         return userLiveData
     }
 
     fun requestUserData(email : String, callback : LongTaskCallback<User>){
-        Repository().loadUserInfo(email, callback)
+        repository.loadUserInfo(email, callback)
     }
 
     fun requestUpdateToken(token : String, myEmail: String){
-        Repository().updateToken(token, myEmail)
+        repository.updateToken(token, myEmail)
     }
+
+    fun requestUpdateNickname(content: String) {
+        repository.requestUpdateNickname(content)
+    }
+
 
 }

@@ -181,7 +181,11 @@ class FeedModule(
         commentEdit.hint = commentEdit.context.getString(R.string.comment_hint)
         CommonFunction.closeKeyboard(commentEdit.context, commentEdit)
 
+
+
         //댓글을 작성하면 notification 알림이 전송
+        NotificationModule(commentEdit.context, mMainViewModel).sendNotification(feed.email, commentContent, Timestamp(System.currentTimeMillis()).time, feed)
+        /*
         mMainViewModel.requestUserData(feed.email, object : LongTaskCallback<User> {
             override fun onResponse(result: Result<User>) {
                 if(result is Result.Success) {
@@ -217,8 +221,7 @@ class FeedModule(
                 }
             }
         })
+         */
     }
-
-
 
 }

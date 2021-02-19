@@ -3,7 +3,7 @@ package studio.seno.domain.model
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity
+@Entity(tableName = "User")
 data class User(
     @PrimaryKey(autoGenerate = true)
     val id : Long,
@@ -12,7 +12,8 @@ data class User(
     var follower : Long,
     var following : Long,
     var feedCount : Long,
-    var token : String
+    var token : String,
+    var profileUri : String,
 ) {
 
 }

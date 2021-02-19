@@ -56,7 +56,7 @@ class UserViewModel() : ViewModel() {
         memberViewModelModule.registerUser(email, password)
     }
 
-    fun getUpLoadLiveDate() : MutableLiveData<Boolean>{
+    fun getUpLoadLiveData() : MutableLiveData<Boolean>{
         return uploadLiveData
     }
 
@@ -64,11 +64,17 @@ class UserViewModel() : ViewModel() {
         return overLapLiveData
     }
 
-    fun requestUpload(email : String, imageUri : Uri){
-        repository.uploadInItProfileImage(email, imageUri, object : LongTaskCallback<Boolean>{
+    fun requestLoadProfileUri(callback: LongTaskCallback<String>){
+        repository.loadRemoteProfileImage(callback)
+    }
+
+    fun requestUpload( imageUri : Uri, callback: LongTaskCallback<Boolean>){
+        repository.uploadInItProfileImage(imageUri, object : LongTaskCallback<Boolean>{
             override fun onResponse(result: Result<Boolean>) {
                 if(result is Result.Success) {
                     uploadLiveData.value = true
+                    callback.onResponse(Result.Success(true))
+
                 } else if(result is Result.Error) {
                     uploadLiveData.value = false
                     Log.e("error", "uploadInItProfileImage : ${result.exception}")
@@ -79,8 +85,8 @@ class UserViewModel() : ViewModel() {
     }
 
     fun uploadUserInfo(id : Long, email: String, nickname: String, follower: Long,
-                        following: Long, feedCount: Long, token : String){
-        var user = mapper.mapperToUser(id, email, nickname, follower, following, feedCount, token)
+                        following: Long, feedCount: Long, token : String, profileUri : String){
+        var user = mapper.mapperToUser(id, email, nickname, follower, following, feedCount, token, profileUri)
         repository.uploadUserInfo(user)
     }
 

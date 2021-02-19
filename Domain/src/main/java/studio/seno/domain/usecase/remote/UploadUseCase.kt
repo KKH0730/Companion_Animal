@@ -1,4 +1,4 @@
-package studio.seno.domain.usecase
+package studio.seno.domain.usecase.remote
 
 import android.net.Uri
 import android.util.Log
@@ -27,15 +27,13 @@ class UploadUseCase {
     }
 
     fun uploadRemoteFeedImage(feed : Feed, storageRef: StorageReference, path : String, callback: LongTaskCallback<Boolean>){
-        if(feed.localUri != null){
-            for (i in 0 until feed.localUri!!.size) {
-                storageRef.child(path + i).putFile(Uri.parse(feed.localUri!![i]))
-                    .addOnCompleteListener {
-                        if(i == feed.localUri!!.size - 1){
-                            callback.onResponse(Result.Success(true))
-                        }
+        for (i in 0 until feed.localUri.size) {
+            storageRef.child(path + i).putFile(Uri.parse(feed.localUri[i]))
+                .addOnCompleteListener {
+                    if(i == feed.localUri.size - 1){
+                        callback.onResponse(Result.Success(true))
                     }
-            }
+                }
         }
 
     }

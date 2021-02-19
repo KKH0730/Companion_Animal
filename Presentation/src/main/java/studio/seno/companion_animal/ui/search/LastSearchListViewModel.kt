@@ -26,8 +26,15 @@ class LastSearchListViewModel : ViewModel() {
     }
 
     fun requestUploadLastSearch(myEmail : String, content : String, timestamp : Long){
-
         val lastSearch = mapper.mapperToLastSearch(content , timestamp)
+        val keywordList = lastSearchListLiveData.value?.toMutableList()
+
+        if (keywordList != null) {
+            for(element in keywordList)
+                if(element.content == content)
+                    return
+        }
+
         repository.requestUploadLastSearch(myEmail, lastSearch)
     }
 

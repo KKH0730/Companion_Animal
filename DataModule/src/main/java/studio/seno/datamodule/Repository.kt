@@ -2,6 +2,7 @@ package studio.seno.datamodule
 
 import android.content.Context
 import android.net.Uri
+import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -9,7 +10,7 @@ import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import studio.seno.domain.LongTaskCallback
 import studio.seno.domain.model.*
-import studio.seno.domain.usecase.*
+import studio.seno.domain.usecase.remote.*
 
 class Repository() {
     private val mAuth = FirebaseAuth.getInstance()
@@ -18,7 +19,7 @@ class Repository() {
         .getReferenceFromUrl("gs://companion-animal-f0bfa.appspot.com/")
     private val feedUseCase = FeedUseCase()
     private val uploadUseCase = UploadUseCase()
-    private val userManagerUseCase = UserManageUseCase()
+    private val userManagerUseCase = RemoteUserUseCase()
     private val commentUseCase = CommentUseCase()
     private val followUseCase = FollowUseCase()
     private val notificationUseCase = NotificationUseCase()
@@ -33,8 +34,14 @@ class Repository() {
         userManagerUseCase.loadRemoteUserInfo(email, mDB, callback)
     }
 
+    //토큰 업데이트
     fun updateToken(token : String, myEmail: String) {
         userManagerUseCase.updateToken(token, myEmail, mDB)
+    }
+
+    //닉네임 업데이트
+    fun requestUpdateNickname(content: String) {
+        userManagerUseCase.updateNickname(content, FirebaseAuth.getInstance().currentUser?.email.toString(), mDB)
     }
 
     //회원가입시 이메일 중복여부 확인
@@ -43,24 +50,28 @@ class Repository() {
     }
 
     //회원가입시 기본이미지(no_profile) 업로드
-    fun uploadInItProfileImage(email: String, imageUri: Uri, callback: LongTaskCallback<Boolean>) {
+    fun uploadInItProfileImage(imageUri: Uri, callback: LongTaskCallback<Boolean>) {
         uploadUseCase.uploadRemoteProfileImage(
-            email,
+            FirebaseAuth.getInstance().currentUser?.email.toString(),
             imageUri,
             mStorageRef,
             callback
         )
     }
 
-    //profile image 로드
-    fun loadRemoteProfileImage(email : String, callback: LongTaskCallback<String>){
-        uploadUseCase.loadRemoteProfileImage(email, mStorageRef, callback)
+    fun updateRemoteProfileUri(profileUri : String){
+        userManagerUseCase.updateRemoteProfileUri(FirebaseAuth.getInstance().currentUser?.email.toString(), profileUri, mDB)
+    }
+
+    //profile image uri 로드
+    fun loadRemoteProfileImage(callback: LongTaskCallback<String>){
+        uploadUseCase.loadRemoteProfileImage(FirebaseAuth.getInstance().currentUser?.email.toString(), mStorageRef, callback)
     }
 
 
     //피드 작성후 서버에 업로드
-    fun uploadFeed(context: Context, feed: Feed, callback: LongTaskCallback<Feed>) {
-        feedUseCase.uploadFeed(context, feed, mDB, mStorageRef, callback)
+    fun uploadFeed(context: Context, feed: Feed, lifecycleCoroutineScope: LifecycleCoroutineScope, callback: LongTaskCallback<Feed>) {
+        feedUseCase.uploadFeed(context, feed, mDB, mStorageRef, lifecycleCoroutineScope, callback)
     }
 
     //피드 리스트 로드

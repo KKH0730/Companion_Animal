@@ -1,4 +1,4 @@
-package studio.seno.domain.usecase
+package studio.seno.domain.usecase.remote
 
 import android.util.Log
 import android.widget.AbsListView
@@ -16,7 +16,7 @@ class PagingModule {
     private var lastVisible: DocumentSnapshot? = null
     private var isScrolling = false
     private var isLastItemReached = false
-    private val limit = 6L
+    private val limit = 15
 
 
     fun pagingFeed(
@@ -30,6 +30,8 @@ class PagingModule {
             firstSearchQuery(keyword, db)
                 .get()
                 .addOnCompleteListener {
+                    var find = 0
+                    var count = 0
                     if (it.isSuccessful) {
                         if (it.result?.size()!! <= 0) {
                             callback.onResponse(Result.Success(null))
@@ -37,17 +39,44 @@ class PagingModule {
                             val document: List<DocumentSnapshot> = it.result!!.documents
                             val size = document.size
                             val list = mutableListOf<Feed>()
+
                             for (element in document) {
                                 val feed = mapperFeed(element)
-                                list.add(feed)
+                                count++
 
-                                if (size == list.size) {
-                                    callback.onResponse(Result.Success(list))
+                                if (keyword != null) {
+                                    if (keyword != "" && (feed.content.contains(keyword) || feed.hashTags.contains("#$keyword"))) {
+                                        list.add(feed)
+                                        find++
+                                    }
+
+                                    if (find == limit || find == size || count == size || count >= 50) {
+                                        callback.onResponse(Result.Success(list))
+                                        break
+                                    }
+                                } else {
+                                    list.add(feed)
+
+                                    if (count == limit || count == size) {
+                                        callback.onResponse(Result.Success(list))
+                                        break
+                                    }
                                 }
                             }
-                            lastVisible = it.result!!.documents[it.result!!.size() - 1]
 
-                            recyclerView.setOnScrollListener(setScrollListener(keyword, db, callback))
+
+                            if(find == 0)
+                                callback.onResponse(Result.Success(null))
+
+                            lastVisible = it.result!!.documents[0 + count - 1]
+
+                            recyclerView.setOnScrollListener(
+                                setScrollListener(
+                                    keyword,
+                                    db,
+                                    callback
+                                )
+                            )
                         }
                     }
                 }.addOnFailureListener {
@@ -57,7 +86,6 @@ class PagingModule {
             Log.e("error", "SearchUseCase error : ${e.message}")
         }
     }
-
 
 
     fun setScrollListener(
@@ -85,9 +113,10 @@ class PagingModule {
                         layoutManager = recyclerView.layoutManager as LinearLayoutManager
                         firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
 
-                    } else if(recyclerView.layoutManager is StaggeredGridLayoutManager){
-                        layoutManager  = recyclerView.layoutManager as StaggeredGridLayoutManager
-                        firstVisibleItemPosition = layoutManager.findFirstVisibleItemPositions(IntArray(3))[0]
+                    } else if (recyclerView.layoutManager is StaggeredGridLayoutManager) {
+                        layoutManager = recyclerView.layoutManager as StaggeredGridLayoutManager
+                        firstVisibleItemPosition =
+                            layoutManager.findFirstVisibleItemPositions(IntArray(3))[0]
                     }
                     visibleItemCount = layoutManager?.childCount
                     totalItemCount = layoutManager?.itemCount
@@ -97,11 +126,15 @@ class PagingModule {
                         if (isScrolling && (firstVisibleItemPosition + visibleItemCount!! == totalItemCount) && !isLastItemReached) {
                             isScrolling = false
 
+
                             nextSearchQuery(keyword, db)
                                 .get().addOnCompleteListener {
+                                    var count = 0
+                                    var find = 0
+
                                     if (it.isSuccessful) {
                                         if (it.result?.size()!! <= 0) {
-                                            callback.onResponse(Result.Success(null))
+                                            //callback.onResponse(Result.Success(null))
                                         } else {
 
                                             val document: List<DocumentSnapshot> =
@@ -111,13 +144,29 @@ class PagingModule {
 
                                             for (element in document) {
                                                 val feed = mapperFeed(element)
-                                                list.add(feed)
-                                                if (size == list.size)
-                                                    callback.onResponse(Result.Success(list))
-                                            }
-                                            lastVisible =
-                                                it.result!!.documents[it.result!!.size() - 1]
+                                                count++
 
+                                                if (keyword != null) {
+                                                    if (feed.content.contains(keyword) || feed.hashTags.contains("#$keyword")) {
+                                                        list.add(feed)
+                                                        find++
+                                                    }
+
+                                                    if (find == limit || find == size || count == size || count >= 50) {
+                                                        callback.onResponse(Result.Success(list))
+                                                        break
+                                                    }
+                                                } else {
+                                                    list.add(feed)
+
+                                                    if (count == limit) {
+                                                        callback.onResponse(Result.Success(list))
+                                                        break
+                                                    }
+                                                }
+                                            }
+
+                                            lastVisible = it.result!!.documents[0 + count - 1]
                                             if (document.size < limit) {
                                                 isLastItemReached = true
                                             }
@@ -134,7 +183,7 @@ class PagingModule {
         return onScrollListener
     }
 
-
+/*
     fun firstSearchQuery(keyword: String?, db: FirebaseFirestore): Query {
         val collectionRef =
             db.collection("feed")
@@ -153,11 +202,25 @@ class PagingModule {
                 .orderBy("timestamp", Query.Direction.DESCENDING)
                 .startAfter(lastVisible as DocumentSnapshot)
                 .limit(limit)
+
         return if (keyword == null) {
             return collectionRef
         } else {
             collectionRef.whereArrayContains("hashTags", keyword)
         }
+    }
+ */
+
+    fun firstSearchQuery(keyword: String?, db: FirebaseFirestore): Query {
+        return db.collection("feed")
+            .orderBy("timestamp", Query.Direction.DESCENDING)
+
+    }
+
+    fun nextSearchQuery(keyword: String?, db: FirebaseFirestore): Query {
+        return db.collection("feed")
+            .orderBy("timestamp", Query.Direction.DESCENDING)
+            .startAfter(lastVisible as DocumentSnapshot)
     }
 
 
@@ -179,7 +242,6 @@ class PagingModule {
         )
         return feed
     }
-
 
 
 }

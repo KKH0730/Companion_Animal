@@ -5,6 +5,7 @@ import android.content.Context
 import android.net.Uri
 import android.os.Bundle
 import android.text.SpannableStringBuilder
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -22,6 +23,8 @@ import studio.seno.companion_animal.util.ViewControlListener
 import studio.seno.companion_animal.databinding.FragmentRegisterBinding
 import studio.seno.companion_animal.module.CommonFunction
 import studio.seno.companion_animal.module.TextModule
+import studio.seno.domain.LongTaskCallback
+import studio.seno.domain.Result
 import studio.seno.domain.util.PrefereceManager
 
 
@@ -91,21 +94,36 @@ class RegisterFragment : Fragment(), View.OnClickListener {
                         var imageUri = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE
                                 + "://" + resources.getResourcePackageName(R.drawable.no_image)
                                 + '/' + resources.getResourceTypeName(R.drawable.no_image)
-                                + '/' + resources.getResourceEntryName(R.drawable.no_image));
-                        viewModel.requestUpload(email, imageUri)
-                        viewModel.getUpLoadLiveDate().observe(requireActivity(), {it ->
-                            if(it) {
-                                binding.registerBtn.stopAnimation(TransitionButton.StopAnimationStyle.EXPAND) {
-                                    FirebaseInstanceId.getInstance().instanceId.addOnSuccessListener {it2 ->
-                                        viewModel.uploadUserInfo(0L, email, nickName, 0L, 0L, 0L,it2.token)
-                                        PrefereceManager.setUserInfo(requireContext(), email, nickName, 0L, 0L, 0L,it2.token)
-                                        startActivity<MainActivity>( )
-                                        viewControlListener.finishCurrentActivity()
-                                    }
-                                }
-                            } else
-                                CustomToast(requireContext(), getString(R.string.register_fail)).show()
+                                + '/' + resources.getResourceEntryName(R.drawable.no_image))
 
+                        viewModel.requestUpload(imageUri, object : LongTaskCallback<Boolean> {
+                            override fun onResponse(result: Result<Boolean>) {
+                                if(result is Result.Success) {
+
+                                    viewModel.requestLoadProfileUri(object : LongTaskCallback<String> {
+                                        override fun onResponse(result: Result<String>) {
+                                            if(result is Result.Success) {
+                                                val uri = result.data
+
+                                                FirebaseInstanceId.getInstance().instanceId.addOnSuccessListener {it2 ->
+                                                    viewModel.uploadUserInfo(0L, email, nickName, 0L, 0L, 0L,it2.token, uri)
+
+
+                                                    viewModel.getUpLoadLiveData().observe(requireActivity(), {it ->
+                                                        if(it) {
+                                                            binding.registerBtn.stopAnimation(TransitionButton.StopAnimationStyle.EXPAND) {
+                                                                startActivity<MainActivity>( )
+                                                                viewControlListener.finishCurrentActivity()
+                                                            }
+                                                        } else
+                                                            CustomToast(requireContext(), getString(R.string.register_fail)).show()
+                                                    })
+                                                }
+                                            }
+                                        }
+                                    })
+                                }
+                            }
                         })
 
                     } else {

@@ -18,6 +18,7 @@ import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.ActivityCommentBinding
 import studio.seno.companion_animal.module.CommentModule
 import studio.seno.companion_animal.module.CommonFunction
+import studio.seno.companion_animal.module.NotificationModule
 import studio.seno.companion_animal.ui.MenuDialog
 import studio.seno.companion_animal.ui.main_ui.MainViewModel
 import studio.seno.companion_animal.util.Constants
@@ -138,6 +139,7 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
             initVariable()
         } else if (v?.id == R.id.comment_btn) {
             val timestamp = Timestamp(System.currentTimeMillis()).time
+            val notificationModule = NotificationModule(applicationContext, mainViewModel)
 
             if (answerMode) { // 답글쓰기 모드
                 if (modifyMode && answerComment != null) { //답글 수정 모드
@@ -150,7 +152,9 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
                         curComment!!, timestamp, modifyMode, answerComment,
                         answerPosition, commentPosition, binding.comment
                     )
-                    commentModule.sendNotification(curComment!!.email, binding.comment.text.toString(), timestamp)
+
+                    //commentModule.sendNotification(curComment!!.email, binding.comment.text.toString(), timestamp)
+                    notificationModule.sendNotification(curComment!!.email, binding.comment.text.toString(), timestamp, feed)
                 }
             } else {
                 if (modifyMode) { //댓글 수정 모드
@@ -163,7 +167,8 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
                         timestamp, modifyMode, curComment, commentPosition,
                         binding.header.findViewById(R.id.comment_count), binding.comment
                     )
-                    commentModule.sendNotification(feed.email, binding.comment.text.toString(), timestamp)
+                    //commentModule.sendNotification(feed.email, binding.comment.text.toString(), timestamp)
+                    notificationModule.sendNotification(feed.email, binding.comment.text.toString(), timestamp, feed)
                 }
             }
             initVariable()

@@ -1,6 +1,5 @@
-package studio.seno.domain.usecase
+package studio.seno.domain.usecase.remote
 
-import android.util.Log
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query

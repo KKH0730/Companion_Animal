@@ -2,6 +2,7 @@ package studio.seno.companion_animal.ui.feed
 
 import android.content.Context
 import android.util.Log
+import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -12,7 +13,6 @@ import studio.seno.datamodule.mapper.Mapper
 import studio.seno.domain.LongTaskCallback
 import studio.seno.domain.model.Feed
 import studio.seno.domain.Result
-import studio.seno.domain.usecase.PagingModule
 
 class FeedListViewModel() : ViewModel() {
     private var feedListLiveData = MutableLiveData<List<Feed>>()
@@ -36,7 +36,7 @@ class FeedListViewModel() : ViewModel() {
 
 
     fun requestUploadFeed(context : Context, id : Long, email : String, nickname : String, sort : String, hashTags : List<String>,
-        localUri : List<String>, content : String, timestamp : Long, mode: String, targetFeedPosition : Int
+        localUri : List<String>, content : String, timestamp : Long, lifecycleCoroutineScope: LifecycleCoroutineScope
     ) {
 
         var feed = mapper.mapperToFeed(
@@ -44,7 +44,7 @@ class FeedListViewModel() : ViewModel() {
             localUri, content, timestamp
         )
 
-        repository.uploadFeed(context, feed, object : LongTaskCallback<Feed> {
+        repository.uploadFeed(context, feed, lifecycleCoroutineScope, object : LongTaskCallback<Feed> {
             override fun onResponse(result: Result<Feed>) {
                 if (result is Result.Success) {
                     feedSaveStatus.value = true
@@ -74,10 +74,10 @@ class FeedListViewModel() : ViewModel() {
                         if(recyclerView.layoutManager is LinearLayoutManager)
                             feedListLiveData.value = tempList
                         else if(recyclerView.layoutManager is StaggeredGridLayoutManager)
-                            feedListLiveData.value = list
+                            feedListLiveData.value = tempList
                     }
-
                     callback?.onResponse(result)
+
                 }else if(result is Result.Error){
                     callback?.onResponse(Result.Error(result.exception))
                     Log.e("error", "load feed list error : ${result.exception}")

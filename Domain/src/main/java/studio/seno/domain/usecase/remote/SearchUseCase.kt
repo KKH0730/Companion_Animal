@@ -1,15 +1,11 @@
-package studio.seno.domain.usecase
+package studio.seno.domain.usecase.remote
 
-import android.util.Log
-import android.widget.AbsListView
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.google.firebase.firestore.*
 import studio.seno.domain.LongTaskCallback
 import studio.seno.domain.Result
 import studio.seno.domain.model.Feed
 import studio.seno.domain.model.LastSearch
-import java.lang.Exception
 
 class SearchUseCase {
     private var lastVisible: DocumentSnapshot? = null
@@ -33,6 +29,7 @@ class SearchUseCase {
             .document(myEmail)
             .collection("search")
             .orderBy("timestamp", Query.Direction.DESCENDING)
+            .limit(5)
             .get()
             .addOnCompleteListener {
                 if (it.isSuccessful && it.result != null) {

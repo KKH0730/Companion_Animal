@@ -1,13 +1,11 @@
-package studio.seno.domain.usecase
+package studio.seno.domain.usecase.remote
 
-import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
 import studio.seno.domain.LongTaskCallback
 import studio.seno.domain.Result
 import studio.seno.domain.model.User
-import java.lang.Exception
 
-class UserManageUseCase {
+class RemoteUserUseCase {
     fun uploadRemoteUserInfo(user: User, db : FirebaseFirestore) {
         db.collection("user")
             .document(user.email)
@@ -30,7 +28,7 @@ class UserManageUseCase {
                 if(result != null) {
                     val user = User(result.getLong("id")!!, result.getString("email")!!, result.getString("nickname")!!,
                         result.getLong("follower")!!, result.getLong("following")!!, result.getLong("feedCount")!!,
-                        result.getString("token")!!
+                        result.getString("token")!!, result.getString("profileUri")!!
                     )
                     callback.onResponse(Result.Success(user))
                 }
@@ -38,6 +36,12 @@ class UserManageUseCase {
             }.addOnFailureListener{
                 callback.onResponse(Result.Error(it))
             }
+    }
+
+    fun updateNickname(content: String, myEmail: String, db: FirebaseFirestore) {
+        db.collection("user")
+            .document(myEmail)
+            .update("nickname", content)
     }
 
     fun updateToken(token : String, myEmail : String, db: FirebaseFirestore) {
@@ -80,5 +84,12 @@ class UserManageUseCase {
                     }
                 }
         }
+    }
+
+    fun updateRemoteProfileUri(myEmail : String, profileUri : String, db : FirebaseFirestore){
+        db.collection("user")
+            .document(myEmail)
+            .update("profileUri", profileUri)
+
     }
 }

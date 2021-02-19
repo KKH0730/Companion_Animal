@@ -15,12 +15,14 @@ import studio.seno.companion_animal.databinding.FragmentFeedPagerBinding
 
 class FeedPagerFragment : Fragment() {
     private var imageUri: String? = null
+    private var from : String? = null
     private lateinit var binding : FragmentFeedPagerBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
             imageUri = it.getString("uri")
+            from = it.getString("from")
         }
     }
 
@@ -35,19 +37,28 @@ class FeedPagerFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        Glide.with(this)
-            .load(Uri.parse(imageUri))
-            .centerCrop()
-            .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
-            .into(binding.imageview)
+        if(from == "FeedImageActivity") {
+            Glide.with(this)
+                .load(Uri.parse(imageUri))
+                .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
+                .into(binding.imageview)
+        } else {
+            Glide.with(this)
+                .load(Uri.parse(imageUri))
+                .centerCrop()
+                .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
+                .into(binding.imageview)
+        }
+
     }
 
     companion object {
         @JvmStatic
-        fun newInstance(uri : String) =
+        fun newInstance(uri : String, from : String) =
             FeedPagerFragment().apply {
                 arguments = Bundle().apply {
                     putString("uri", uri)
+                    putString("from", from)
                 }
             }
     }
