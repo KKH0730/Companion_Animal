@@ -1,9 +1,6 @@
 package studio.seno.datamodule.mapper
 
-import studio.seno.domain.model.Comment
-import studio.seno.domain.model.Feed
-import studio.seno.domain.model.LastSearch
-import studio.seno.domain.model.User
+import studio.seno.domain.model.*
 
 class Mapper {
     fun mapperToFeed(
@@ -49,5 +46,13 @@ class Mapper {
         timestamp : Long
     ) : LastSearch{
         return LastSearch(content, timestamp)
+    }
+
+    fun mapperToFollow(
+        email: String,
+        nickname : String,
+        profileUri : String
+    ) : Follow {
+        return Follow(email, nickname, profileUri)
     }
 }

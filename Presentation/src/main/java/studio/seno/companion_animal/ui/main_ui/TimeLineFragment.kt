@@ -19,9 +19,11 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.target.Target
 import com.kroegerama.imgpicker.BottomSheetImagePicker
 import com.kroegerama.imgpicker.ButtonType
+import org.jetbrains.anko.support.v4.startActivity
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.FragmentTimeLineBinding
 import studio.seno.companion_animal.ui.MenuDialog
+import studio.seno.companion_animal.ui.follow.FollowActivity
 import studio.seno.datamodule.LocalRepository
 import studio.seno.datamodule.Repository
 import studio.seno.domain.LongTaskCallback
@@ -76,6 +78,8 @@ class TimeLineFragment : Fragment(), View.OnClickListener, BottomSheetImagePicke
         binding.header.findViewById<ImageButton>(R.id.add).setOnClickListener(this)
         binding.timelineProfileImageView.setOnClickListener(this)
         binding.infoModifyBtn.setOnClickListener(this)
+        binding.followerLayout.setOnClickListener(this)
+        binding.followingLayout.setOnClickListener(this)
         binding.nickNameEdit.setText(PrefereceManager.getString(requireContext(), "nickName"))
         binding.nickNameEdit.isEnabled = false
 
@@ -135,6 +139,10 @@ class TimeLineFragment : Fragment(), View.OnClickListener, BottomSheetImagePicke
                 .columnSize(R.dimen.columnSize)
                 .requestTag("single")
                 .show(childFragmentManager, null)
+        } else if(v?.id == R.id.follower_layout){
+            startActivity<FollowActivity>("category" to "follower")
+        } else if(v?.id == R.id.following_layout) {
+            startActivity<FollowActivity>("category" to "following")
         }
     }
 

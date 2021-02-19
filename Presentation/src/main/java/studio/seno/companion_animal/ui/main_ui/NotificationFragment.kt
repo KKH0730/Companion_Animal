@@ -108,8 +108,4 @@ class NotificationFragment : Fragment() {
             notiAdater.submitList(it)
         })
     }
-
-    override fun onResume() {
-        super.onResume()
-    }
 }

@@ -118,6 +118,8 @@
     <!--Binding Adapter-->
     <string name="binding_heart">좋아요</string>
     <string name="binding_comment">댓글</string>
+    <string name="follow_each_other">맞팔하기</string>
+
 
     <!-- common -->
     <string name="submit">확인</string>

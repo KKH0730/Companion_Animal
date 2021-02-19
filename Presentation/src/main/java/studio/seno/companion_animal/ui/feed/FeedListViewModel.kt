@@ -8,11 +8,13 @@ import androidx.lifecycle.ViewModel
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
+import com.google.firebase.auth.FirebaseAuth
 import studio.seno.datamodule.Repository
 import studio.seno.datamodule.mapper.Mapper
 import studio.seno.domain.LongTaskCallback
 import studio.seno.domain.model.Feed
 import studio.seno.domain.Result
+import studio.seno.domain.model.Follow
 
 class FeedListViewModel() : ViewModel() {
     private var feedListLiveData = MutableLiveData<List<Feed>>()
@@ -115,7 +117,6 @@ class FeedListViewModel() : ViewModel() {
             override fun onResponse(result: Result<Boolean>) {
                 if(result is Result.Success) {
                     if(result.data) {
-                       // loadFeedList(null)
                         feedSaveStatus.value = true
                     } else {
                         Log.e("error", "requestDeleteFeed fail")
@@ -139,8 +140,10 @@ class FeedListViewModel() : ViewModel() {
         repository.requestCheckFollow(targetFeed, myEmail, callback)
     }
 
-    fun requestUpdateFollower(targetFeed: Feed, myEmail : String, flag : Boolean) {
-        repository.requestUpdateFollower(targetFeed, myEmail, flag)
+    fun requestUpdateFollower(targetFeed: Feed, flag : Boolean, myNickName : String, myProfileUri : String) {
+        val targetFollow = mapper.mapperToFollow(targetFeed.email, targetFeed.nickname, targetFeed.remoteProfileUri)
+        val myFollow = mapper.mapperToFollow(FirebaseAuth.getInstance().currentUser?.email.toString(), myNickName, myProfileUri)
+        repository.requestUpdateFollower(targetFeed, flag, myFollow, targetFollow)
     }
 
 }

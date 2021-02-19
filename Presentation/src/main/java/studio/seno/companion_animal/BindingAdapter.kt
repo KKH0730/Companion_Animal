@@ -5,10 +5,7 @@ import android.net.Uri
 import android.text.SpannableStringBuilder
 import android.util.Log
 import android.view.View
-import android.widget.ImageButton
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.TextView
+import android.widget.*
 import androidx.databinding.BindingAdapter
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
@@ -259,5 +256,22 @@ object BindingAdapter {
         }
     }
 
+    /**
+     * follower and following
+     */
 
+    @BindingAdapter("setFollowBtn")
+    @JvmStatic
+    fun setFollowBtn(button: Button, category : String) {
+        try {
+            if(category == "follower") {
+                button.text = button.context.getString(R.string.follow_each_other)
+            } else if(category == "following") {
+                button.text = button.context.getString(R.string.unfollow)
+            }
+
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
 }

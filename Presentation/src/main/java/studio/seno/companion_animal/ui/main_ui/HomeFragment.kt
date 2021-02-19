@@ -25,7 +25,9 @@ import studio.seno.companion_animal.util.Constants
 import studio.seno.datamodule.LocalRepository
 import studio.seno.domain.LongTaskCallback
 import studio.seno.domain.Result
+import studio.seno.domain.database.AppDatabase
 import studio.seno.domain.model.Feed
+import studio.seno.domain.model.User
 
 /**
  * HomeFragment는 FeedViewListModel과 연결.
@@ -177,15 +179,29 @@ class HomeFragment : Fragment(), View.OnClickListener{
                     "mode" to "delete"
                 )
             } else if(type == "follow") {
-                if(targetFeed != null) {
-                    feedListViewModel.requestUpdateFollower(targetFeed!!, currentUserEmail, true)
-                    localRepository.updateFollowing(lifecycleScope, true)
-                }
+                localRepository.getUserInfo(lifecycleScope, object : LongTaskCallback<User>{
+                    override fun onResponse(result: Result<User>) {
+                        if(result is Result.Success) {
+                            feedListViewModel.requestUpdateFollower(targetFeed!!,  true, result.data.nickname, result.data.profileUri)
+                            localRepository.updateFollowing(lifecycleScope, true)
+
+                        } else if(result is Result.Error) {
+                            Log.e("error", "Homefragment follow error : ${result.exception}")
+                        }
+                    }
+                })
             } else if(type == "unfollow") {
-                if(targetFeed != null) {
-                    feedListViewModel.requestUpdateFollower(targetFeed!!, currentUserEmail, false)
-                    localRepository.updateFollowing(lifecycleScope,false)
-                }
+                localRepository.getUserInfo(lifecycleScope, object : LongTaskCallback<User>{
+                    override fun onResponse(result: Result<User>) {
+                        if(result is Result.Success) {
+                            feedListViewModel.requestUpdateFollower(targetFeed!!,  false, result.data.nickname, result.data.profileUri)
+                            localRepository.updateFollowing(lifecycleScope,false)
+
+                        } else if(result is Result.Error) {
+                            Log.e("error", "Homefragment follow error : ${result.exception}")
+                        }
+                    }
+                })
             }
         }
     }

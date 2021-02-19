@@ -8,6 +8,10 @@
         <variable
             name="model"
             type="studio.seno.companion_animal.ui.notification.NotificationListViewModel" />
+
+        <variable
+            name="followListModel"
+            type="studio.seno.companion_animal.ui.follow.FollowListViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

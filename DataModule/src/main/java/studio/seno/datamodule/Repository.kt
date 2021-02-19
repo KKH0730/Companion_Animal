@@ -100,14 +100,22 @@ class Repository() {
         feedUseCase.updateBookmark(feed, myEmail, flag, mDB)
     }
 
+
+    /**
+     * 팔로우 및 팔로워 이벤트
+     */
     fun requestCheckFollow(targetFeed: Feed, myEmail: String, callback: LongTaskCallback<Boolean>){
         followUseCase.checkFollow(targetFeed, myEmail, mDB, callback)
     }
 
 
     //팔로워 상태 업데이트
-    fun requestUpdateFollower(targetFeed : Feed, myEmail: String, flag: Boolean) {
-        followUseCase.updateFollower(targetFeed, myEmail, flag, mDB)
+    fun requestUpdateFollower(targetFeed : Feed,  flag: Boolean, myFollow : Follow, targetFollow: Follow) {
+        followUseCase.updateFollower(targetFeed, FirebaseAuth.getInstance().currentUser?.email.toString(), flag, myFollow, targetFollow, mDB)
+    }
+
+    fun loadFollower(fieldName: String, callback: LongTaskCallback<List<Follow>>) {
+        followUseCase.loadFollower(FirebaseAuth.getInstance().currentUser?.email.toString(), fieldName, mDB, callback)
     }
 
 
