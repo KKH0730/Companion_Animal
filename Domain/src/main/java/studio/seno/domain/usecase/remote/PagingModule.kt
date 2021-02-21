@@ -21,13 +21,14 @@ class PagingModule {
 
     fun pagingFeed(
         keyword: String?,
+        sort: String,
+        myEmail: String?,
         recyclerView: RecyclerView,
         db: FirebaseFirestore,
         callback: LongTaskCallback<List<Feed>>
     ) {
-
         try {
-            firstSearchQuery(keyword, db)
+            firstSearchQuery(sort, myEmail, db)
                 .get()
                 .addOnCompleteListener {
                     var find = 0
@@ -73,6 +74,8 @@ class PagingModule {
                             recyclerView.setOnScrollListener(
                                 setScrollListener(
                                     keyword,
+                                    sort,
+                                    myEmail,
                                     db,
                                     callback
                                 )
@@ -90,6 +93,8 @@ class PagingModule {
 
     fun setScrollListener(
         keyword: String?,
+        sort: String,
+        myEmail: String?,
         db: FirebaseFirestore,
         callback: LongTaskCallback<List<Feed>>
     ): RecyclerView.OnScrollListener {
@@ -127,7 +132,7 @@ class PagingModule {
                             isScrolling = false
 
 
-                            nextSearchQuery(keyword, db)
+                            nextSearchQuery(sort, myEmail, db)
                                 .get().addOnCompleteListener {
                                     var count = 0
                                     var find = 0
@@ -183,44 +188,30 @@ class PagingModule {
         return onScrollListener
     }
 
-/*
-    fun firstSearchQuery(keyword: String?, db: FirebaseFirestore): Query {
-        val collectionRef =
-            db.collection("feed")
+
+    fun firstSearchQuery(sort : String, myEmail: String?, db: FirebaseFirestore): Query {
+        if(sort == "myFeed")
+            return db.collection("user")
+                .document(myEmail!!)
+                .collection("myFeed")
                 .orderBy("timestamp", Query.Direction.DESCENDING)
-                .limit(limit)
-        return if (keyword == null) {
-            collectionRef
-        } else {
-            collectionRef.whereArrayContains("hashTags", keyword)
-        }
+        else
+            return db.collection("feed")
+                .orderBy("timestamp", Query.Direction.DESCENDING)
+
     }
 
-    fun nextSearchQuery(keyword: String?, db: FirebaseFirestore): Query {
-        val collectionRef =
-            db.collection("feed")
+    fun nextSearchQuery(sort : String, myEmail: String?, db: FirebaseFirestore): Query {
+        if(sort == "myFeed")
+            return db.collection("user")
+                .document(myEmail!!)
+                .collection("myFeed")
                 .orderBy("timestamp", Query.Direction.DESCENDING)
                 .startAfter(lastVisible as DocumentSnapshot)
-                .limit(limit)
-
-        return if (keyword == null) {
-            return collectionRef
-        } else {
-            collectionRef.whereArrayContains("hashTags", keyword)
-        }
-    }
- */
-
-    fun firstSearchQuery(keyword: String?, db: FirebaseFirestore): Query {
-        return db.collection("feed")
-            .orderBy("timestamp", Query.Direction.DESCENDING)
-
-    }
-
-    fun nextSearchQuery(keyword: String?, db: FirebaseFirestore): Query {
-        return db.collection("feed")
-            .orderBy("timestamp", Query.Direction.DESCENDING)
-            .startAfter(lastVisible as DocumentSnapshot)
+        else
+            return db.collection("feed")
+                .orderBy("timestamp", Query.Direction.DESCENDING)
+                .startAfter(lastVisible as DocumentSnapshot)
     }
 
 

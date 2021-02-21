@@ -8,8 +8,6 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.iid.FirebaseInstanceId
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import me.ibrahimsn.lib.OnItemSelectedListener
 import org.jetbrains.anko.startActivity
 import studio.seno.commonmodule.BaseActivity
@@ -17,7 +15,7 @@ import studio.seno.companion_animal.databinding.ActivityMainBinding
 import studio.seno.companion_animal.ui.feed.FeedDetailActivity
 import studio.seno.companion_animal.ui.main_ui.*
 import studio.seno.datamodule.LocalRepository
-import studio.seno.datamodule.Repository
+import studio.seno.datamodule.RemoteRepository
 import studio.seno.domain.LongTaskCallback
 import studio.seno.domain.Result
 import studio.seno.domain.database.AppDatabase
@@ -49,7 +47,7 @@ class MainActivity : BaseActivity() , DialogInterface.OnDismissListener{
 
     fun init(){
         db = AppDatabase.getInstance(this)!!
-        homeFragment = HomeFragment.newInstance()
+        homeFragment = HomeFragment.newInstance("whole_feed_list", 0)
         notificationFragment = NotificationFragment.newInstance()
         chatFragment = ChatFragment.newInstance()
         timeLineFragment = TimeLineFragment.newInstance()
@@ -82,10 +80,7 @@ class MainActivity : BaseActivity() , DialogInterface.OnDismissListener{
             })
 
         FirebaseInstanceId.getInstance().instanceId.addOnSuccessListener {
-            mainViewModel.requestUpdateToken(
-                it.token,
-                FirebaseAuth.getInstance().currentUser?.email.toString(),
-            )
+            mainViewModel.requestUpdateToken(it.token)
         }
 
     }
@@ -106,7 +101,7 @@ class MainActivity : BaseActivity() , DialogInterface.OnDismissListener{
 
     private fun pendingIntent(){
         if(intent.getStringExtra("from") != null && intent.getStringExtra("from") == "notification") {
-            Repository().loadFeed(intent.getStringExtra("target_path")!!, object : LongTaskCallback<Feed>{
+            RemoteRepository.getInstance()!!.loadFeed(intent.getStringExtra("target_path")!!, object : LongTaskCallback<Feed>{
                 override fun onResponse(result: Result<Feed>) {
                     if(result is Result.Success){
                         if(result.data != null)

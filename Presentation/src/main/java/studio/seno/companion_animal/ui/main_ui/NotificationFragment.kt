@@ -14,16 +14,14 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
 import com.google.firebase.auth.FirebaseAuth
 import org.jetbrains.anko.support.v4.startActivity
-import studio.seno.commonmodule.CustomToast
 import studio.seno.companion_animal.ErrorActivity
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.FragmentNotificationBinding
 import studio.seno.companion_animal.ui.feed.FeedDetailActivity
-import studio.seno.companion_animal.ui.feed.FeedListAdapter
 import studio.seno.companion_animal.ui.notification.NotificationAdapter
 import studio.seno.companion_animal.ui.notification.NotificationListViewModel
 import studio.seno.companion_animal.ui.notification.OnNotificationClickedListener
-import studio.seno.datamodule.Repository
+import studio.seno.datamodule.RemoteRepository
 import studio.seno.domain.LongTaskCallback
 import studio.seno.domain.Result
 import studio.seno.domain.model.Feed
@@ -60,7 +58,7 @@ class NotificationFragment : Fragment() {
         init()
         itemEvent()
 
-        notiListViewModel.requestLoadNotification(FirebaseAuth.getInstance().currentUser?.email.toString())
+        notiListViewModel.requestLoadNotification()
         observe()
     }
 
@@ -73,12 +71,9 @@ class NotificationFragment : Fragment() {
         notiAdater.setOnNotificationListener(object : OnNotificationClickedListener{
             override fun onNotificationClicked(checkImage : ImageView, item: NotificationData) {
                 checkImage.visibility = View.GONE
-                notiListViewModel.requestUpdateCheckDot(
-                    FirebaseAuth.getInstance().currentUser?.email.toString(),
-                    item
-                )
+                notiListViewModel.requestUpdateCheckDot(item)
 
-                Repository().loadFeed(item.targetPath!!, object : LongTaskCallback<Feed>{
+                RemoteRepository.getInstance()!!.loadFeed(item.targetPath!!, object : LongTaskCallback<Feed>{
                     override fun onResponse(result: Result<Feed>) {
                         if(result is Result.Success){
                             if(result.data != null)
@@ -95,10 +90,7 @@ class NotificationFragment : Fragment() {
             }
 
             override fun onDeleteClicked(item: NotificationData) {
-                notiListViewModel.deleteNotification(
-                    FirebaseAuth.getInstance().currentUser?.email.toString(),
-                    item
-                )
+                notiListViewModel.deleteNotification(item)
             }
         })
     }

@@ -60,10 +60,12 @@ class SearchUseCase {
 
     fun searchFeed(
         keyword: String?,
+        sort: String,
+        myEmail: String?,
         recyclerView: RecyclerView,
         db: FirebaseFirestore,
         callback: LongTaskCallback<List<Feed>>
     ) {
-        PagingModule().pagingFeed(keyword, recyclerView, db, callback)
+        PagingModule().pagingFeed(keyword, sort, myEmail, recyclerView, db, callback)
     }
 }

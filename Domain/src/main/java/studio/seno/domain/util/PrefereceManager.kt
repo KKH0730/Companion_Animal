@@ -44,6 +44,18 @@ object PrefereceManager {
         return sharedPreferences.getLong(key, 0)
     }
 
+    fun setInt(context: Context, key: String?, value: Int) {
+        val sharedPreferences = getPreferences(context)
+        val editor = sharedPreferences.edit()
+        editor.putInt(key, value)
+        editor.apply()
+    }
+
+    fun getInt(context: Context, key: String?): Int {
+        val sharedPreferences = getPreferences(context)
+        return sharedPreferences.getInt(key, 0)
+    }
+
 
     fun setUserInfo(
         context: Context,

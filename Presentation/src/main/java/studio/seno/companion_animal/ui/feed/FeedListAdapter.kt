@@ -104,7 +104,7 @@ class FeedListAdapter(
             binding.feedMenu.setOnClickListener { mListener.onMenuClicked(feed, adapterPosition) }
             binding.heartBtn.setOnClickListener { mListener.onHeartClicked(feed, binding.heartCount, binding.heartBtn) }
             binding.bookmarkBtn.setOnClickListener { mListener.onBookmarkClicked(feed, binding.bookmarkBtn) }
-            binding.detailBtn.setOnClickListener { mListener.onDetailClicked(feed) }
+            binding.detailBtn.setOnClickListener { mListener.onDetailClicked(feed, bindingAdapterPosition) }
             binding.imageBtn.setOnClickListener{ mListener.onImageBtnClicked(feed) }
 
         }

@@ -3,14 +3,16 @@ package studio.seno.companion_animal.ui.follow
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import studio.seno.datamodule.Repository
+import com.google.firebase.auth.FirebaseAuth
+import studio.seno.datamodule.RemoteRepository
+import studio.seno.datamodule.mapper.Mapper
 import studio.seno.domain.LongTaskCallback
 import studio.seno.domain.Result
 import studio.seno.domain.model.Follow
 
 class FollowListViewModel() : ViewModel() {
     private var followListLiveData : MutableLiveData<List<Follow>> = MutableLiveData()
-    private val repository = Repository()
+    private val repository = RemoteRepository.getInstance()!!
 
 
     fun getFollowListLiveData() : MutableLiveData<List<Follow>> {
@@ -43,4 +45,19 @@ class FollowListViewModel() : ViewModel() {
         })
     }
 
+    fun requestUpdateFollower(follow : Follow, flag : Boolean, myNickName : String, myProfileUri : String, isDelete : Boolean) {
+        val targetFollow = Mapper.getInstance()!!.mapperToFollow(follow.email, follow.nickname, follow.profileUri)
+        val myFollow = Mapper.getInstance()!!.mapperToFollow(FirebaseAuth.getInstance().currentUser?.email.toString(), myNickName, myProfileUri)
+        repository.requestUpdateFollower(follow.email, flag, myFollow, targetFollow)
+
+        if(isDelete){
+            val tempList = followListLiveData.value?.toMutableList()
+            tempList?.remove(follow)
+            followListLiveData.value = tempList?.toList()
+        }
+    }
+
+    fun requestCheckFollow(targetEmail : String ,callback : LongTaskCallback<Boolean>){
+        repository.requestCheckFollow(targetEmail, callback)
+    }
 }

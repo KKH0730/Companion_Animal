@@ -2,7 +2,18 @@ package studio.seno.datamodule.mapper
 
 import studio.seno.domain.model.*
 
-class Mapper {
+object Mapper {
+    private var mapper : Mapper? = null
+
+    fun getInstance() : Mapper? {
+        if(mapper == null) {
+            synchronized(Mapper::class.java) {
+                mapper = this
+            }
+        }
+        return mapper
+    }
+
     fun mapperToFeed(
         id : Long,
         email : String,

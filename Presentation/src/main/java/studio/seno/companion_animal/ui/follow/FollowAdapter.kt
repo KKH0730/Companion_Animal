@@ -2,6 +2,8 @@ package studio.seno.companion_animal.ui.follow
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.Button
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -33,9 +35,9 @@ class FollowAdapter(category: String) : ListAdapter<Follow, RecyclerView.ViewHol
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val holder = holder as FollowViewHolder
         val item = getItem(position)
-        val model = FollowViewModel(mCategory)
+        val model = FollowViewModel(mCategory, item.email)
         model.setFollowLiveData(item)
-        holder.setViewModel(model, item)
+        holder.setViewModel(model, item, mCategory)
     }
 
     fun setOnFollowClickListener(onFollowListener : OnFollowClickListener){
@@ -46,15 +48,18 @@ class FollowAdapter(category: String) : ListAdapter<Follow, RecyclerView.ViewHol
         private val binding : ProfileItemBinding = binding
         private val mOnFollowListener = onFollowListener
 
-        fun setViewModel(model : FollowViewModel, follow: Follow) {
+        fun setViewModel(model : FollowViewModel, follow: Follow, category: String) {
              binding.followModel = model
              binding.executePendingBindings()
 
-            setEvent(follow)
+            setEvent(follow, category)
         }
 
-        fun setEvent(follow: Follow){
-            binding.profileLayout.setOnClickListener { mOnFollowListener.onProfileClicked(follow)}
+        fun setEvent(follow: Follow, category: String){
+            binding.profileLayout.setOnClickListener {v->
+                mOnFollowListener.onProfileClicked(v as ConstraintLayout, follow)}
+            binding.followBtn.setOnClickListener {v->
+                mOnFollowListener.onButtonClicked(v as Button, category, follow) }
         }
     }
 }

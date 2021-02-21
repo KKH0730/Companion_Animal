@@ -73,6 +73,12 @@ class FeedUseCase {
                                                         }.addOnFailureListener {
                                                             callback.onResponse(Result.Error(it))
                                                         }
+
+                                                    mDB.collection("user")
+                                                        .document(feed.email)
+                                                        .collection("myFeed")
+                                                        .document(feed.email + feed.timestamp)
+                                                        .set(feed)
                                                 }
                                             })
 
@@ -183,6 +189,12 @@ class FeedUseCase {
             }.addOnFailureListener {
                 callback.onResponse(Result.Error(it))
             }
+
+        db.collection("user")
+            .document(feed.email)
+            .collection("myFeed")
+            .document(feed.email + feed.timestamp)
+            .delete()
 
         storageRef.child(remoteImagePath).listAll().addOnCompleteListener {
             if (it.result != null) {

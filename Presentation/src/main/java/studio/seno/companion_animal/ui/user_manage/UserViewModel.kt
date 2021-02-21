@@ -5,7 +5,7 @@ import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import studio.seno.companion_animal.module.UserViewModelModule
-import studio.seno.datamodule.Repository
+import studio.seno.datamodule.RemoteRepository
 import studio.seno.datamodule.mapper.Mapper
 import studio.seno.domain.LongTaskCallback
 import studio.seno.domain.Result
@@ -17,8 +17,7 @@ class UserViewModel() : ViewModel() {
     private val registerLiveData : MutableLiveData<Boolean> = MutableLiveData()
     private val uploadLiveData : MutableLiveData<Boolean> = MutableLiveData()
     private val overLapLiveData : MutableLiveData<Boolean> = MutableLiveData()
-    private val mapper = Mapper()
-    private val repository = Repository()
+    private val repository = RemoteRepository.getInstance()!!
 
     fun getLoginLiveDate() : MutableLiveData<Boolean>{
         return loginLiveData
@@ -64,8 +63,8 @@ class UserViewModel() : ViewModel() {
         return overLapLiveData
     }
 
-    fun requestLoadProfileUri(callback: LongTaskCallback<String>){
-        repository.loadRemoteProfileImage(callback)
+    fun requestLoadProfileUri(email: String, callback: LongTaskCallback<String>){
+        repository.loadRemoteProfileImage(email, callback)
     }
 
     fun requestUpload( imageUri : Uri, callback: LongTaskCallback<Boolean>){
@@ -86,7 +85,7 @@ class UserViewModel() : ViewModel() {
 
     fun uploadUserInfo(id : Long, email: String, nickname: String, follower: Long,
                         following: Long, feedCount: Long, token : String, profileUri : String){
-        var user = mapper.mapperToUser(id, email, nickname, follower, following, feedCount, token, profileUri)
+        var user = Mapper.getInstance()!!.mapperToUser(id, email, nickname, follower, following, feedCount, token, profileUri)
         repository.uploadUserInfo(user)
     }
 

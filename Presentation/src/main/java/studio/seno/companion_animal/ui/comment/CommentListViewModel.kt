@@ -3,7 +3,7 @@ package studio.seno.companion_animal.ui.comment
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import studio.seno.datamodule.Repository
+import studio.seno.datamodule.RemoteRepository
 import studio.seno.datamodule.mapper.Mapper
 import studio.seno.domain.LongTaskCallback
 import studio.seno.domain.Result
@@ -12,8 +12,7 @@ import java.util.*
 
 class CommentListViewModel : ViewModel() {
     private var commentListLiveData: MutableLiveData<List<Comment>> = MutableLiveData()
-    private val repository = Repository()
-    private val mapper = Mapper()
+    private val repository = RemoteRepository.getInstance()!!
 
     fun getCommentListLiveData(): MutableLiveData<List<Comment>> {
         return commentListLiveData
@@ -46,12 +45,12 @@ class CommentListViewModel : ViewModel() {
         targetEmail: String,
         targetTimestamp: Long,
         type: Long,
-        email: String,
+        myEmail: String,
         nickname: String,
         content: String,
         timestamp: Long
     ) {
-        var comment = mapper.mapperToComment(type, email, nickname, content, null, timestamp)
+        var comment = Mapper.getInstance()!!.mapperToComment(type, myEmail, nickname, content, null, timestamp)
         repository.uploadComment(targetEmail, targetTimestamp, comment)
     }
 
@@ -61,12 +60,12 @@ class CommentListViewModel : ViewModel() {
         targetEmail: String,
         targetTimestamp: Long,
         type: Long,
-        email: String,
-        nickname: String,
+        myEmail: String,
+        myNickname: String,
         content: String,
         timestamp: Long
     ) {
-        var commentAnswer = mapper.mapperToComment(type, email, nickname, content, null, timestamp)
+        var commentAnswer = Mapper.getInstance()!!.mapperToComment(type, myEmail, myNickname, content, null, timestamp)
         repository.uploadCommentAnswer(feedEmail, feedTimestamp, targetEmail, targetTimestamp, commentAnswer)
     }
 

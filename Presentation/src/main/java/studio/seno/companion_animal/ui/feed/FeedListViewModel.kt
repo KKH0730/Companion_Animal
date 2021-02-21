@@ -9,18 +9,16 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.google.firebase.auth.FirebaseAuth
-import studio.seno.datamodule.Repository
+import studio.seno.datamodule.RemoteRepository
 import studio.seno.datamodule.mapper.Mapper
 import studio.seno.domain.LongTaskCallback
 import studio.seno.domain.model.Feed
 import studio.seno.domain.Result
-import studio.seno.domain.model.Follow
 
 class FeedListViewModel() : ViewModel() {
     private var feedListLiveData = MutableLiveData<List<Feed>>()
     private var feedSaveStatus = MutableLiveData<Boolean>()
-    private val mapper = Mapper()
-    private val repository = Repository()
+    private val repository = RemoteRepository.getInstance()!!
 
     fun getFeedListLiveData(): MutableLiveData<List<Feed>> {
         return feedListLiveData
@@ -41,7 +39,7 @@ class FeedListViewModel() : ViewModel() {
         localUri : List<String>, content : String, timestamp : Long, lifecycleCoroutineScope: LifecycleCoroutineScope
     ) {
 
-        var feed = mapper.mapperToFeed(
+        var feed = Mapper.getInstance()!!.mapperToFeed(
             id, email, nickname, sort, hashTags,
             localUri, content, timestamp
         )
@@ -59,8 +57,8 @@ class FeedListViewModel() : ViewModel() {
     }
 
     //피드를 페이징하여 로드
-    fun requestLoadFeedList(keyword: String?, recyclerView: RecyclerView, callback: LongTaskCallback<List<Feed>>?){
-        repository.requestLoadFeedList(keyword, recyclerView, object : LongTaskCallback<List<Feed>>{
+    fun requestLoadFeedList(keyword: String?, sort: String, myEmail: String?, recyclerView: RecyclerView, callback: LongTaskCallback<List<Feed>>?){
+        repository.requestLoadFeedList(keyword, sort, myEmail, recyclerView, object : LongTaskCallback<List<Feed>>{
             override fun onResponse(result: Result<List<Feed>>) {
                 if(result is Result.Success) {
                     val list = result.data
@@ -128,22 +126,22 @@ class FeedListViewModel() : ViewModel() {
         })
     }
 
-    fun requestUpdateHeart(feed: Feed, count: Long, myEmail : String, flag : Boolean){
-        repository.requestUpdateHeart(feed, count, myEmail, flag)
+    fun requestUpdateHeart(feed: Feed, count: Long, flag : Boolean){
+        repository.requestUpdateHeart(feed, count, flag)
     }
 
-    fun requestUpdateBookmark(feed: Feed, myEmail : String, flag : Boolean) {
-        repository.requestUpdateBookmark(feed, myEmail, flag)
+    fun requestUpdateBookmark(feed: Feed, flag : Boolean) {
+        repository.requestUpdateBookmark(feed, flag)
     }
 
-    fun requestCheckFollow(targetFeed: Feed, myEmail: String, callback: LongTaskCallback<Boolean>){
-        repository.requestCheckFollow(targetFeed, myEmail, callback)
+    fun requestCheckFollow(targetEmail: String,  callback: LongTaskCallback<Boolean>){
+        repository.requestCheckFollow(targetEmail, callback)
     }
 
-    fun requestUpdateFollower(targetFeed: Feed, flag : Boolean, myNickName : String, myProfileUri : String) {
-        val targetFollow = mapper.mapperToFollow(targetFeed.email, targetFeed.nickname, targetFeed.remoteProfileUri)
-        val myFollow = mapper.mapperToFollow(FirebaseAuth.getInstance().currentUser?.email.toString(), myNickName, myProfileUri)
-        repository.requestUpdateFollower(targetFeed, flag, myFollow, targetFollow)
+    fun requestUpdateFollower(targetEmail : String, targetNickname: String, targetProfileUri : String, flag : Boolean, myNickName : String, myProfileUri : String) {
+        val targetFollow = Mapper.getInstance()!!.mapperToFollow(targetEmail, targetNickname, targetProfileUri)
+        val myFollow = Mapper.getInstance()!!.mapperToFollow(FirebaseAuth.getInstance().currentUser?.email.toString(), myNickName, myProfileUri)
+        repository.requestUpdateFollower(targetEmail, flag, myFollow, targetFollow)
     }
 
 }

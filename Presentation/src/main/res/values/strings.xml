@@ -39,9 +39,9 @@
 
     <!-- TimeLineFragment -->
     <string name="timeline_title">타임라인</string>
-    <string name="timeLine_menu1">내 글</string>
-    <string name="timeLine_menu2">팔로워</string>
-    <string name="timeLine_menu3">팔로잉</string>
+    <string name="timeLine_menu1">내 글  %d</string>
+    <string name="timeLine_menu2">팔로워  %d</string>
+    <string name="timeLine_menu3">팔로잉  %d </string>
     <string name="timeLine_menu4">북마크</string>
     <string name="timeLine_menu5">내가 쓴 글</string>
     <string name="info_modify">닉네임\n수정</string>
@@ -109,6 +109,9 @@
     <!-- NotificationFragment-->
     <string name="notification_title">알림</string>
 
+    <!-- HomeFragment -->
+    <string name="feed_title">피드</string>
+
     <!-- ErrorActivity -->
     <string name="no_exist_feed">해당 피드는 삭제되었습니다.</string>
 
@@ -117,8 +120,10 @@
 
     <!--Binding Adapter-->
     <string name="binding_heart">좋아요</string>
-    <string name="binding_comment">댓글</string>
+    <string name="binding_comment">· 댓글</string>
+
     <string name="follow_each_other">맞팔하기</string>
+    <string name="follow_ing">팔로우 중</string>
 
 
     <!-- common -->

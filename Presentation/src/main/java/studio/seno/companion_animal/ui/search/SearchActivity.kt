@@ -42,7 +42,7 @@ class SearchActivity : AppCompatActivity(), View.OnClickListener {
 
         init()
         lastSearchItemEvent()
-        listViewModel.requestLoadLastSearch(FirebaseAuth.getInstance().currentUser?.email.toString())
+        listViewModel.requestLoadLastSearch()
         observe()
     }
 
@@ -59,10 +59,7 @@ class SearchActivity : AppCompatActivity(), View.OnClickListener {
             }
 
             override fun onDeleteClicked(timestamp: Long, lastSearch: LastSearch) {
-                listViewModel.requestDeleteLastSearch(
-                    FirebaseAuth.getInstance().currentUser?.email.toString(),
-                    lastSearch
-                )
+                listViewModel.requestDeleteLastSearch(lastSearch)
 
                 var tempList = lastSearchAdapter.currentList.toMutableList()
                 tempList.remove(lastSearch)
@@ -71,7 +68,7 @@ class SearchActivity : AppCompatActivity(), View.OnClickListener {
         })
 
         searchAdapter.setOnItemClickListener(object : OnSearchItemClickListener {
-            override fun onSearchItemClicked(feed: Feed) {
+            override fun onSearchItemClicked(feed: Feed, position : Int) {
                 startActivity<FeedDetailActivity>("feed" to feed)
             }
         })
@@ -117,7 +114,7 @@ class SearchActivity : AppCompatActivity(), View.OnClickListener {
 
         binding.lastSearchRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         binding.lastSearchRecyclerView.adapter = lastSearchAdapter
-        listViewModel.requestLoadLastSearch(FirebaseAuth.getInstance().currentUser?.email.toString())
+        listViewModel.requestLoadLastSearch()
     }
 
     fun searchButtonEvent(){
@@ -131,11 +128,7 @@ class SearchActivity : AppCompatActivity(), View.OnClickListener {
 
         //검색기록 서버에 저장
         if (content.isNotEmpty()) {
-            listViewModel.requestUploadLastSearch(
-                FirebaseAuth.getInstance().currentUser?.email.toString(),
-                content,
-                timestamp
-            )
+            listViewModel.requestUploadLastSearch(content, timestamp)
 
             var tempList = lastSearchAdapter.currentList.toMutableList()
             var flag = true
@@ -156,7 +149,7 @@ class SearchActivity : AppCompatActivity(), View.OnClickListener {
         binding.lastSearchRecyclerView.scrollToPosition(0)
 
         //검색 키워드로 검색
-        feedListViewModel.requestLoadFeedList(content, binding.lastSearchRecyclerView, object : LongTaskCallback<List<Feed>>{
+        feedListViewModel.requestLoadFeedList(content, "feedList", null, binding.lastSearchRecyclerView, object : LongTaskCallback<List<Feed>>{
             override fun onResponse(result: Result<List<Feed>>) {
                 binding.progressBar.visibility = View.GONE
 

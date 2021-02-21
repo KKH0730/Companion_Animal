@@ -6,6 +6,7 @@ object Constants {
     val PARENT : Long = 20L
     val CHILD : Long = 21L
 
+
     val COMMENT_REQUEST = 30
     val FEED_DETAIL_REQUEST = 31
     val FEED_MODIFY_REQUEST = 32

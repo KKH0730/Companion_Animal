@@ -3,22 +3,22 @@ package studio.seno.companion_animal.ui.notification
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import studio.seno.datamodule.Repository
+import studio.seno.datamodule.RemoteRepository
 import studio.seno.domain.LongTaskCallback
 import studio.seno.domain.Result
 import studio.seno.domain.model.NotificationData
 
 class NotificationListViewModel : ViewModel() {
     private var notificationListLiveData : MutableLiveData<List<NotificationData>> = MutableLiveData()
-    private val repository = Repository()
+    private val repository = RemoteRepository.getInstance()!!
 
     fun getNotificationListLiveData() : MutableLiveData<List<NotificationData>>{
         return notificationListLiveData
     }
 
 
-    fun requestLoadNotification(myEmail : String) {
-        repository.requestLoadNotification(myEmail, object : LongTaskCallback<List<NotificationData>>{
+    fun requestLoadNotification() {
+        repository.requestLoadNotification(object : LongTaskCallback<List<NotificationData>>{
             override fun onResponse(result: Result<List<NotificationData>>) {
                 if(result is Result.Success) {
                     notificationListLiveData.value = result.data
@@ -29,12 +29,12 @@ class NotificationListViewModel : ViewModel() {
         })
     }
 
-    fun requestUpdateCheckDot(myEmail : String, notificationData : NotificationData){
-        repository.requestUpdateCheckDot(myEmail, notificationData)
+    fun requestUpdateCheckDot(notificationData : NotificationData){
+        repository.requestUpdateCheckDot(notificationData)
     }
 
-    fun deleteNotification(myEmail: String, notificationData : NotificationData){
-        repository.requestDeleteNotification(myEmail, notificationData, object : LongTaskCallback<Boolean> {
+    fun deleteNotification(notificationData : NotificationData){
+        repository.requestDeleteNotification(notificationData, object : LongTaskCallback<Boolean> {
             override fun onResponse(result: Result<Boolean>) {
                 if(result is Result.Success) {
                     val list = notificationListLiveData.value?.toMutableList()

@@ -9,26 +9,23 @@ import android.widget.*
 import androidx.databinding.BindingAdapter
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.viewpager2.widget.ViewPager2
 import com.aqoong.lib.expandabletextview.ExpandableTextView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.google.firebase.auth.FirebaseAuth
+import com.makeramen.roundedimageview.RoundedImageView
 import com.pchmn.materialchips.ChipView
 import de.hdodenhof.circleimageview.CircleImageView
 import me.relex.circleindicator.CircleIndicator3
-import org.jetbrains.anko.dimen
 import org.jetbrains.anko.windowManager
 import studio.seno.companion_animal.module.CommonFunction
 import studio.seno.companion_animal.module.TextModule
 import studio.seno.companion_animal.ui.feed.FeedPagerFragment
 import studio.seno.companion_animal.ui.main_ui.PagerAdapter
-import studio.seno.datamodule.LocalRepository
-import studio.seno.datamodule.Repository
+import studio.seno.datamodule.RemoteRepository
 import studio.seno.domain.LongTaskCallback
 import studio.seno.domain.Result
-import studio.seno.domain.model.User
 
 object BindingAdapter {
     @BindingAdapter("setProfileImage")
@@ -170,30 +167,25 @@ object BindingAdapter {
         }
     }
 
-    @BindingAdapter("setMyProfileImage", "getLifecycleScope")
+    @BindingAdapter("setMyProfileUri")
     @JvmStatic
-    fun setMyProfileImage(circleImageView: CircleImageView, imageUri: String, lifecycleCoroutineScope: LifecycleCoroutineScope) {
-        try {
-            LocalRepository(circleImageView.context).getUserInfo(lifecycleCoroutineScope, object  : LongTaskCallback<User>{
-                override fun onResponse(result: Result<User>) {
+    fun setMyProfileUri(circleImageView: CircleImageView, imageUri: String) {
+        RemoteRepository.getInstance()!!.loadRemoteProfileImage(
+            FirebaseAuth.getInstance().currentUser?.email.toString(),
+            object: LongTaskCallback<String> {
+                override fun onResponse(result: Result<String>) {
                     if(result is Result.Success) {
-                        val user = result.data
 
                         Glide.with(circleImageView.context)
-                            .load(Uri.parse(user.profileUri))
+                            .load(Uri.parse(result.data))
                             .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
                             .centerCrop()
                             .into(circleImageView)
-
                     } else if(result is Result.Error) {
-                        Log.e("error", "databinding setMyProfileImage error : ${result.exception}")
+                        Log.e("hi", "BindingAdapter setMyProfileUri Error : ${result.exception}")
                     }
                 }
             })
-
-        }catch (e : Exception) {
-
-        }
     }
 
 
@@ -236,7 +228,7 @@ object BindingAdapter {
      */
     @BindingAdapter("setImage")
     @JvmStatic
-    fun setImage(imageView: ImageView, uri: List<String>) {
+    fun setImage(imageView: RoundedImageView, uri: List<String>) {
         try {
             var display = imageView.context.windowManager.defaultDisplay
             val size = Point()
@@ -260,11 +252,29 @@ object BindingAdapter {
      * follower and following
      */
 
-    @BindingAdapter("setFollowBtn")
+    @BindingAdapter("setFollowBtn", "getTargetEmail")
     @JvmStatic
-    fun setFollowBtn(button: Button, category : String) {
+    fun setFollowBtn(button: Button, category : String, targetEmail : String) {
         try {
             if(category == "follower") {
+                RemoteRepository.getInstance()!!.requestCheckFollow(targetEmail, object : LongTaskCallback<Boolean> {
+                    override fun onResponse(result: Result<Boolean>) {
+                        if(result is Result.Success) {
+                            if(result.data) {
+                                button.text = button.context.getString(R.string.follow_ing)
+                                button.setBackgroundColor(button.context.getColor(R.color.main_color))
+                                button.setTextColor(button.context.getColor(R.color.white))
+                            } else {
+                                button.text = button.context.getString(R.string.follow_each_other)
+                                button.setBackgroundColor(button.context.getColor(R.color.white))
+                                button.setTextColor(button.context.getColor(R.color.black))
+                            }
+                        } else if(result is Result.Error) {
+                            Log.e("error", "BindingAdapter setFollowBtn error : ${result.exception}")
+                        }
+                    }
+                })
+
                 button.text = button.context.getString(R.string.follow_each_other)
             } else if(category == "following") {
                 button.text = button.context.getString(R.string.unfollow)
@@ -274,4 +284,25 @@ object BindingAdapter {
             e.printStackTrace()
         }
     }
+
+    @BindingAdapter("setRemoteProfileUri")
+    @JvmStatic
+    fun setRemoteProfileUri(circleImageView: CircleImageView, email: String) {
+
+        RemoteRepository.getInstance()!!.loadRemoteProfileImage(email, object: LongTaskCallback<String> {
+                override fun onResponse(result: Result<String>) {
+                    if(result is Result.Success) {
+
+                        Glide.with(circleImageView.context)
+                            .load(Uri.parse(result.data))
+                            .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
+                            .centerCrop()
+                            .into(circleImageView)
+                    } else if(result is Result.Error) {
+                        Log.e("hi", "BindingAdapter setRemoteProfileUri Error : ${result.exception}")
+                    }
+                }
+            })
+    }
+
 }

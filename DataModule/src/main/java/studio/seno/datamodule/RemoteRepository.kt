@@ -12,7 +12,7 @@ import studio.seno.domain.LongTaskCallback
 import studio.seno.domain.model.*
 import studio.seno.domain.usecase.remote.*
 
-class Repository() {
+class RemoteRepository() {
     private val mAuth = FirebaseAuth.getInstance()
     private val mDB = FirebaseFirestore.getInstance()
     private val mStorageRef: StorageReference = FirebaseStorage.getInstance()
@@ -25,6 +25,21 @@ class Repository() {
     private val notificationUseCase = NotificationUseCase()
     private val searchUseCase = SearchUseCase()
 
+    companion object{
+        private var remoteRepository : RemoteRepository? = null
+
+        fun getInstance() : RemoteRepository? {
+            if(remoteRepository == null) {
+                synchronized(LocalRepository::class.java) {
+                    remoteRepository = RemoteRepository()
+                }
+            }
+            return remoteRepository
+        }
+
+    }
+
+
     //회원가입시 회원정보 서버에 저장
     fun uploadUserInfo(user: User) {
         userManagerUseCase.uploadRemoteUserInfo(user, mDB)
@@ -35,8 +50,8 @@ class Repository() {
     }
 
     //토큰 업데이트
-    fun updateToken(token : String, myEmail: String) {
-        userManagerUseCase.updateToken(token, myEmail, mDB)
+    fun updateToken(token : String) {
+        userManagerUseCase.updateToken(token, mAuth.currentUser?.email.toString(), mDB)
     }
 
     //닉네임 업데이트
@@ -64,8 +79,8 @@ class Repository() {
     }
 
     //profile image uri 로드
-    fun loadRemoteProfileImage(callback: LongTaskCallback<String>){
-        uploadUseCase.loadRemoteProfileImage(FirebaseAuth.getInstance().currentUser?.email.toString(), mStorageRef, callback)
+    fun loadRemoteProfileImage(email: String, callback: LongTaskCallback<String>){
+        uploadUseCase.loadRemoteProfileImage(email, mStorageRef, callback)
     }
 
 
@@ -90,28 +105,28 @@ class Repository() {
     }
 
     //좋아요 수 업데이트
-    fun requestUpdateHeart(feed : Feed, count: Long, myEmail : String, flag : Boolean){
-        feedUseCase.updateHeart(feed, count, myEmail, flag, mDB)
+    fun requestUpdateHeart(feed : Feed, count: Long,flag : Boolean){
+        feedUseCase.updateHeart(feed, count, mAuth.currentUser?.email.toString(), flag, mDB)
     }
 
 
     //북마크 상태 업데이트
-    fun requestUpdateBookmark(feed : Feed, myEmail: String, flag: Boolean) {
-        feedUseCase.updateBookmark(feed, myEmail, flag, mDB)
+    fun requestUpdateBookmark(feed : Feed, flag: Boolean) {
+        feedUseCase.updateBookmark(feed, mAuth.currentUser?.email.toString(), flag, mDB)
     }
 
 
     /**
      * 팔로우 및 팔로워 이벤트
      */
-    fun requestCheckFollow(targetFeed: Feed, myEmail: String, callback: LongTaskCallback<Boolean>){
-        followUseCase.checkFollow(targetFeed, myEmail, mDB, callback)
+    fun requestCheckFollow(targetEmail: String, callback: LongTaskCallback<Boolean>){
+        followUseCase.checkFollow(targetEmail, mAuth.currentUser?.email.toString(), mDB, callback)
     }
 
 
     //팔로워 상태 업데이트
-    fun requestUpdateFollower(targetFeed : Feed,  flag: Boolean, myFollow : Follow, targetFollow: Follow) {
-        followUseCase.updateFollower(targetFeed, FirebaseAuth.getInstance().currentUser?.email.toString(), flag, myFollow, targetFollow, mDB)
+    fun requestUpdateFollower(targetEmail : String, flag: Boolean, myFollow : Follow, targetFollow: Follow) {
+        followUseCase.updateFollower(targetEmail, FirebaseAuth.getInstance().currentUser?.email.toString(), flag, myFollow, targetFollow, mDB)
     }
 
     fun loadFollower(fieldName: String, callback: LongTaskCallback<List<Follow>>) {
@@ -126,12 +141,12 @@ class Repository() {
     fun uploadComment(
         targetEmail: String,
         targetTimestamp: Long,
-        comment: Comment
+        myComment: Comment
     ) {
         commentUseCase.uploadComment(
             targetEmail,
             targetTimestamp,
-            comment,
+            myComment,
             mAuth,
             mDB,
             mStorageRef
@@ -143,14 +158,14 @@ class Repository() {
         feedTimestamp: Long,
         targetEmail: String,
         targetTimestamp: Long,
-        commentAnswer: Comment
+        myCommentAnswer: Comment
     ) {
         commentUseCase.uploadCommentAnswer(
             feedEmail,
             feedTimestamp,
             targetEmail,
             targetTimestamp,
-            commentAnswer,
+            myCommentAnswer,
             mAuth,
             mDB,
             mStorageRef
@@ -172,7 +187,7 @@ class Repository() {
         childComment: Comment?,
         type: String
     ){
-        commentUseCase.deleteComment(feedEmail, feedTimestamp, parentComment, childComment, type, mDB)
+        commentUseCase.deleteComment(feedEmail, feedTimestamp, parentComment, childComment, mAuth.currentUser?.email.toString(), type, mDB)
     }
 
     /**
@@ -180,44 +195,44 @@ class Repository() {
      */
 
 
-    fun uploadNotificationInfo(myEmail : String, notificationData : NotificationData){
-        notificationUseCase.uploadNotificationInfo(myEmail, notificationData, mDB)
+    fun uploadNotificationInfo(notificationData : NotificationData){
+        notificationUseCase.uploadNotificationInfo(mAuth.currentUser?.email.toString(), notificationData, mDB)
     }
 
-    fun requestLoadNotification(myEmail : String, callback : LongTaskCallback<List<NotificationData>>) {
-        notificationUseCase.loadNotification(myEmail, mDB, callback)
+    fun requestLoadNotification(callback : LongTaskCallback<List<NotificationData>>) {
+        notificationUseCase.loadNotification(mAuth.currentUser?.email.toString(), mDB, callback)
 
     }
 
-    fun requestUpdateCheckDot(myEmail : String, notificationData : NotificationData){
-        notificationUseCase.updateCheckDot(myEmail, notificationData, mDB)
+    fun requestUpdateCheckDot(notificationData : NotificationData){
+        notificationUseCase.updateCheckDot(mAuth.currentUser?.email.toString(), notificationData, mDB)
     }
 
     //Notification 삭제
-    fun requestDeleteNotification(myEmail: String, notificationData : NotificationData, callback: LongTaskCallback<Boolean>){
-        notificationUseCase.deleteNotification(myEmail, notificationData, mDB, callback)
+    fun requestDeleteNotification(notificationData : NotificationData, callback: LongTaskCallback<Boolean>){
+        notificationUseCase.deleteNotification(mAuth.currentUser?.email.toString(), notificationData, mDB, callback)
     }
     /**
      * Search
      */
 
     //최근 검색 키워드 업로드
-    fun requestUploadLastSearch(myEmail : String, lastSearch: LastSearch) {
-        searchUseCase.uploadLastSearch(myEmail, lastSearch, mDB)
+    fun requestUploadLastSearch(lastSearch: LastSearch) {
+        searchUseCase.uploadLastSearch(mAuth.currentUser?.email.toString(), lastSearch, mDB)
     }
 
     //최근 검색 키워드 로드
-    fun requestLoadLastSearch(myEmail: String, callback : LongTaskCallback<List<LastSearch>>) {
-        searchUseCase.loadLastSearch(myEmail, mDB, callback)
+    fun requestLoadLastSearch(callback : LongTaskCallback<List<LastSearch>>) {
+        searchUseCase.loadLastSearch(mAuth.currentUser?.email.toString(), mDB, callback)
     }
 
     //최근 검색 삭제
-    fun requestDeleteLastSearch(myEmail : String, lastSearch: LastSearch){
-        searchUseCase.deleteLastSearch(myEmail, lastSearch, mDB)
+    fun requestDeleteLastSearch(lastSearch: LastSearch){
+        searchUseCase.deleteLastSearch(mAuth.currentUser?.email.toString(), lastSearch, mDB)
     }
 
-    fun requestLoadFeedList(keyword: String?, recyclerView: RecyclerView, callback: LongTaskCallback<List<Feed>>){
-        searchUseCase.searchFeed(keyword, recyclerView, mDB, callback)
+    fun requestLoadFeedList(keyword: String?, sort: String, myEmail: String?,recyclerView: RecyclerView, callback: LongTaskCallback<List<Feed>>){
+        searchUseCase.searchFeed(keyword, sort, myEmail, recyclerView, mDB, callback)
     }
 
 

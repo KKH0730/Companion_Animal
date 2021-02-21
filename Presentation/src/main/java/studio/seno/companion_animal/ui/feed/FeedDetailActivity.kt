@@ -2,9 +2,11 @@ package studio.seno.companion_animal.ui.feed
 
 
 import android.content.DialogInterface
+import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.ImageButton
@@ -18,6 +20,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
 import com.google.firebase.auth.FirebaseAuth
 import org.jetbrains.anko.startActivity
+import studio.seno.companion_animal.MainActivity
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.ActivityFeedDetailBinding
 import studio.seno.companion_animal.module.CommentModule
@@ -192,6 +195,8 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
             finish()
         } else if (v?.id == R.id.bookmark_btn) {
             feedModule.bookmarkButtonEvent(feed!!, binding.feedLayout.bookmarkBtn, null)
+
+            Log.d("hi", "bookmark : ${feed!!.bookmarkList.size}")
         } else if (v?.id == R.id.heart_btn) {
             feedModule.heartButtonEvent(
                 feed!!,
@@ -220,7 +225,7 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
                         curComment!!, timestamp, modifyMode, answerComment,
                         answerPosition, commentPosition, binding.feedLayout.comment
                     )
-                    //commentModule.sendNotification(curComment!!.email, binding.feedLayout.comment.text.toString(), timestamp)
+
                     notificationModule.sendNotification(curComment!!.email, binding.feedLayout.comment.text.toString(), timestamp, feed!!)
                 }
             } else {
@@ -234,7 +239,7 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
                         timestamp, modifyMode, curComment, commentPosition,
                         binding.feedLayout.commentCount, binding.feedLayout.comment
                     )
-                   // commentModule.sendNotification(feed!!.email, binding.feedLayout.comment.text.toString(), timestamp)
+
                     notificationModule.sendNotification(feed!!.email, binding.feedLayout.comment.text.toString(), timestamp, feed!!)
                 }
             }
@@ -289,5 +294,13 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
             }
         } else
             finish()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        var intent = Intent(this, MainActivity::class.java)
+        intent.putExtra("feed", feed)
+        setResult(Constants.RESULT_OK, intent)
     }
 }

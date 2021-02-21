@@ -1,5 +1,6 @@
 package studio.seno.domain.usecase.remote
 
+import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
@@ -16,20 +17,29 @@ class CommentUseCase {
     fun uploadComment(
         targetEmail: String,
         targetTimestamp: Long,
-        comment: Comment,
+        myComment: Comment,
         auth: FirebaseAuth,
         db: FirebaseFirestore,
         storageRef: StorageReference
     ) {
         var remoteProfilePath = auth.currentUser?.email + "/profile/profileImage"
         storageRef.child(remoteProfilePath).downloadUrl.addOnSuccessListener {it1 ->
-            comment.profileUri = it1.toString()
+            myComment.profileUri = it1.toString()
 
             db.collection("feed")
                 .document(targetEmail + targetTimestamp)
                 .collection("comment")
-                .document(comment.email + comment.timestamp)
-                .set(comment)
+                .document(myComment.email + myComment.timestamp)
+                .set(myComment)
+
+            db.collection("user")
+                .document(myComment.email)
+                .collection("myFeed")
+                .document(targetEmail + targetTimestamp)
+                .collection("comment")
+                .document(myComment.email + myComment.timestamp)
+                .set(myComment)
+
         }
     }
 
@@ -38,22 +48,32 @@ class CommentUseCase {
         feedTimeStamp: Long,
         targetEmail: String,
         targetTimestamp: Long,
-        comment: Comment,
+        myCommentAnswer: Comment,
         auth: FirebaseAuth,
         db: FirebaseFirestore,
         storageRef: StorageReference
     ) {
         var remoteProfilePath = auth.currentUser?.email + "/profile/profileImage"
         storageRef.child(remoteProfilePath).downloadUrl.addOnSuccessListener {
-            comment.profileUri = it.toString()
+            myCommentAnswer.profileUri = it.toString()
 
             db.collection("feed")
                 .document(feedEmail + feedTimeStamp)
                 .collection("comment")
                 .document(targetEmail + targetTimestamp)
                 .collection("comment_answer")
-                .document(comment.email + comment.timestamp)
-                .set(comment)
+                .document(myCommentAnswer.email + myCommentAnswer.timestamp)
+                .set(myCommentAnswer)
+
+            db.collection("user")
+                .document(myCommentAnswer.email)
+                .collection("myFeed")
+                .document(feedEmail + feedTimeStamp)
+                .collection("comment")
+                .document(targetEmail + targetTimestamp)
+                .collection("comment_answer")
+                .document(myCommentAnswer.email + myCommentAnswer.timestamp)
+                .set(myCommentAnswer)
         }
     }
 
@@ -178,6 +198,7 @@ class CommentUseCase {
         feedTimestamp : Long,
         parentComment : Comment,
         childComment : Comment?,
+        myEmail : String,
         type : String,
         db : FirebaseFirestore
     ) {
@@ -196,8 +217,31 @@ class CommentUseCase {
                             element.reference.delete()
                 }
 
+            db.collection("user")
+                .document(myEmail)
+                .collection("myFeed")
+                .document(feedEmail + feedTimestamp)
+                .collection("comment")
+                .document(parentComment.email + parentComment.timestamp)
+                .collection("comment_answer")
+                .get()
+                .addOnCompleteListener {
+                    var list: QuerySnapshot? = it.result
+
+                    if (list != null)
+                        for (element in list)
+                            element.reference.delete()
+                }
 
             db.collection("feed")
+                .document(feedEmail + feedTimestamp)
+                .collection("comment")
+                .document(parentComment.email + parentComment.timestamp)
+                .delete()
+
+            db.collection("user")
+                .document(myEmail)
+                .collection("myFeed")
                 .document(feedEmail + feedTimestamp)
                 .collection("comment")
                 .document(parentComment.email + parentComment.timestamp)
@@ -212,6 +256,15 @@ class CommentUseCase {
                 .document(childComment?.email + childComment?.timestamp)
                 .delete()
 
+            db.collection("user")
+                .document(myEmail)
+                .collection("myFeed")
+                .document(feedEmail + feedTimestamp)
+                .collection("comment")
+                .document(parentComment.email + parentComment.timestamp)
+                .collection("comment_answer")
+                .document(childComment?.email + childComment?.timestamp)
+                .delete()
         }
     }
 }

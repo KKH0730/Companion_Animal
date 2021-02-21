@@ -1,17 +1,14 @@
 package studio.seno.companion_animal.service
 
 import android.content.Intent
-import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import studio.seno.companion_animal.MainActivity
 import studio.seno.companion_animal.module.NotificationModule
-import studio.seno.companion_animal.ui.feed.MakeFeedActivity
-import studio.seno.datamodule.Repository
+import studio.seno.datamodule.RemoteRepository
 import studio.seno.domain.model.NotificationData
 import studio.seno.domain.util.PrefereceManager
-import java.sql.Timestamp
 
 class FcmMessageService : FirebaseMessagingService() {
 
@@ -21,8 +18,7 @@ class FcmMessageService : FirebaseMessagingService() {
         val body = remoteMessage.data["body"].toString()
 
 
-        Repository().uploadNotificationInfo(
-            FirebaseAuth.getInstance().currentUser?.email.toString(), //notification 저장경로
+        RemoteRepository.getInstance()!!.uploadNotificationInfo( //notification 저장경로
             NotificationData(
                 remoteMessage.data["title"].toString(),
                 remoteMessage.data["body"].toString(), //content

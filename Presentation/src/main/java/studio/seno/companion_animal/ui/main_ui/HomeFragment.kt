@@ -1,5 +1,6 @@
 package studio.seno.companion_animal.ui.main_ui
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -11,6 +12,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.auth.FirebaseAuth
 import org.jetbrains.anko.support.v4.intentFor
 import org.jetbrains.anko.support.v4.startActivity
@@ -28,6 +31,7 @@ import studio.seno.domain.Result
 import studio.seno.domain.database.AppDatabase
 import studio.seno.domain.model.Feed
 import studio.seno.domain.model.User
+import studio.seno.domain.util.PrefereceManager
 
 /**
  * HomeFragment는 FeedViewListModel과 연결.
@@ -38,6 +42,8 @@ class HomeFragment : Fragment(), View.OnClickListener{
     private val feedListViewModel: FeedListViewModel by viewModels()
     private val commentViewModel : CommentListViewModel by viewModels()
     private val mainViewModel : MainViewModel by viewModels()
+    private var sort : String? = null
+    private var position : Int? = null
     private val localRepository : LocalRepository by lazy {
         LocalRepository(requireContext())
     }
@@ -46,14 +52,23 @@ class HomeFragment : Fragment(), View.OnClickListener{
     }
     private var targetFeed : Feed? = null
     private var targetFeedPosition = 0
-    private val currentUserEmail  = FirebaseAuth.getInstance().currentUser?.email.toString()
     private val feedAdapter: FeedListAdapter by lazy { FeedListAdapter(parentFragmentManager, lifecycle, lifecycleScope) }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        arguments?.let {
+            sort = it.getString("sort")
+            position = it.getInt("position")
+        }
+    }
 
     companion object {
         @JvmStatic
-        fun newInstance() =
+        fun newInstance(sort : String, position : Int) =
             HomeFragment().apply {
                 arguments = Bundle().apply {
+                    putString("sort", sort)
+                    putInt("position", position)
                 }
             }
     }
@@ -69,28 +84,30 @@ class HomeFragment : Fragment(), View.OnClickListener{
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.lifecycleOwner = requireActivity()
+        binding.lifecycleOwner = viewLifecycleOwner
         binding.model = feedListViewModel
+        feedAdapter.stateRestorationPolicy = RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
         binding.feedRecyclerView.adapter = feedAdapter
 
         init()
 
         feedItemEvent()
         refreshFeedList()
-
-
-        //게시판 데이터 서버로부터 불러와서 viewmode의 livedata 업데이트
-        feedListViewModel.clearFeedList()
-        feedListViewModel.requestLoadFeedList(null, binding.feedRecyclerView, null)
+        loadFeedList()
         observe()
     }
 
     private fun init(){
-        binding.header.findViewById<ImageButton>(R.id.back_btn).visibility = View.GONE
-        binding.header.findViewById<TextView>(R.id.title).visibility = View.GONE
-        binding.header.findViewById<ImageView>(R.id.logo).visibility = View.VISIBLE
-        binding.header.findViewById<LinearLayout>(R.id.menu_set).visibility = View.VISIBLE
-        binding.header.findViewById<ImageButton>(R.id.setting).visibility = View.GONE
+        if(sort == "whole_feed_list") {
+            binding.header.findViewById<ImageButton>(R.id.back_btn).visibility = View.GONE
+            binding.header.findViewById<TextView>(R.id.title).visibility = View.GONE
+            binding.header.findViewById<ImageView>(R.id.logo).visibility = View.VISIBLE
+            binding.header.findViewById<LinearLayout>(R.id.menu_set).visibility = View.VISIBLE
+            binding.header.findViewById<ImageButton>(R.id.setting).visibility = View.GONE
+        } else if(sort != null && sort == "my_feed_list") {
+            binding.header.visibility = View.GONE
+        }
+
         binding.header.findViewById<ImageButton>(R.id.add).setOnClickListener(this)
         binding.header.findViewById<ImageButton>(R.id.search).setOnClickListener(this)
         binding.header.findViewById<ImageButton>(R.id.refresh).setOnClickListener(this)
@@ -103,11 +120,34 @@ class HomeFragment : Fragment(), View.OnClickListener{
 
     }
 
+    fun loadFeedList(){
+        //게시판 데이터 서버로부터 불러와서 viewmode의 livedata 업데이트
+        feedListViewModel.clearFeedList()
+        if(sort != null && sort == "whole_feed_list")
+            feedListViewModel.requestLoadFeedList(null, "feedList", null, binding.feedRecyclerView, null)
+        else if(sort != null && sort == "my_feed_list") {
+            feedListViewModel.requestLoadFeedList(null,
+                "myFeed",
+                FirebaseAuth.getInstance().currentUser?.email.toString(),
+                binding.feedRecyclerView,
+                object : LongTaskCallback<List<Feed>>{
+                    override fun onResponse(result: Result<List<Feed>>) {
+                        binding.feedRecyclerView.scrollToPosition(position!!)
+                    }
+                })
+        }
+    }
+
     private fun feedItemEvent() {
         //댓글작성 버튼클릭
         feedAdapter.setOnItemClickListener(object : OnItemClickListener {
-            override fun onDetailClicked(feed: Feed) {
-                startActivity<FeedDetailActivity>("feed" to feed)
+            override fun onDetailClicked(feed : Feed, position : Int) {
+                startActivityForResult(
+                    intentFor<FeedDetailActivity>(
+                        "feed" to feed,
+                    ), Constants.FEED_DETAIL_REQUEST)
+                PrefereceManager.setInt(requireContext(), "feed_position", position)
+
             }
 
             override fun onImageBtnClicked(feed: Feed) {
@@ -118,10 +158,10 @@ class HomeFragment : Fragment(), View.OnClickListener{
                 feedModule.onCommentBtnClicked(feed, commentEdit, commentCount, container)
             }
 
-            override fun onCommentShowClicked(commentCount: TextView, feed: Feed) {
+            override fun onCommentShowClicked(commentCountTextView: TextView, feed: Feed) {
                 startActivityForResult(
                     intentFor<CommentActivity>(
-                        "commentCount" to Integer.valueOf(commentCount.text.toString()),
+                        "commentCount" to Integer.valueOf(commentCountTextView.text.toString()),
                         "feed" to feed,
                     ), Constants.COMMENT_REQUEST
                 )
@@ -149,8 +189,7 @@ class HomeFragment : Fragment(), View.OnClickListener{
     private fun refreshFeedList(){
         binding.refreshLayout.setOnRefreshListener {
             feedListViewModel.clearFeedList()
-
-            feedListViewModel.requestLoadFeedList(null, binding.feedRecyclerView, object : LongTaskCallback<List<Feed>> {
+            feedListViewModel.requestLoadFeedList(null, "feedList", null, binding.feedRecyclerView, object : LongTaskCallback<List<Feed>> {
                 override fun onResponse(result: Result<List<Feed>>) {
                     if (result is Result.Success) {
                         binding.refreshLayout.isRefreshing = false
@@ -166,7 +205,6 @@ class HomeFragment : Fragment(), View.OnClickListener{
     fun onDismissed(type: String) {
         if(targetFeed != null) {
             if(type == "feed_modify") {
-
                 startActivity<MakeFeedActivity>(
                     "feed" to targetFeed,
                     "mode" to "modify",
@@ -182,7 +220,7 @@ class HomeFragment : Fragment(), View.OnClickListener{
                 localRepository.getUserInfo(lifecycleScope, object : LongTaskCallback<User>{
                     override fun onResponse(result: Result<User>) {
                         if(result is Result.Success) {
-                            feedListViewModel.requestUpdateFollower(targetFeed!!,  true, result.data.nickname, result.data.profileUri)
+                            feedListViewModel.requestUpdateFollower(targetFeed!!.email,  targetFeed!!.nickname, targetFeed!!.remoteProfileUri, true, result.data.nickname, result.data.profileUri)
                             localRepository.updateFollowing(lifecycleScope, true)
 
                         } else if(result is Result.Error) {
@@ -194,7 +232,7 @@ class HomeFragment : Fragment(), View.OnClickListener{
                 localRepository.getUserInfo(lifecycleScope, object : LongTaskCallback<User>{
                     override fun onResponse(result: Result<User>) {
                         if(result is Result.Success) {
-                            feedListViewModel.requestUpdateFollower(targetFeed!!,  false, result.data.nickname, result.data.profileUri)
+                            feedListViewModel.requestUpdateFollower(targetFeed!!.email,  targetFeed!!.nickname, targetFeed!!.remoteProfileUri, false, result.data.nickname, result.data.profileUri)
                             localRepository.updateFollowing(lifecycleScope,false)
 
                         } else if(result is Result.Error) {
@@ -215,7 +253,17 @@ class HomeFragment : Fragment(), View.OnClickListener{
             startActivity<SearchActivity>()
         } else if(v?.id == R.id.refresh) {
             feedListViewModel.clearFeedList()
-            feedListViewModel.requestLoadFeedList(null, binding.feedRecyclerView, null)
+            feedListViewModel.requestLoadFeedList(null, "feedList", null, binding.feedRecyclerView, null)
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if(requestCode == Constants.COMMENT_REQUEST && resultCode == Constants.RESULT_OK){
+
+        } else if(requestCode == Constants.FEED_DETAIL_REQUEST && resultCode == Constants.RESULT_OK) {
+
         }
     }
 }

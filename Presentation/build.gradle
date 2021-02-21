@@ -105,6 +105,9 @@ dependencies {
     //lottie(https://github.com/airbnb/lottie-android)
     implementation 'com.airbnb.android:lottie:3.5.0'
 
+    //라운딩 이미지 뷰(https://github.com/vinc3m1/RoundedImageView)
+    implementation 'com.makeramen:roundedimageview:2.3.0'
+
 
     def room_version = "2.2.6"
     implementation "androidx.room:room-runtime:$room_version"
@@ -112,4 +115,6 @@ dependencies {
 
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.1'
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.3.0'
+
+    implementation "androidx.recyclerview:recyclerview:1.2.0-alpha03"
 }

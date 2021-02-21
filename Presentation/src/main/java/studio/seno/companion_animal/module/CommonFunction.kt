@@ -1,11 +1,26 @@
 package studio.seno.companion_animal.module
 
 import android.content.Context
+import android.view.Window
+import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
+import androidx.recyclerview.widget.StaggeredGridLayoutManager
+import androidx.room.Room
+import studio.seno.domain.database.AppDatabase
 import java.util.*
 
 object CommonFunction {
+    private var commonFunction : CommonFunction? = null
+
+    fun getInstance() : CommonFunction? {
+        if(commonFunction == null) {
+            synchronized(CommonFunction::class.java) {
+                commonFunction = this
+            }
+        }
+        return commonFunction
+    }
 
     fun closeKeyboard(context: Context, editText: EditText) {
         val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
@@ -16,6 +31,14 @@ object CommonFunction {
         val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY)
     }
+
+    fun lockTouch(window : Window){
+        window.addFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+    }
+    fun unlockTouch(window : Window){
+        window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+    }
+
 
     fun calTime(millisecond: Long): String? {
         val result = System.currentTimeMillis() - millisecond

@@ -5,8 +5,9 @@ import androidx.lifecycle.ViewModel
 import studio.seno.domain.model.Follow
 import studio.seno.domain.model.NotificationData
 
-class FollowViewModel(category : String) : ViewModel() {
+class FollowViewModel(category : String, targetEmail : String) : ViewModel() {
     private var followLiveData : MutableLiveData<Follow> = MutableLiveData()
+    private var mTargetEmail = targetEmail
     private val mCategory = category
 
     fun getFollowLiveData() : MutableLiveData<Follow> {
@@ -19,6 +20,10 @@ class FollowViewModel(category : String) : ViewModel() {
 
     fun getCategory(): String{
         return mCategory
+    }
+
+    fun getTargetEmail() : String{
+        return mTargetEmail
     }
 
 }

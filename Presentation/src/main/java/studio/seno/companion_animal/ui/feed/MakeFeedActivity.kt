@@ -154,10 +154,13 @@ class MakeFeedActivity : AppCompatActivity(), View.OnClickListener,
             makeHashTag(binding.hashTagContent.text.toString().trim())
             binding.hashTagContent.setText("")
             binding.hashTagContent.hint = getString(R.string.ShowAnimal_hint1)
-            CommonFunction.closeKeyboard(applicationContext, binding.hashTagContent)
+            CommonFunction.getInstance()!!.closeKeyboard(applicationContext, binding.hashTagContent)
 
 
         } else if (v?.id == R.id.submit_btn) {
+            CommonFunction.getInstance()!!.lockTouch(window!!)
+            binding.progressBar.visibility = View.VISIBLE
+
             if (currentChecked == null) {
                 CustomToast(applicationContext, getString(R.string.ShowAnimal_toast3)).show()
                 return
@@ -187,6 +190,8 @@ class MakeFeedActivity : AppCompatActivity(), View.OnClickListener,
 
             feedListViewModel.getFeedListSaveStatus().observe(this, {
                 if(it) {
+                    CommonFunction.getInstance()!!.unlockTouch(window!!)
+                    binding.progressBar.visibility = View.GONE
                     finish()
                 }
             })

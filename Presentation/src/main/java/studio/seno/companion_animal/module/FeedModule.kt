@@ -47,7 +47,7 @@ class FeedModule(
      * 북마크버튼
      */
     fun bookmarkButtonEvent(feed: Feed, bookmarkButton: ImageButton, feedAdapter : FeedListAdapter?){
-        var map = feed.bookmarkList?.toMutableMap()!!
+        var map = feed.bookmarkList.toMutableMap()
         if (map[currentUserEmail] != null) { //북마크 중인 상태에서 클릭
             updateBookmark(feed, false)
             map.remove(currentUserEmail)
@@ -62,7 +62,7 @@ class FeedModule(
     }
 
     private fun updateBookmark(feed: Feed, flag: Boolean) {
-        mFeedListViewModel.requestUpdateBookmark(feed, currentUserEmail, flag) }
+        mFeedListViewModel.requestUpdateBookmark(feed, flag) }
 
     /**
      * 좋아요버튼
@@ -91,15 +91,14 @@ class FeedModule(
         heartCount.text = count.toString()
         feedAdapter?.notifyDataSetChanged()
      }
-    private fun updateHeart(feed: Feed, count: Long, flag: Boolean) { mFeedListViewModel.requestUpdateHeart(feed, count, currentUserEmail, flag) }
+    private fun updateHeart(feed: Feed, count: Long, flag: Boolean) { mFeedListViewModel.requestUpdateHeart(feed, count, flag) }
 
     /**
      * 피드 메뉴 버튼
      */
     fun menuButtonEvent(feed: Feed, fm : FragmentManager){
         mFeedListViewModel.requestCheckFollow(
-            feed,
-            currentUserEmail,
+            feed.email,
             object : LongTaskCallback<Boolean> {
                 override fun onResponse(result: Result<Boolean>) {
                     var dialog: MenuDialog? = null

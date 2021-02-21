@@ -59,7 +59,7 @@ class SearchResultAdapter : ListAdapter<Feed, RecyclerView.ViewHolder>(
 
         fun setEvent(item : Feed){
             mBinding.container.setOnClickListener {
-                mListener.onSearchItemClicked(item)
+                mListener.onSearchItemClicked(item, bindingAdapterPosition)
             }
         }
     }

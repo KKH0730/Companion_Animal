@@ -13,7 +13,7 @@ class LocalUserUseCase {
     fun getUserInfo(lifecycleScope: LifecycleCoroutineScope, db: AppDatabase, callback : LongTaskCallback<User>){
         lifecycleScope.launch(Dispatchers.IO) {
             val list = db.userDao().getAll()
-            Log.d("hi", "size : ${list.size}")
+
             if(list.isEmpty()){
                 lifecycleScope.launch(Dispatchers.Main) {
                     callback.onResponse(Result.Success(null))
@@ -34,9 +34,13 @@ class LocalUserUseCase {
     }
 
     //유저정보 update
-    fun updateUserInfo(lifecycleScope: LifecycleCoroutineScope, user: User, db : AppDatabase) {
+    fun updateUserInfo(lifecycleScope: LifecycleCoroutineScope, user: User, db : AppDatabase, callback: LongTaskCallback<User>?) {
         lifecycleScope.launch(Dispatchers.IO) {
             db.userDao().updateUserInfo(user.email, user.nickname, user.follower, user.following, user.feedCount, user.token, user.profileUri)
+
+            lifecycleScope.launch(Dispatchers.Main){
+                callback?.onResponse(Result.Success(null))
+            }
         }
     }
 
@@ -52,7 +56,7 @@ class LocalUserUseCase {
             else
                 user.following = following - 1
 
-            updateUserInfo(lifecycleScope, user, db)
+            updateUserInfo(lifecycleScope, user, db, null)
         }
     }
 
@@ -67,7 +71,7 @@ class LocalUserUseCase {
             else
                 user.feedCount = feedCount - 1
 
-            updateUserInfo(lifecycleScope, user, db)
+            updateUserInfo(lifecycleScope, user, db, null)
         }
     }
 
@@ -77,17 +81,17 @@ class LocalUserUseCase {
             val user : User = db.userDao().getAll()[0]
             user.nickname = content
 
-            updateUserInfo(lifecycleScope, user, db)
+            updateUserInfo(lifecycleScope, user, db, null)
         }
     }
 
     //profileUri 업데이트
-    fun updateProfileUri(lifecycleScope: LifecycleCoroutineScope, profileUri : String, db : AppDatabase) {
+    fun updateProfileUri(lifecycleScope: LifecycleCoroutineScope, profileUri : String, db : AppDatabase, callback: LongTaskCallback<User>?) {
         lifecycleScope.launch(Dispatchers.IO) {
             val user : User = db.userDao().getAll()[0]
             user.profileUri = profileUri
 
-            updateUserInfo(lifecycleScope, user, db)
+            updateUserInfo(lifecycleScope, user, db, callback)
         }
     }
 

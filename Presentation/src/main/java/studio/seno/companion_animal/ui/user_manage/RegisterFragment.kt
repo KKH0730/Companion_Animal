@@ -89,7 +89,7 @@ class RegisterFragment : Fragment(), View.OnClickListener {
                 binding.registerBtn.stopAnimation(TransitionButton.StopAnimationStyle.SHAKE, null)
             } else {
                 viewModel.registerUser(email, password)
-                viewModel.getRegisterLiveData().observe(requireActivity(), {
+                viewModel.getRegisterLiveData().observe(requireActivity(), {it->
                     if (it) {
                         var imageUri = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE
                                 + "://" + resources.getResourcePackageName(R.drawable.no_image)
@@ -100,7 +100,9 @@ class RegisterFragment : Fragment(), View.OnClickListener {
                             override fun onResponse(result: Result<Boolean>) {
                                 if(result is Result.Success) {
 
-                                    viewModel.requestLoadProfileUri(object : LongTaskCallback<String> {
+                                    viewModel.requestLoadProfileUri(
+                                        email,
+                                        object : LongTaskCallback<String> {
                                         override fun onResponse(result: Result<String>) {
                                             if(result is Result.Success) {
                                                 val uri = result.data

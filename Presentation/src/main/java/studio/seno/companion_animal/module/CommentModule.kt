@@ -1,28 +1,19 @@
 package studio.seno.companion_animal.module
 
 import android.content.Context
-import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
-import com.google.firebase.auth.FirebaseAuth
-import okhttp3.ResponseBody
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.ui.comment.CommentAdapter
 import studio.seno.companion_animal.ui.comment.CommentListViewModel
 import studio.seno.companion_animal.ui.main_ui.MainViewModel
 import studio.seno.companion_animal.util.Constants
-import studio.seno.datamodule.Repository
-import studio.seno.datamodule.api.ApiClient
-import studio.seno.datamodule.api.ApiInterface
-import studio.seno.datamodule.model.NotificationModel
+import studio.seno.datamodule.RemoteRepository
 import studio.seno.domain.LongTaskCallback
 import studio.seno.domain.Result
 import studio.seno.domain.model.Comment
 import studio.seno.domain.model.Feed
-import studio.seno.domain.model.NotificationData
-import studio.seno.domain.model.User
-import studio.seno.domain.util.PrefereceManager
 
 class CommentModule(
     mainViewModel: MainViewModel, commentListViewModel: CommentListViewModel,
@@ -48,7 +39,7 @@ class CommentModule(
             mCommentListViewModel.setCommentListLiveData(currentCommentList.toList())
 
         } else {
-            Repository().loadRemoteProfileImage(object : LongTaskCallback<String>{
+            RemoteRepository.getInstance()!!.loadRemoteProfileImage(myEmail, object : LongTaskCallback<String>{
 
                     override fun onResponse(result: Result<String>) {
                         if(result is Result.Success) {
@@ -84,7 +75,7 @@ class CommentModule(
             currentCommentList.set(answerPosition, tempComment!!)
             mCommentListViewModel.setCommentListLiveData(currentCommentList)
         } else {
-            Repository().loadRemoteProfileImage(object :LongTaskCallback<String>{
+            RemoteRepository.getInstance()!!.loadRemoteProfileImage(myEmail, object :LongTaskCallback<String>{
                 override fun onResponse(result: Result<String>) {
                     if(result is Result.Success) {
 
@@ -118,11 +109,11 @@ class CommentModule(
                       answerMode: Boolean, countTextView: TextView) {
         val type: String?
         val list = mAdapter.currentList.toMutableList()
-        var tempComment = curComment
+        var parentComment = curComment
 
         if (answerMode) {
             list.removeAt(answerPosition)
-            tempComment = findParentComment(answerPosition)!!
+            parentComment = findParentComment(answerPosition)!!
             type = "child"
         } else {
             var size = findNextParentComment(commentPosition) - 1
@@ -144,7 +135,7 @@ class CommentModule(
         }
 
         mCommentListViewModel.requestDeleteComment(
-            mFeed.email, mFeed.timestamp, tempComment!!,
+            mFeed.email, mFeed.timestamp, parentComment!!,
             answerComment, type, list
         )
     }
