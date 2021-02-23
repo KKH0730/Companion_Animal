@@ -88,64 +88,66 @@ class RegisterFragment : Fragment(), View.OnClickListener {
             if (email.isEmpty() || nickName.isEmpty() || password.isEmpty()) {
                 binding.registerBtn.stopAnimation(TransitionButton.StopAnimationStyle.SHAKE, null)
             } else {
-                viewModel.registerUser(email, password)
-                viewModel.getRegisterLiveData().observe(requireActivity(), {it->
-                    if (it) {
-                        var imageUri = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE
-                                + "://" + resources.getResourcePackageName(R.drawable.no_image)
-                                + '/' + resources.getResourceTypeName(R.drawable.no_image)
-                                + '/' + resources.getResourceEntryName(R.drawable.no_image))
+                viewModel.registerUser(email, password, object  : LongTaskCallback<Boolean>{
+                    override fun onResponse(result: Result<Boolean>) {
+                        if(result is Result.Success) {
+                            if(result.data){
+                                var imageUri = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE
+                                        + "://" + resources.getResourcePackageName(R.drawable.menu_profile)
+                                        + '/' + resources.getResourceTypeName(R.drawable.menu_profile)
+                                        + '/' + resources.getResourceEntryName(R.drawable.menu_profile))
 
-                        viewModel.requestUpload(imageUri, object : LongTaskCallback<Boolean> {
-                            override fun onResponse(result: Result<Boolean>) {
-                                if(result is Result.Success) {
+                                viewModel.requestUpload(imageUri, object : LongTaskCallback<Boolean> {
+                                    override fun onResponse(result: Result<Boolean>) {
+                                        if(result is Result.Success) {
 
-                                    viewModel.requestLoadProfileUri(
-                                        email,
-                                        object : LongTaskCallback<String> {
-                                        override fun onResponse(result: Result<String>) {
-                                            if(result is Result.Success) {
-                                                val uri = result.data
+                                            viewModel.requestLoadProfileUri(
+                                                email,
+                                                object : LongTaskCallback<String> {
+                                                    override fun onResponse(result: Result<String>) {
+                                                        if(result is Result.Success) {
+                                                            val uri = result.data
 
-                                                FirebaseInstanceId.getInstance().instanceId.addOnSuccessListener {it2 ->
-                                                    viewModel.uploadUserInfo(0L, email, nickName, 0L, 0L, 0L,it2.token, uri)
+                                                            FirebaseInstanceId.getInstance().instanceId.addOnSuccessListener {it2 ->
+                                                                viewModel.uploadUserInfo(0L, email, nickName, 0L, 0L, 0L,it2.token, uri)
 
 
-                                                    viewModel.getUpLoadLiveData().observe(requireActivity(), {it ->
-                                                        if(it) {
-                                                            binding.registerBtn.stopAnimation(TransitionButton.StopAnimationStyle.EXPAND) {
-                                                                startActivity<MainActivity>( )
-                                                                viewControlListener.finishCurrentActivity()
+                                                                viewModel.getUpLoadLiveData().observe(requireActivity(), {it ->
+                                                                    if(it) {
+                                                                        binding.registerBtn.stopAnimation(TransitionButton.StopAnimationStyle.EXPAND) {
+                                                                            startActivity<MainActivity>( )
+                                                                            viewControlListener.finishCurrentActivity()
+                                                                        }
+                                                                    } else
+                                                                        CustomToast(requireContext(), getString(R.string.register_fail)).show()
+                                                                })
                                                             }
-                                                        } else
-                                                            CustomToast(requireContext(), getString(R.string.register_fail)).show()
-                                                    })
-                                                }
-                                            }
+                                                        }
+                                                    }
+                                                })
                                         }
-                                    })
-                                }
+                                    }
+                                })
+
+                            } else {
+                                viewModel.checkOverlapEmail(email)
+                                viewModel.getOverLapLiveData().observe(requireActivity(), {
+                                    if(it)  // 이메일 중복
+                                        CustomToast(requireContext(), getString(R.string.email_overlap)).show()
+                                    else
+                                        CustomToast(requireContext(), getString(R.string.register_error)).show()
+                                    binding.registerBtn.stopAnimation(
+                                        TransitionButton.StopAnimationStyle.SHAKE,
+                                        null
+                                    )
+                                })
                             }
-                        })
-
-                    } else {
-                        viewModel.checkOverlapEmail(email)
-                        viewModel.getOverLapLiveData().observe(requireActivity(), {
-                            if(it)  // 이메일 중복
-                                CustomToast(requireContext(), getString(R.string.email_overlap)).show()
-                            else
-                                CustomToast(requireContext(), getString(R.string.register_error)).show()
-                            binding.registerBtn.stopAnimation(
-                                TransitionButton.StopAnimationStyle.SHAKE,
-                                null
-                            )
-                        })
-
+                        } else if(result is Result.Error) {
+                            Log.e("error", "RegisterFragment register user error : ${result.exception}")
+                        }
                     }
                 })
             }
-
-
         }
     }
 }

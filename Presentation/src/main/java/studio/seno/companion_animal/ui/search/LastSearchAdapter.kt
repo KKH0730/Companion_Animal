@@ -1,5 +1,6 @@
 package studio.seno.companion_animal.ui.search
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
@@ -40,6 +41,7 @@ class LastSearchAdapter : ListAdapter<LastSearch, RecyclerView.ViewHolder>(
         val model = LastSearchModel()
         model.setLastSearchLiveData(item)
         holder.setViewModel(model, item)
+
     }
     fun setOnItemClickListener(listener: OnLastSearchListener) {
         this.listener = listener

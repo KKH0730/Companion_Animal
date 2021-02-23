@@ -17,7 +17,8 @@
     <string name="request_email">email 발송요청</string>
     <string name="request_success">요청 성공</string>
     <string name="loading">로딩중</string>
-    <string name="find_password_announcement1">메일 보내기 실패!\n이메일을 확인해 주세요.</string>
+    <string name="find_password_title">비밀번호 찾기</string>
+    <string name="find_password_announcement1">이메일 전송에 실패했습니다.\n이메일을 확인해 주세요.</string>
     <string name="find_password_announcement2">이메일을 보냈습니다.</string>
 
 
@@ -44,6 +45,7 @@
     <string name="timeLine_menu3">팔로잉  %d </string>
     <string name="timeLine_menu4">북마크</string>
     <string name="timeLine_menu5">내가 쓴 글</string>
+    <string name="timeLine_menu6">메세지</string>
     <string name="info_modify">닉네임\n수정</string>
     <string name="info_complete">완료</string>
 
@@ -114,6 +116,10 @@
 
     <!-- ErrorActivity -->
     <string name="no_exist_feed">해당 피드는 삭제되었습니다.</string>
+
+    <!-- ShowFeedActivity -->
+    <string name="showFeed_title1">내 글</string>
+    <string name="showFeed_title2">북마크</string>
 
     <!-- noticiation module -->
     <string name="noti_title">님이 댓글을 남기셨습니다.</string>

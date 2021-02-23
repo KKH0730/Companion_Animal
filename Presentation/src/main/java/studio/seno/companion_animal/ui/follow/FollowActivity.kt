@@ -14,8 +14,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
+import androidx.recyclerview.widget.StaggeredGridLayoutManager
+import org.jetbrains.anko.startActivity
+import org.jetbrains.anko.support.v4.startActivity
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.FragmentNotificationBinding
+import studio.seno.companion_animal.ui.feed.ShowFeedActivity
 import studio.seno.datamodule.LocalRepository
 import studio.seno.domain.LongTaskCallback
 import studio.seno.domain.Result
@@ -61,6 +65,10 @@ class FollowActivity : AppCompatActivity(), View.OnClickListener {
     fun followItemEvent() {
         followAdapter.setOnFollowClickListener(object : OnFollowClickListener {
             override fun onProfileClicked(layout: ConstraintLayout, follow: Follow) {
+                startActivity<ShowFeedActivity>(
+                    "profileEmail" to follow.email,
+                    "feedSort" to "profile"
+                )
             }
 
             override fun onButtonClicked(button: Button, category: String, follow: Follow) {

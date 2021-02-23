@@ -4,6 +4,9 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.ImageButton
+import android.widget.TextView
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -36,6 +39,8 @@ class FindPasswordFragment : Fragment(), ProgressGenerator.OnCompleteListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        init()
+
         binding.sendEmail.setOnClickListener {
             CommonFunction.closeKeyboard(requireContext(), binding.emailInput)
             var emailAddress = binding.emailInput.text.toString().trim()
@@ -53,6 +58,13 @@ class FindPasswordFragment : Fragment(), ProgressGenerator.OnCompleteListener {
                         CustomToast(requireContext(), getString(R.string.find_password_announcement1)).show()
                 })
             }
+        }
+    }
+
+    fun init(){
+        binding.header.findViewById<TextView>(R.id.title).text = getString(R.string.find_password_title)
+        binding.header.findViewById<ImageButton>(R.id.back_btn).setOnClickListener {
+            findNavController().navigate(R.id.action_findPasswordFragment_to_loginFragment)
         }
     }
 

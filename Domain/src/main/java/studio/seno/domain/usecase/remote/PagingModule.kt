@@ -16,7 +16,7 @@ class PagingModule {
     private var lastVisible: DocumentSnapshot? = null
     private var isScrolling = false
     private var isLastItemReached = false
-    private val limit = 15
+    private val limit = 18
 
 
     fun pagingFeed(
@@ -30,7 +30,7 @@ class PagingModule {
         try {
             firstSearchQuery(sort, myEmail, db)
                 .get()
-                .addOnCompleteListener {
+                .addOnCompleteListener {it ->
                     var find = 0
                     var count = 0
                     if (it.isSuccessful) {
@@ -42,10 +42,9 @@ class PagingModule {
                             val list = mutableListOf<Feed>()
 
                             for (element in document) {
-                                val feed = mapperFeed(element)
-                                count++
-
-                                if (keyword != null) {
+                                if (sort == "feed_search" && keyword != null) {
+                                    count++
+                                    val feed = mapperFeed(element)
                                     if (keyword != "" && (feed.content.contains(keyword) || feed.hashTags.contains("#$keyword"))) {
                                         list.add(feed)
                                         find++
@@ -53,23 +52,50 @@ class PagingModule {
 
                                     if (find == limit || find == size || count == size || count >= 50) {
                                         callback.onResponse(Result.Success(list))
+                                        lastVisible = it.result!!.documents[count - 1]
                                         break
                                     }
-                                } else {
+                                } else if (sort == "feed_timeline" || sort == "feed_list") {
+                                    count++
+                                    val feed = mapperFeed(element)
                                     list.add(feed)
 
                                     if (count == limit || count == size) {
                                         callback.onResponse(Result.Success(list))
+                                        lastVisible = it.result!!.documents[count - 1]
                                         break
                                     }
+
+                                } else if (sort == "feed_bookmark") {
+                                    db.collection("feed")
+                                        .document(element.getString("feed")!!)
+                                        .get()
+                                        .addOnCompleteListener {it2 ->
+                                            count++
+
+                                            if(it2.result?.exists() == false){
+
+                                            } else {
+                                                find++
+                                                val feedBookmark = mapperFeed(it2.result!!)
+                                                list.add(feedBookmark)
+
+                                                if (count == limit || count == size) {
+                                                    callback.onResponse(Result.Success(list))
+                                                    lastVisible = it.result!!.documents[count - 1]
+                                                } else if(count == size && find < size) {
+                                                    callback.onResponse(Result.Success(list))
+                                                    lastVisible = it.result!!.documents[find - 1]
+                                                }
+                                            }
+                                        }
                                 }
                             }
 
-
-                            if(find == 0)
+                            if (sort == "feed_search" && find == 0) {
                                 callback.onResponse(Result.Success(null))
-
-                            lastVisible = it.result!!.documents[0 + count - 1]
+                                return@addOnCompleteListener
+                            }
 
                             recyclerView.setOnScrollListener(
                                 setScrollListener(
@@ -131,6 +157,7 @@ class PagingModule {
                         if (isScrolling && (firstVisibleItemPosition + visibleItemCount!! == totalItemCount) && !isLastItemReached) {
                             isScrolling = false
 
+                            Log.d("hi","second pageing")
 
                             nextSearchQuery(sort, myEmail, db)
                                 .get().addOnCompleteListener {
@@ -138,43 +165,65 @@ class PagingModule {
                                     var find = 0
 
                                     if (it.isSuccessful) {
-                                        if (it.result?.size()!! <= 0) {
-                                            //callback.onResponse(Result.Success(null))
-                                        } else {
+                                        val document: List<DocumentSnapshot> =
+                                            it.result!!.documents
+                                        val size = document.size
+                                        val list = mutableListOf<Feed>()
 
-                                            val document: List<DocumentSnapshot> =
-                                                it.result!!.documents
-                                            val size = document.size
-                                            val list = mutableListOf<Feed>()
-
-                                            for (element in document) {
-                                                val feed = mapperFeed(element)
+                                        for (element in document) {
+                                            if (sort == "feed_search" && keyword != null) {
                                                 count++
-
-                                                if (keyword != null) {
-                                                    if (feed.content.contains(keyword) || feed.hashTags.contains("#$keyword")) {
-                                                        list.add(feed)
-                                                        find++
-                                                    }
-
-                                                    if (find == limit || find == size || count == size || count >= 50) {
-                                                        callback.onResponse(Result.Success(list))
-                                                        break
-                                                    }
-                                                } else {
+                                                val feed = mapperFeed(element)
+                                                if (keyword != "" && (feed.content.contains(keyword) || feed.hashTags.contains(
+                                                        "#$keyword"
+                                                    ))
+                                                ) {
                                                     list.add(feed)
-
-                                                    if (count == limit) {
-                                                        callback.onResponse(Result.Success(list))
-                                                        break
-                                                    }
+                                                    find++
                                                 }
-                                            }
 
-                                            lastVisible = it.result!!.documents[0 + count - 1]
-                                            if (document.size < limit) {
-                                                isLastItemReached = true
+                                                if (find == limit || find == size || count == size || count >= 50) {
+                                                    callback.onResponse(Result.Success(list))
+                                                    lastVisible =
+                                                        it.result!!.documents[count - 1]
+                                                    break
+                                                }
+                                            } else if (sort == "feed_timeline" || sort == "feed_list") {
+                                                count++
+                                                val feed = mapperFeed(element)
+                                                list.add(feed)
+
+                                                if (count == limit || count == size) {
+                                                    callback.onResponse(Result.Success(list))
+                                                    lastVisible =
+                                                        it.result!!.documents[count - 1]
+                                                    break
+                                                }
+
+                                            } else if (sort == "feed_bookmark") {
+                                                db.collection("feed")
+                                                    .document(element.getString("feed")!!)
+                                                    .get()
+                                                    .addOnCompleteListener { it2 ->
+                                                        if (it2.result != null) {
+                                                            count++
+                                                            val feedBookmark =
+                                                                mapperFeed(it2.result!!)
+                                                            list.add(feedBookmark)
+                                                        }
+                                                        if (count == limit || count == size) {
+                                                            callback.onResponse(Result.Success(list))
+                                                            lastVisible = it.result!!.documents[count - 1]
+                                                        } else if(count == size && find < size) {
+                                                            callback.onResponse(Result.Success(list))
+                                                            lastVisible = it.result!!.documents[find - 1]
+                                                        }
+                                                    }
                                             }
+                                        }
+
+                                        if (document.size < limit) {
+                                            isLastItemReached = true
                                         }
                                     }
                                 }.addOnFailureListener {
@@ -189,27 +238,38 @@ class PagingModule {
     }
 
 
-    fun firstSearchQuery(sort : String, myEmail: String?, db: FirebaseFirestore): Query {
-        if(sort == "myFeed")
+    fun firstSearchQuery(sort: String, myEmail: String?, db: FirebaseFirestore): Query {
+        if (sort == "feed_timeline")
             return db.collection("user")
                 .document(myEmail!!)
                 .collection("myFeed")
                 .orderBy("timestamp", Query.Direction.DESCENDING)
-        else
+        else if (sort == "feed_search" || sort == "feed_list")
             return db.collection("feed")
+                .orderBy("timestamp", Query.Direction.DESCENDING)
+        else
+            return db.collection("user")
+                .document(myEmail!!)
+                .collection("bookmark")
                 .orderBy("timestamp", Query.Direction.DESCENDING)
 
     }
 
-    fun nextSearchQuery(sort : String, myEmail: String?, db: FirebaseFirestore): Query {
-        if(sort == "myFeed")
+    fun nextSearchQuery(sort: String, myEmail: String?, db: FirebaseFirestore): Query {
+        if (sort == "feed_timeline")
             return db.collection("user")
                 .document(myEmail!!)
                 .collection("myFeed")
                 .orderBy("timestamp", Query.Direction.DESCENDING)
                 .startAfter(lastVisible as DocumentSnapshot)
-        else
+        else if (sort == "feed_search" || sort == "feed_list")
             return db.collection("feed")
+                .orderBy("timestamp", Query.Direction.DESCENDING)
+                .startAfter(lastVisible as DocumentSnapshot)
+        else
+            return db.collection("user")
+                .document(myEmail!!)
+                .collection("bookmark")
                 .orderBy("timestamp", Query.Direction.DESCENDING)
                 .startAfter(lastVisible as DocumentSnapshot)
     }

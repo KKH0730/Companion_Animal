@@ -1,5 +1,6 @@
 package studio.seno.companion_animal.ui.feed
 
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -16,9 +17,11 @@ import com.google.firebase.auth.FirebaseAuth
 import com.kroegerama.imgpicker.BottomSheetImagePicker
 import com.pchmn.materialchips.ChipView
 import studio.seno.commonmodule.CustomToast
+import studio.seno.companion_animal.MainActivity
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.ActivityMakeFeedBinding
 import studio.seno.companion_animal.module.CommonFunction
+import studio.seno.companion_animal.util.Constants
 import studio.seno.datamodule.LocalRepository
 import studio.seno.domain.util.PrefereceManager
 import studio.seno.domain.model.Feed
@@ -158,9 +161,6 @@ class MakeFeedActivity : AppCompatActivity(), View.OnClickListener,
 
 
         } else if (v?.id == R.id.submit_btn) {
-            CommonFunction.getInstance()!!.lockTouch(window!!)
-            binding.progressBar.visibility = View.VISIBLE
-
             if (currentChecked == null) {
                 CustomToast(applicationContext, getString(R.string.ShowAnimal_toast3)).show()
                 return
@@ -172,15 +172,19 @@ class MakeFeedActivity : AppCompatActivity(), View.OnClickListener,
                 return
             }
 
+            CommonFunction.getInstance()!!.lockTouch(window!!)
+            binding.progressBar.visibility = View.VISIBLE
+
+
             if(currentChecked == "etc")
                 currentChecked = binding.etcContent.text.toString()
 
             if(feed == null && mode == "write") {
                 localRepository.updateFeedCount(lifecycleScope, true)
-                submitResult(Timestamp(System.currentTimeMillis()).time, "write", 0)
+                submitResult(Timestamp(System.currentTimeMillis()).time)
             } else if(feed != null && mode != "write") {
                 if(mode == "modify")
-                    submitResult(feed!!.timestamp, "modify", intent.getIntExtra("targetFeedPosition", 0))
+                    submitResult( feed!!.timestamp)
                 else {
                     localRepository.updateFeedCount(lifecycleScope, false)
                     feedListViewModel.requestDeleteFeed(feed!!)
@@ -192,6 +196,18 @@ class MakeFeedActivity : AppCompatActivity(), View.OnClickListener,
                 if(it) {
                     CommonFunction.getInstance()!!.unlockTouch(window!!)
                     binding.progressBar.visibility = View.GONE
+
+                    if(feed != null) {
+                        feed!!.sort = currentChecked as String
+                        feed!!.hashTags = hashTags
+                        feed!!.content = binding.content.text.toString()
+                        feed!!.localUri = selectedImageAdapter.getItems()
+
+                        var intent = Intent()
+                        intent.putExtra("feed", feed)
+                        setResult(Constants.RESULT_OK, intent)
+                    }
+
                     finish()
                 }
             })
@@ -199,7 +215,7 @@ class MakeFeedActivity : AppCompatActivity(), View.OnClickListener,
         }
     }
 
-    fun submitResult(timestamp: Long, mode : String, targetFeedPosition : Int){
+    fun submitResult(timestamp: Long){
         PrefereceManager.getString(this, "nickName")?.let {
             feedListViewModel.requestUploadFeed(
                 this,
@@ -251,6 +267,5 @@ class MakeFeedActivity : AppCompatActivity(), View.OnClickListener,
             currentChecked = "etc"
         }
     }
-
 }
 

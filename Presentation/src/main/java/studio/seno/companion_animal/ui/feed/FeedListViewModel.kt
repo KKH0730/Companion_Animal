@@ -33,36 +33,16 @@ class FeedListViewModel() : ViewModel() {
         return feedSaveStatus
     }
 
-
-
-    fun requestUploadFeed(context : Context, id : Long, email : String, nickname : String, sort : String, hashTags : List<String>,
-        localUri : List<String>, content : String, timestamp : Long, lifecycleCoroutineScope: LifecycleCoroutineScope
-    ) {
-
-        var feed = Mapper.getInstance()!!.mapperToFeed(
-            id, email, nickname, sort, hashTags,
-            localUri, content, timestamp
-        )
-
-        repository.uploadFeed(context, feed, lifecycleCoroutineScope, object : LongTaskCallback<Feed> {
-            override fun onResponse(result: Result<Feed>) {
-                if (result is Result.Success) {
-                    feedSaveStatus.value = true
-
-                } else if(result is Result.Error) {
-                    Log.e("error", "upload feed error : ${result.exception}")
-                }
-            }
-        })
-    }
-
     //피드를 페이징하여 로드
-    fun requestLoadFeedList(keyword: String?, sort: String, myEmail: String?, recyclerView: RecyclerView, callback: LongTaskCallback<List<Feed>>?){
+    fun requestLoadFeedList(keyword: String?, sort: String, myEmail: String?,
+                            recyclerView: RecyclerView, callback: LongTaskCallback<List<Feed>>?){
         repository.requestLoadFeedList(keyword, sort, myEmail, recyclerView, object : LongTaskCallback<List<Feed>>{
             override fun onResponse(result: Result<List<Feed>>) {
                 if(result is Result.Success) {
                     val list = result.data
+
                     if(list != null) {
+                        Log.d("hi","list size -> ${list.size}")
                         var tempList : MutableList<Feed>? = feedListLiveData.value?.toMutableList()
 
                         if(tempList != null)
@@ -72,9 +52,9 @@ class FeedListViewModel() : ViewModel() {
                             tempList = list.toMutableList()
 
                         if(recyclerView.layoutManager is LinearLayoutManager)
-                            feedListLiveData.value = tempList
+                            feedListLiveData.setValue(tempList)
                         else if(recyclerView.layoutManager is StaggeredGridLayoutManager)
-                            feedListLiveData.value = tempList
+                            feedListLiveData.setValue(tempList)
                     }
                     callback?.onResponse(result)
 
@@ -91,24 +71,29 @@ class FeedListViewModel() : ViewModel() {
     }
 
 
-    /*
-     fun loadFeedList(callback : LongTaskCallback<List<Feed>>?){
-        repository.loadFeedList(object : LongTaskCallback<List<Feed>> {
-            override fun onResponse(result: Result<List<Feed>>) {
-                if(result is Result.Success) {
-                    var list = result.data
 
-                    feedListLiveData.value = list
-                    callback?.onResponse(result)
+    fun requestUploadFeed(context : Context, id : Long, email : String, nickname : String, sort : String, hashTags : List<String>,
+        localUri : List<String>, content : String, timestamp: Long, lifecycleCoroutineScope: LifecycleCoroutineScope
+    ) {
 
-                }else if(result is Result.Error){
-                    callback?.onResponse(Result.Error(result.exception))
-                    Log.e("error", "load feed list error : ${result.exception}")
+        var feed = Mapper.getInstance()!!.mapperToFeed(
+            id, email, nickname, sort, hashTags,
+            localUri, content, timestamp
+        )
+
+        repository.uploadFeed(context, feed ,lifecycleCoroutineScope, object : LongTaskCallback<Feed> {
+            override fun onResponse(result: Result<Feed>) {
+                if (result is Result.Success) {
+                    feedSaveStatus.value = true
+
+                } else if(result is Result.Error) {
+                    Log.e("error", "upload feed error : ${result.exception}")
                 }
             }
         })
     }
-     */
+
+
 
     fun requestDeleteFeed(feed: Feed){
         repository.deleteFeed(feed, object : LongTaskCallback<Boolean>{

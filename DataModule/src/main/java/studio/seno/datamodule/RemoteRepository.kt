@@ -85,7 +85,7 @@ class RemoteRepository() {
 
 
     //피드 작성후 서버에 업로드
-    fun uploadFeed(context: Context, feed: Feed, lifecycleCoroutineScope: LifecycleCoroutineScope, callback: LongTaskCallback<Feed>) {
+    fun uploadFeed(context: Context, feed: Feed,  lifecycleCoroutineScope: LifecycleCoroutineScope, callback: LongTaskCallback<Feed>) {
         feedUseCase.uploadFeed(context, feed, mDB, mStorageRef, lifecycleCoroutineScope, callback)
     }
 

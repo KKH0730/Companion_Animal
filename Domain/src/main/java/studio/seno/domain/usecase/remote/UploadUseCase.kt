@@ -12,6 +12,7 @@ import studio.seno.domain.model.Feed
 import java.util.*
 
 class UploadUseCase {
+    private val timer = Timer()
 
     //회원가입 페이지에서 프로필 이미지(no_image.png) 서버에 저장
     fun uploadRemoteProfileImage(email : String, imageUri : Uri, storageRef: StorageReference
@@ -26,16 +27,17 @@ class UploadUseCase {
                 }
     }
 
-    fun uploadRemoteFeedImage(feed : Feed, storageRef: StorageReference, path : String, callback: LongTaskCallback<Boolean>){
+    fun uploadRemoteFeedImage(feed : Feed, storageRef: StorageReference, path : String, callback: LongTaskCallback<Boolean>?){
         for (i in 0 until feed.localUri.size) {
             storageRef.child(path + i).putFile(Uri.parse(feed.localUri[i]))
                 .addOnCompleteListener {
                     if(i == feed.localUri.size - 1){
-                        callback.onResponse(Result.Success(true))
+                        callback?.onResponse(Result.Success(true))
                     }
+                }.addOnFailureListener {
+
                 }
         }
-
     }
 
     fun loadRemoteProfileImage(email : String, storageRef: StorageReference, callback: LongTaskCallback<String>){
@@ -60,7 +62,7 @@ class UploadUseCase {
                 list.add(it.result.toString())
             }
         }
-        val timer = Timer()
+
         var tt = object : TimerTask(){
             override fun run() {
                 if(list.size == listResult.size) {

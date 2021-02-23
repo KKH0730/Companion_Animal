@@ -47,10 +47,10 @@ class MainActivity : BaseActivity() , DialogInterface.OnDismissListener{
 
     fun init(){
         db = AppDatabase.getInstance(this)!!
-        homeFragment = HomeFragment.newInstance("whole_feed_list", 0)
+        homeFragment = HomeFragment.newInstance("feed_list", 0, FirebaseAuth.getInstance().currentUser?.email.toString())
         notificationFragment = NotificationFragment.newInstance()
         chatFragment = ChatFragment.newInstance()
-        timeLineFragment = TimeLineFragment.newInstance()
+        timeLineFragment = TimeLineFragment.newInstance(FirebaseAuth.getInstance().currentUser?.email.toString())
     }
 
     private fun loadUserInfo(){

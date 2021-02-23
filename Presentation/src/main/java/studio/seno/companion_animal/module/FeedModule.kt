@@ -1,5 +1,8 @@
 package studio.seno.companion_animal.module
 
+import android.app.Activity
+import android.content.Context
+import android.content.Intent
 import android.text.SpannableStringBuilder
 import android.util.Log
 import android.widget.EditText
@@ -8,26 +11,26 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.app.ActivityCompat.startActivityForResult
 import androidx.core.content.ContentProviderCompat.requireContext
+import androidx.core.content.ContextCompat.startActivity
+import androidx.fragment.app.FragmentManager
+import androidx.lifecycle.LifecycleCoroutineScope
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.RecyclerView
 import org.jetbrains.anko.support.v4.intentFor
 import org.jetbrains.anko.support.v4.startActivity
-import androidx.fragment.app.FragmentManager
 import com.google.firebase.auth.FirebaseAuth
-import okhttp3.ResponseBody
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.ui.MenuDialog
 import studio.seno.companion_animal.ui.comment.CommentActivity
 import studio.seno.companion_animal.ui.comment.CommentListViewModel
-import studio.seno.companion_animal.ui.feed.FeedListAdapter
-import studio.seno.companion_animal.ui.feed.FeedListViewModel
+import studio.seno.companion_animal.ui.feed.*
 import studio.seno.companion_animal.ui.main_ui.MainViewModel
+import studio.seno.companion_animal.ui.search.SearchResultAdapter
 import studio.seno.companion_animal.util.Constants
-import studio.seno.datamodule.api.ApiClient
-import studio.seno.datamodule.api.ApiInterface
-import studio.seno.datamodule.model.NotificationModel
+import studio.seno.datamodule.LocalRepository
 import studio.seno.domain.LongTaskCallback
 import studio.seno.domain.Result
 import studio.seno.domain.model.Feed
-import studio.seno.domain.model.NotificationData
 import studio.seno.domain.model.User
 import studio.seno.domain.util.PrefereceManager
 import java.sql.Timestamp
@@ -184,43 +187,49 @@ class FeedModule(
 
         //댓글을 작성하면 notification 알림이 전송
         NotificationModule(commentEdit.context, mMainViewModel).sendNotification(feed.email, commentContent, Timestamp(System.currentTimeMillis()).time, feed)
-        /*
-        mMainViewModel.requestUserData(feed.email, object : LongTaskCallback<User> {
-            override fun onResponse(result: Result<User>) {
-                if(result is Result.Success) {
-
-                    val timestamp = Timestamp(System.currentTimeMillis()).time
-                    val notificationModel = NotificationModel(
-                        result.data.token,
-                        NotificationData(
-                            nickname!!,
-                            commentContent,
-                            timestamp,
-                            feed.email + timestamp,
-                            feed.email + feed.timestamp,
-                            true
-                        )
-                    )
-
-                    var apiService = ApiClient.getClient().create(ApiInterface::class.java)
-                    var responseBodyCall: retrofit2.Call<ResponseBody> = apiService.sendNotification(notificationModel)
-                    responseBodyCall.enqueue(object : retrofit2.Callback<ResponseBody> {
-                        override fun onResponse(
-                            call: retrofit2.Call<ResponseBody>,
-                            response: retrofit2.Response<ResponseBody>
-                        ) {
-
-                        }
-
-                        override fun onFailure(call: retrofit2.Call<ResponseBody>, t: Throwable) {
-
-                        }
-
-                    })
-                }
-            }
-        })
-         */
     }
 
+    fun onDismiss(type : String, targetFeed : Feed?, activity: Activity, localRepository: LocalRepository, feedAdapter :FeedListAdapter?, lifecycleScope : LifecycleCoroutineScope, ){
+        if(targetFeed != null) {
+            if(type == "feed_modify") {
+                val intent = Intent(activity, MakeFeedActivity::class.java)
+                intent.putExtra("feed", targetFeed)
+                intent.putExtra("mode", "modify")
+                startActivityForResult(activity, intent, Constants.FEED_MODIFY_REQUEST, null)
+
+            } else if(type == "feed_delete") {
+                if(feedAdapter != null)
+                    mFeedListViewModel.setFeedListLiveData(feedAdapter.currentList.toMutableList())
+                val intent = Intent(activity, MakeFeedActivity::class.java)
+                intent.putExtra("feed", targetFeed)
+                intent.putExtra("mode", "delete")
+                startActivity(activity, intent, null)
+
+            } else if(type == "follow") {
+                localRepository.getUserInfo(lifecycleScope, object : LongTaskCallback<User>{
+                    override fun onResponse(result: Result<User>) {
+                        if(result is Result.Success) {
+                            mFeedListViewModel.requestUpdateFollower(targetFeed.email,  targetFeed.nickname, targetFeed.remoteProfileUri, true, result.data.nickname, result.data.profileUri)
+                            localRepository.updateFollowing(lifecycleScope, true)
+
+                        } else if(result is Result.Error) {
+                            Log.e("error", "Homefragment follow error : ${result.exception}")
+                        }
+                    }
+                })
+            } else if(type == "unfollow") {
+                localRepository.getUserInfo(lifecycleScope, object : LongTaskCallback<User>{
+                    override fun onResponse(result: Result<User>) {
+                        if(result is Result.Success) {
+                            mFeedListViewModel.requestUpdateFollower(targetFeed.email,  targetFeed.nickname, targetFeed.remoteProfileUri, false, result.data.nickname, result.data.profileUri)
+                            localRepository.updateFollowing(lifecycleScope,false)
+
+                        } else if(result is Result.Error) {
+                            Log.e("error", "Homefragment follow error : ${result.exception}")
+                        }
+                    }
+                })
+            }
+        }
+    }
 }

@@ -106,6 +106,7 @@ class FeedListAdapter(
             binding.bookmarkBtn.setOnClickListener { mListener.onBookmarkClicked(feed, binding.bookmarkBtn) }
             binding.detailBtn.setOnClickListener { mListener.onDetailClicked(feed, bindingAdapterPosition) }
             binding.imageBtn.setOnClickListener{ mListener.onImageBtnClicked(feed) }
+            binding.profileLayout.setOnClickListener { mListener.onProfileLayoutClicked(feed) }
 
         }
 

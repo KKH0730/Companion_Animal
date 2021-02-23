@@ -97,7 +97,7 @@
                             style="@style/Widget.MaterialComponents.Button.TextButton"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_margin="10dp"
+                            android:layout_marginEnd="10dp"
                             android:foreground="@drawable/rect_stroke"
                             android:text="@string/info_modify"
                             android:textColor="@color/black"
@@ -105,6 +105,37 @@
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintTop_toTopOf="parent" />
+
+                        <Button
+                            android:id="@+id/follow_btn"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp"
+                            android:backgroundTint="@color/white"
+                            android:textColor="@color/black"
+                            android:textSize="12sp"
+                            android:text="@string/follow"
+                            android:visibility="gone"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintStart_toEndOf="@+id/timeline_profileImageView"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintVertical_bias="1.0" />
+
+                        <Button
+                            android:id="@+id/chatting_btn"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="15dp"
+                            android:backgroundTint="@color/white"
+                            android:textColor="@color/black"
+                            android:textSize="12sp"
+                            android:text="@string/timeLine_menu6"
+                            android:visibility="gone"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintStart_toEndOf="@+id/follow_btn"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintVertical_bias="1.0" />
+
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -146,6 +177,7 @@
                     </LinearLayout>
 
                     <Button
+                        android:id="@+id/bookmark_btn"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_margin="5dp"
@@ -169,16 +201,12 @@
                     android:layout_marginBottom="5dp"
                     android:textColor="@color/black" />
 
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/timeline_recyclerView"
+                <FrameLayout
+                    android:id="@+id/container"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:layout_marginLeft="10dp"
-                    android:layout_marginRight="10dp"
-                    android:nestedScrollingEnabled="false"
-                    android:overScrollMode="never"
-                    app:layoutManager="androidx.recyclerview.widget.StaggeredGridLayoutManager"
-                    app:spanCount="3" />
+                    android:layout_marginRight="10dp" />
 
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>

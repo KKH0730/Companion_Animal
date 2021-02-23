@@ -143,7 +143,7 @@ class FeedUseCase {
             .addOnCompleteListener {
                 if (it.isSuccessful) {
                     if (it.result != null) {
-                        if(it.result!!.exists()) {
+                        if (it.result!!.exists()) {
                             var feed = Feed(
                                 it.result!!.getString("email")!!,
                                 it.result!!.getString("nickname")!!,
@@ -196,6 +196,8 @@ class FeedUseCase {
             .document(feed.email + feed.timestamp)
             .delete()
 
+
+
         storageRef.child(remoteImagePath).listAll().addOnCompleteListener {
             if (it.result != null) {
                 for (element in it.result!!.items) {
@@ -229,6 +231,12 @@ class FeedUseCase {
         db.collection("feed")
             .document(feed.email + feed.timestamp)
             .update(map)
+
+        db.collection("user")
+            .document(myEmail)
+            .collection("myFeed")
+            .document(feed.email + feed.timestamp)
+            .update(map)
     }
 
     //북마크의 상태를 업데이트한다.
@@ -249,6 +257,7 @@ class FeedUseCase {
                 .addOnFailureListener {
 
                 }
+
         }
 
         map["bookmarkList"] = bookmarkList
@@ -256,9 +265,16 @@ class FeedUseCase {
             .document(feed.email + feed.timestamp)
             .update(map)
 
+        db.collection("user")
+            .document(myEmail)
+            .collection("myFeed")
+            .document(feed.email + feed.timestamp)
+            .update(map)
+
         if (flag) {
             map = hashMapOf<String, Any>()
             map["feed"] = feed.email + feed.timestamp
+            map["timestamp"] = feed.timestamp
             db.collection("user")
                 .document(myEmail)
                 .collection("bookmark")

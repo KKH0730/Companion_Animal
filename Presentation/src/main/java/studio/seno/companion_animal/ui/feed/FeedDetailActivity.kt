@@ -20,6 +20,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
 import com.google.firebase.auth.FirebaseAuth
 import org.jetbrains.anko.startActivity
+import org.jetbrains.anko.support.v4.startActivity
 import studio.seno.companion_animal.MainActivity
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.ActivityFeedDetailBinding
@@ -33,6 +34,7 @@ import studio.seno.companion_animal.ui.comment.CommentListViewModel
 import studio.seno.companion_animal.ui.comment.OnCommentEventListener
 import studio.seno.companion_animal.ui.main_ui.MainViewModel
 import studio.seno.companion_animal.util.Constants
+import studio.seno.datamodule.LocalRepository
 import studio.seno.domain.model.Comment
 import studio.seno.domain.model.Feed
 import studio.seno.domain.util.PrefereceManager
@@ -106,7 +108,7 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
         if (intent.getParcelableExtra<Feed>("feed") == null)
             finish()
         else {
-            feed = intent.getParcelableExtra<Feed>("feed")
+            feed = intent.getParcelableExtra("feed")
             feedViewModel.setFeedLiveData(feed!!)
             binding.feedLayout.commentShow.visibility = View.GONE
             commentListViewModel.requestLoadComment(feed!!.email, feed!!.timestamp)
@@ -124,6 +126,7 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
         binding.feedLayout.feedMenu.setOnClickListener(this)
         binding.feedLayout.commentBtn.setOnClickListener(this)
         binding.feedLayout.imageBtn.setOnClickListener(this)
+        binding.feedLayout.profileLayout.setOnClickListener(this)
         binding.feedLayout.comment.addTextChangedListener(textWatcher)
 
         binding.commentLayout.commentRecyclerView.adapter = commentAdapter
@@ -196,7 +199,6 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
         } else if (v?.id == R.id.bookmark_btn) {
             feedModule.bookmarkButtonEvent(feed!!, binding.feedLayout.bookmarkBtn, null)
 
-            Log.d("hi", "bookmark : ${feed!!.bookmarkList.size}")
         } else if (v?.id == R.id.heart_btn) {
             feedModule.heartButtonEvent(
                 feed!!,
@@ -244,6 +246,11 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
                 }
             }
             initVariable()
+        } else if(v?.id == R.id.profile_layout) {
+            startActivity<ShowFeedActivity>(
+                "profileEmail" to feed?.email,
+                "feedSort" to "profile"
+            )
         }
     }
 
@@ -265,22 +272,29 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
             modifyMode = true
             commentModule.setHint(binding.feedLayout.comment, binding.commentLayout.modeTitle, 3)
             CommonFunction.showKeyboard(this)
-        } else if (PrefereceManager.getString(
-                applicationContext,
-                "mode"
-            ) == "comment_answer_modify"
-        ) {
+
+        } else if (PrefereceManager.getString(applicationContext, "mode") == "comment_answer_modify") {
             binding.commentLayout.modeLayout.visibility = View.VISIBLE
             modifyMode = true
             commentModule.setHint(binding.feedLayout.comment, binding.commentLayout.modeTitle, 2)
             CommonFunction.showKeyboard(this)
+
         } else if (PrefereceManager.getString(applicationContext, "mode") == "comment_delete") {
             commentModule.deleteComment(
                 curComment, answerComment, commentPosition, answerPosition,
                 answerMode, binding.feedLayout.commentCount
             )
-        } else {
 
+        } else if(PrefereceManager.getString(applicationContext, "mode") == "feed_modify"){
+            feedModule.onDismiss(
+                "feed_modify", feed, this, LocalRepository.getInstance(applicationContext)!!, null, lifecycleScope)
+        } else if(PrefereceManager.getString(applicationContext, "mode") == "feed_delete"){
+            feedModule.onDismiss("feed_delete", feed, this, LocalRepository.getInstance(applicationContext)!!, null, lifecycleScope)
+            finish()
+        } else if(PrefereceManager.getString(applicationContext, "mode") == "follow") {
+            feedModule.onDismiss("follow", feed, this, LocalRepository.getInstance(applicationContext)!!, null, lifecycleScope)
+        } else if(PrefereceManager.getString(applicationContext, "mode") == "unfollow") {
+            feedModule.onDismiss("unfollow", feed, this, LocalRepository.getInstance(applicationContext)!!, null, lifecycleScope)
         }
     }
 
@@ -302,5 +316,13 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
         var intent = Intent(this, MainActivity::class.java)
         intent.putExtra("feed", feed)
         setResult(Constants.RESULT_OK, intent)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if(requestCode == Constants.FEED_MODIFY_REQUEST && resultCode == Constants.RESULT_OK) {
+            Log.d("hi","intent : ${data?.getParcelableExtra<Feed>("feed")?.remoteUri?.size}")
+        }
     }
 }

@@ -12,20 +12,11 @@ import studio.seno.domain.Result
 
 class UserViewModel() : ViewModel() {
     private val memberViewModelModule = UserViewModelModule(this)
-    private val loginLiveData : MutableLiveData<Boolean> = MutableLiveData()
     private val findPasswordListData : MutableLiveData<Boolean> = MutableLiveData()
-    private val registerLiveData : MutableLiveData<Boolean> = MutableLiveData()
     private val uploadLiveData : MutableLiveData<Boolean> = MutableLiveData()
     private val overLapLiveData : MutableLiveData<Boolean> = MutableLiveData()
     private val repository = RemoteRepository.getInstance()!!
 
-    fun getLoginLiveDate() : MutableLiveData<Boolean>{
-        return loginLiveData
-    }
-
-    fun setLoginLiveData(bool : Boolean){
-        this.loginLiveData.value = bool
-    }
 
     fun getFindPasswordListData() : MutableLiveData<Boolean> {
         return findPasswordListData
@@ -35,24 +26,18 @@ class UserViewModel() : ViewModel() {
         this.findPasswordListData.value = bool
     }
 
-    fun getRegisterLiveData() : MutableLiveData<Boolean> {
-        return registerLiveData
-    }
 
-    fun setRegisterLiveData(bool : Boolean) {
-        this.registerLiveData.value = bool
-    }
 
-    fun enableLogin(email : String, password : String)  {
-        memberViewModelModule.enableLogin(email, password)
+    fun enableLogin(email : String, password : String, callback : LongTaskCallback<Boolean>)  {
+        memberViewModelModule.enableLogin(email, password, callback)
     }
 
     fun sendFindEmail(emailAddress : String){
         memberViewModelModule.sendFindEmail(emailAddress)
     }
 
-    fun registerUser(email : String, password : String){
-        memberViewModelModule.registerUser(email, password)
+    fun registerUser(email : String, password : String, callback: LongTaskCallback<Boolean>){
+        memberViewModelModule.registerUser(email, password, callback)
     }
 
     fun getUpLoadLiveData() : MutableLiveData<Boolean>{

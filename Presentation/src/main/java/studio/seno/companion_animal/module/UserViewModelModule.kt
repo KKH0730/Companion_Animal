@@ -3,18 +3,23 @@ package studio.seno.companion_animal.module
 import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import studio.seno.companion_animal.ui.user_manage.UserViewModel
+import studio.seno.domain.LongTaskCallback
+import studio.seno.domain.Result
 
 class UserViewModelModule(viewModel: UserViewModel) {
     private val mAuth = FirebaseAuth.getInstance()
     private val memberViewModel = viewModel
 
-    fun enableLogin(email: String, password: String) {
+    fun enableLogin(email: String, password: String, callback : LongTaskCallback<Boolean>)  {
         mAuth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener {
-                if (it.isSuccessful)
-                    memberViewModel.setLoginLiveData(true)
-                else
-                    memberViewModel.setLoginLiveData(false)
+                if (it.isSuccessful) {
+                    callback.onResponse(Result.Success(true))
+                    //memberViewModel.setLoginLiveData(true)
+                } else {
+                    callback.onResponse(Result.Success(false))
+                    //memberViewModel.setLoginLiveData(false)
+                }
             }.addOnFailureListener{
                 Log.e("login_error", "error " + it.message)
             }
@@ -31,13 +36,14 @@ class UserViewModelModule(viewModel: UserViewModel) {
             }
     }
 
-    fun registerUser(email: String, password: String) {
+    fun registerUser(email: String, password: String, callback: LongTaskCallback<Boolean>) {
         mAuth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener {
                 if (it.isSuccessful)
-                    memberViewModel.setRegisterLiveData(true)
+                    callback.onResponse(Result.Success(true))
                 else
-                    memberViewModel.setRegisterLiveData(false)
+                    callback.onResponse(Result.Success(false))
+
             }.addOnFailureListener{
                 Log.e("register fail", "error : " + it.message)
             }

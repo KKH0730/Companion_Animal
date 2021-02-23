@@ -11,7 +11,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Companion_Animal">
-        <activity android:name=".ui.feed.ShowFeedActivity"></activity>
+        <activity android:name=".ui.chat.ChattingActivity"></activity>
+        <activity android:name=".ui.feed.ShowFeedActivity" />
         <activity android:name=".TestActivty" />
         <activity android:name=".ui.follow.FollowActivity" />
         <activity android:name=".ui.feed.FeedImageActivity" />

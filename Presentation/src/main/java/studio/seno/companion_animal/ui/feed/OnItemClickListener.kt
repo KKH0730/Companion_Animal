@@ -17,4 +17,5 @@ interface OnItemClickListener {
     fun onBookmarkClicked(feed : Feed, bookmark_btn : ImageButton)
     fun onDetailClicked(feed : Feed, position: Int)
     fun onImageBtnClicked(feed: Feed)
+    fun onProfileLayoutClicked(feed : Feed)
 }

@@ -17,6 +17,7 @@ import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.ActivitySearchBinding
 import studio.seno.companion_animal.module.CommonFunction
 import studio.seno.companion_animal.ui.feed.FeedDetailActivity
+import studio.seno.companion_animal.ui.feed.FeedGridFragment
 import studio.seno.companion_animal.ui.feed.FeedListViewModel
 import studio.seno.domain.LongTaskCallback
 import studio.seno.domain.Result
@@ -31,6 +32,7 @@ class SearchActivity : AppCompatActivity(), View.OnClickListener {
     private val lastSearchAdapter: LastSearchAdapter by lazy { LastSearchAdapter() }
     private val searchAdapter: SearchResultAdapter by lazy { SearchResultAdapter() }
     private var backKeyPressedTime = 0L
+    private lateinit var feedGridFragment : FeedGridFragment
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -78,16 +80,11 @@ class SearchActivity : AppCompatActivity(), View.OnClickListener {
         listViewModel.getLastSearchLiveData().observe(this, {
             lastSearchAdapter.submitList(it)
         })
-
-        feedListViewModel.getFeedListLiveData().observe(this, {
-            searchAdapter.submitList(it)
-        })
-
     }
 
     override fun onClick(v: View?) {
         if(v?.id == R.id.back_btn) {
-            if(binding.lastSearchRecyclerView.layoutManager is StaggeredGridLayoutManager){
+            if(binding.lastSearchRecyclerView.visibility == View.GONE){
                 backButtonEvent()
             }else
                 finish()
@@ -98,7 +95,7 @@ class SearchActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     override fun onBackPressed() {
-        if(binding.lastSearchRecyclerView.layoutManager is StaggeredGridLayoutManager) {
+        if(binding.lastSearchRecyclerView.visibility == View.GONE) {
                 backKeyPressedTime = System.currentTimeMillis()
                 backButtonEvent()
         } else
@@ -107,13 +104,10 @@ class SearchActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     fun backButtonEvent(){
-        binding.progressBar.visibility = View.GONE
-        binding.noResultLayout.visibility = View.GONE
         binding.searchAnnounce.text = getString(R.string.last_search)
         binding.searchBar.setText("")
-
-        binding.lastSearchRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
-        binding.lastSearchRecyclerView.adapter = lastSearchAdapter
+         supportFragmentManager.beginTransaction().detach(feedGridFragment).commit()
+         binding.lastSearchRecyclerView.visibility = View.VISIBLE
         listViewModel.requestLoadLastSearch()
     }
 
@@ -121,8 +115,6 @@ class SearchActivity : AppCompatActivity(), View.OnClickListener {
         CommonFunction.closeKeyboard(applicationContext, binding.searchBar)
         val timestamp = Timestamp(System.currentTimeMillis()).time
         val content = binding.searchBar.text.toString().trim()
-        binding.progressBar.visibility = View.VISIBLE
-        binding.noResultLayout.visibility = View.GONE
         binding.searchAnnounce.text = "\"" + content + "\"" + getString(R.string.search_result)
         feedListViewModel.clearFeedList()
 
@@ -142,24 +134,9 @@ class SearchActivity : AppCompatActivity(), View.OnClickListener {
             }
         }
 
-        //검색 결과를 표시하기 위해 adapter를 교체
-        binding.lastSearchRecyclerView.layoutManager =
-            StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL)
-        binding.lastSearchRecyclerView.adapter = searchAdapter
-        binding.lastSearchRecyclerView.scrollToPosition(0)
 
-        //검색 키워드로 검색
-        feedListViewModel.requestLoadFeedList(content, "feedList", null, binding.lastSearchRecyclerView, object : LongTaskCallback<List<Feed>>{
-            override fun onResponse(result: Result<List<Feed>>) {
-                binding.progressBar.visibility = View.GONE
-
-                if(result is Result.Success) {
-                    if(result.data == null) {
-                        binding.noResultTextView.setText("\"" + content + "\"" + getString(R.string.no_result))
-                        binding.noResultLayout.visibility = View.VISIBLE
-                    }
-                }
-            }
-        })
+        binding.lastSearchRecyclerView.visibility = View.GONE
+        feedGridFragment = FeedGridFragment.newInstance(content, "feed_search", null)
+        supportFragmentManager.beginTransaction().replace(R.id.container, feedGridFragment).commit()
     }
 }

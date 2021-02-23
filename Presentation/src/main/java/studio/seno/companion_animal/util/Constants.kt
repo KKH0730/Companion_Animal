@@ -11,6 +11,7 @@ object Constants {
     val FEED_DETAIL_REQUEST = 31
     val FEED_MODIFY_REQUEST = 32
     val FEED_DELETE_REQUEST = 33
+    val FEED_MAKE_QEQUEST = 34
     val NOTI_REQUEST = 50
     val NOTI_ID = 51
     val NOTI_CHANNEL = "52"

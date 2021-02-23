@@ -1,5 +1,6 @@
 package studio.seno.companion_animal.ui.main_ui
 
+import android.content.DialogInterface
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -23,7 +24,9 @@ import org.jetbrains.anko.support.v4.startActivity
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.FragmentTimeLineBinding
 import studio.seno.companion_animal.module.CommonFunction
+import studio.seno.companion_animal.module.ProfileModule
 import studio.seno.companion_animal.ui.MenuDialog
+import studio.seno.companion_animal.ui.feed.FeedGridFragment
 import studio.seno.companion_animal.ui.feed.FeedListViewModel
 import studio.seno.companion_animal.ui.feed.ShowFeedActivity
 import studio.seno.companion_animal.ui.follow.FollowActivity
@@ -31,6 +34,7 @@ import studio.seno.companion_animal.ui.search.OnSearchItemClickListener
 import studio.seno.companion_animal.ui.search.SearchResultAdapter
 import studio.seno.datamodule.LocalRepository
 import studio.seno.datamodule.RemoteRepository
+import studio.seno.datamodule.mapper.Mapper
 import studio.seno.domain.LongTaskCallback
 import studio.seno.domain.Result
 import studio.seno.domain.model.Feed
@@ -43,15 +47,28 @@ class TimeLineFragment : Fragment(), View.OnClickListener,
     private lateinit var binding: FragmentTimeLineBinding
     private lateinit var localRepository: LocalRepository
     private val remoteRepository: RemoteRepository = RemoteRepository.getInstance()!!
-    private val feedListViewModel: FeedListViewModel by viewModels()
     private val mainViewModel: MainViewModel by viewModels()
-    private val searchResultAdapter = SearchResultAdapter()
+    private var profileEmail : String? = null
+    private var targetNickname : String? = null
+    private var targetProfileUri : String? = null
+    private val profileModule : ProfileModule by lazy {
+        ProfileModule(profileEmail)
+    }
 
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        arguments?.let {
+            profileEmail = it.getString("profileEmail")
+        }
+    }
 
     companion object {
         @JvmStatic
-        fun newInstance() =
-            TimeLineFragment().apply { arguments = Bundle().apply {} }
+        fun newInstance(profileEmail : String?) =
+            TimeLineFragment().apply { arguments = Bundle().apply {
+                putString("profileEmail", profileEmail)
+            } }
     }
 
     override fun onCreateView(
@@ -66,73 +83,86 @@ class TimeLineFragment : Fragment(), View.OnClickListener,
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.lifecycleOwner = requireActivity()
-        binding.feedViewModel = feedListViewModel
-        binding.timelineRecyclerView.adapter = searchResultAdapter
-
         init()
         userInfoSet()
-        setFeedList()
-        feedItemEvent()
-        observe()
+
+        childFragmentManager.beginTransaction().replace(R.id.container, FeedGridFragment.newInstance(
+            null,
+            "feed_timeline",
+            profileEmail
+        )).commit()
     }
 
     fun init() {
         localRepository = LocalRepository.getInstance(requireContext())!!
 
+        if(profileEmail != FirebaseAuth.getInstance().currentUser?.email) {
+            binding.infoModifyBtn.visibility = View.GONE
+            binding.bookmarkBtn.visibility = View.GONE
+            binding.header.findViewById<ImageButton>(R.id.add).visibility = View.GONE
+            binding.followBtn.visibility = View.VISIBLE
+            binding.chattingBtn.visibility = View.VISIBLE
+            binding.followBtn.setOnClickListener(this)
+            binding.chattingBtn.setOnClickListener(this)
+        } else {
+            binding.bookmarkBtn.setOnClickListener(this)
+            binding.timelineProfileImageView.setOnClickListener(this)
+            binding.header.findViewById<LinearLayout>(R.id.menu_set).visibility = View.VISIBLE
+            binding.header.findViewById<ImageButton>(R.id.add).setOnClickListener(this)
+            binding.infoModifyBtn.setOnClickListener(this)
+        }
+
+
         binding.header.findViewById<ImageButton>(R.id.back_btn).visibility = View.GONE
         binding.header.findViewById<TextView>(R.id.title).text = getString(R.string.timeline_title)
-        binding.header.findViewById<LinearLayout>(R.id.menu_set).visibility = View.VISIBLE
         binding.header.findViewById<ImageButton>(R.id.search).visibility = View.GONE
         binding.header.findViewById<ImageButton>(R.id.refresh).visibility = View.GONE
-
-        binding.header.findViewById<ImageButton>(R.id.add).setOnClickListener(this)
-        binding.timelineProfileImageView.setOnClickListener(this)
-        binding.infoModifyBtn.setOnClickListener(this)
         binding.followerBtn.setOnClickListener(this)
         binding.followingBtn.setOnClickListener(this)
-        binding.nickNameEdit.setText(PrefereceManager.getString(requireContext(), "nickName"))
         binding.nickNameEdit.isEnabled = false
     }
 
     fun userInfoSet() {
-        localRepository.getUserInfo(lifecycleScope, object : LongTaskCallback<User> {
-            override fun onResponse(result: Result<User>) {
-                if (result is Result.Success) {
-                    binding.nickNameEdit.setText(result.data.nickname)
-                    binding.feedCount.text = String.format(getString(R.string.timeLine_menu1), result.data.feedCount)
-                    binding.followerBtn.text = String.format(getString(R.string.timeLine_menu2), result.data.follower)
-                    binding.followingBtn.text = String.format(getString(R.string.timeLine_menu3), result.data.following)
+        if(profileEmail == FirebaseAuth.getInstance().currentUser?.email.toString()) {
+            localRepository.getUserInfo(lifecycleScope, object : LongTaskCallback<User> {
+                override fun onResponse(result: Result<User>) {
+                    if (result is Result.Success) {
+                        profileModule.userInfoSet(
+                            result.data, binding.nickNameEdit, binding.feedCount,
+                            binding.followerBtn, binding.followingBtn, binding.timelineProfileImageView
+                        )
+                    } else if (result is Result.Error) {
+                        Log.e("error", "timeline userInfoSet error : ${result.exception}")
+                    } } })
+        } else {
+            mainViewModel.requestUserData(profileEmail!!, object : LongTaskCallback<User>{
+                override fun onResponse(result: Result<User>) {
+                    if (result is Result.Success) {
+                        profileModule.userInfoSet(
+                            result.data, binding.nickNameEdit, binding.feedCount,
+                            binding.followerBtn, binding.followingBtn, binding.timelineProfileImageView
+                        )
 
-                    Glide.with(requireContext())
-                        .load(Uri.parse(result.data.profileUri))
-                        .centerCrop()
-                        .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
-                        .into(binding.timelineProfileImageView)
-                } else if (result is Result.Error) {
-                    Log.e("error", "timeline userInfoSet error : ${result.exception}")
+                        targetNickname = result.data.nickname
+                        targetProfileUri = result.data.profileUri
+                    } else if (result is Result.Error) {
+                        Log.e("error", "timeline userInfoSet error : ${result.exception}")
+                    } } })
+
+            RemoteRepository.getInstance()!!.requestCheckFollow(profileEmail!!, object : LongTaskCallback<Boolean>{
+                override fun onResponse(result: Result<Boolean>) {
+                    if(result is Result.Success) {
+                        if(result.data == true) {
+                            setFollowButton(true)
+                        } else {
+                            setFollowButton(false)
+                        }
+                    } else if(result is Result.Error) {
+                        Log.e("error", "timeline fragment userInfoSet error : ${result.exception}")
+                    }
                 }
-            }
-        })
-    }
-
-    fun setFeedList() {
-        feedListViewModel.clearFeedList()
-        feedListViewModel.requestLoadFeedList(
-            null, "myFeed", FirebaseAuth.getInstance().currentUser?.email.toString(),
-            binding.timelineRecyclerView, null
-        )
-    }
-
-    fun feedItemEvent(){
-        searchResultAdapter.setOnItemClickListener(object : OnSearchItemClickListener{
-            override fun onSearchItemClicked(feed: Feed, position : Int) {
-                startActivity<ShowFeedActivity>(
-                    "sort" to "my_feed_list",
-                    "position" to position
-                )
-            }
-        })
+            })
+        }
     }
 
     override fun onClick(v: View?) {
@@ -149,6 +179,7 @@ class TimeLineFragment : Fragment(), View.OnClickListener,
             } else {
                 binding.nickNameEdit.isEnabled = true
                 binding.nickNameEdit.requestFocus()
+                binding.nickNameEdit.setSelection(binding.nickNameEdit.text.length)
                 binding.infoModifyBtn.text = getString(R.string.info_complete)
             }
 
@@ -165,6 +196,39 @@ class TimeLineFragment : Fragment(), View.OnClickListener,
             startActivity<FollowActivity>("category" to "follower")
         } else if (v?.id == R.id.following_btn) {
             startActivity<FollowActivity>("category" to "following")
+        } else if(v?.id == R.id.bookmark_btn) {
+            startActivity<ShowFeedActivity>(
+                "feedSort" to "feed_bookmark",
+                "feedPosition" to 0
+            )
+        } else if(v?.id == R.id.follow_btn) {
+            if(binding.followBtn.text == getString(R.string.follow_ing)) {
+                localRepository.getUserInfo(lifecycleScope, object : LongTaskCallback<User> {
+                    override fun onResponse(result: Result<User>) {
+                        if (result is Result.Success) {
+                            profileModule.requestUpdateFollower(profileEmail!!, targetNickname!!, targetProfileUri!!,
+                                false, result.data.nickname, result.data.profileUri)
+
+                            setFollowButton(false)
+
+                        } else if (result is Result.Error) {
+                            Log.e("error", "timeline follow_btn error : ${result.exception}")
+                        } } })
+
+
+            } else if(binding.followBtn.text == getString(R.string.follow)){
+                localRepository.getUserInfo(lifecycleScope, object : LongTaskCallback<User> {
+                    override fun onResponse(result: Result<User>) {
+                        if (result is Result.Success) {
+                            profileModule.requestUpdateFollower(profileEmail!!, targetNickname!!, targetProfileUri!!,
+                                true, result.data.nickname, result.data.profileUri)
+
+                            setFollowButton(true)
+
+                        } else if (result is Result.Error) {
+                            Log.e("error", "timeline followBtn error : ${result.exception}")
+                        } } })
+            }
         }
     }
 
@@ -205,22 +269,28 @@ class TimeLineFragment : Fragment(), View.OnClickListener,
 
                                 } else if (result is Result.Error) {
                                     Log.e(
-                                        "eror",
+                                        "error",
                                         "timeline onImagesSelected error : ${result.exception}"
                                     )
                                 }
                             }
                         })
                 } else if (result is Result.Error)
-                    Log.e("eror", "timeline onImagesSelected error : ${result.exception}")
+                    Log.e("error", "timeline onImagesSelected error : ${result.exception}")
             }
         })
     }
 
-    private fun observe() {
-        feedListViewModel.getFeedListLiveData().observe(viewLifecycleOwner, {
-            searchResultAdapter.submitList(it)
-        })
+    fun setFollowButton(flag : Boolean){
+        if(flag) {
+            binding.followBtn.setBackgroundColor(requireContext().getColor(R.color.main_color))
+            binding.followBtn.setTextColor(requireContext().getColor(R.color.white))
+            binding.followBtn.text = getString(R.string.follow_ing)
+        } else {
+            binding.followBtn.setBackgroundColor(requireContext().getColor(R.color.white))
+            binding.followBtn.setTextColor(requireContext().getColor(R.color.black))
+            binding.followBtn.text = getString(R.string.follow)
+        }
     }
 }
 
