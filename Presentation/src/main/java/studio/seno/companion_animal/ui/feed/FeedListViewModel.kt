@@ -42,7 +42,6 @@ class FeedListViewModel() : ViewModel() {
                     val list = result.data
 
                     if(list != null) {
-                        Log.d("hi","list size -> ${list.size}")
                         var tempList : MutableList<Feed>? = feedListLiveData.value?.toMutableList()
 
                         if(tempList != null)

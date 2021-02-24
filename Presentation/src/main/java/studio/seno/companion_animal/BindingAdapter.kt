@@ -6,6 +6,7 @@ import android.text.SpannableStringBuilder
 import android.util.Log
 import android.view.View
 import android.widget.*
+import androidx.core.content.ContextCompat
 import androidx.databinding.BindingAdapter
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
@@ -304,5 +305,48 @@ object BindingAdapter {
                 }
             })
     }
+
+
+    /**
+     * Chat
+     */
+
+    @BindingAdapter("getMyEmail", "getMyNickname", "getTargetNickname")
+    @JvmStatic
+    fun setChatListNickname(textView: TextView, myEmail: String?, myNickname: String?, targetNickname : String?) {
+        if(myEmail ==  CommonFunction.getInstance()!!.makeChatPath(FirebaseAuth.getInstance().currentUser?.email.toString())) {
+            textView.text = targetNickname
+        } else {
+            textView.text = myNickname
+        }
+    }
+
+    @BindingAdapter("getMyEmail", "getMyProfileUri", "getTargetProfileUri")
+    @JvmStatic
+    fun setChatListProfileUri(circleImageView: CircleImageView, myEmail: String?, myProfileUri : String?, targetProfileUri : String?) {
+        if(myEmail ==  CommonFunction.getInstance()!!.makeChatPath(FirebaseAuth.getInstance().currentUser?.email.toString())) {
+            Glide.with(circleImageView.context)
+                .load(Uri.parse(targetProfileUri))
+                .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
+                .centerCrop()
+                .into(circleImageView)
+
+            if(circleImageView.resources == null) {
+                Glide.with(circleImageView.context)
+                    .load(ContextCompat.getDrawable(circleImageView.context, R.drawable.menu_profile))
+                    .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
+                    .centerCrop()
+                    .into(circleImageView)
+            }
+        } else {
+            Glide.with(circleImageView.context)
+                .load(Uri.parse(myProfileUri))
+                .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
+                .centerCrop()
+                .into(circleImageView)
+        }
+    }
+
+
 
 }

@@ -8,6 +8,7 @@ import android.widget.EditText
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import androidx.room.Room
 import studio.seno.domain.database.AppDatabase
+import java.lang.StringBuilder
 import java.util.*
 
 object CommonFunction {
@@ -37,6 +38,16 @@ object CommonFunction {
     }
     fun unlockTouch(window : Window){
         window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+    }
+
+    fun makeChatPath(email : String) : String{
+        var sb = StringBuilder()
+
+        for(i in email.indices) {
+            if(email[i] != '.')
+                sb.append(email[i])
+        }
+        return sb.toString()
     }
 
 

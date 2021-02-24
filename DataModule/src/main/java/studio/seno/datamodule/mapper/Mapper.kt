@@ -66,4 +66,19 @@ object Mapper {
     ) : Follow {
         return Follow(email, nickname, profileUri)
     }
+
+    fun mapperToChat(
+        email : String,
+        targetEmail : String,
+        nickname : String,
+        targetNickname : String,
+        content : String,
+        profileUri : String,
+        targetProfileUri : String,
+        timestamp : Long,
+        isExit : Boolean
+    ) : Chat {
+        return Chat(email, targetEmail, nickname, targetNickname, content, profileUri, targetProfileUri, timestamp, isExit)
+    }
+
 }

@@ -5,6 +5,7 @@ import android.net.Uri
 import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
@@ -17,6 +18,7 @@ class RemoteRepository() {
     private val mDB = FirebaseFirestore.getInstance()
     private val mStorageRef: StorageReference = FirebaseStorage.getInstance()
         .getReferenceFromUrl("gs://companion-animal-f0bfa.appspot.com/")
+    private val mRTDB = FirebaseDatabase.getInstance()
     private val feedUseCase = FeedUseCase()
     private val uploadUseCase = UploadUseCase()
     private val userManagerUseCase = RemoteUserUseCase()
@@ -24,6 +26,7 @@ class RemoteRepository() {
     private val followUseCase = FollowUseCase()
     private val notificationUseCase = NotificationUseCase()
     private val searchUseCase = SearchUseCase()
+    private val chatUseCase = ChatUseCase()
 
     companion object{
         private var remoteRepository : RemoteRepository? = null
@@ -235,6 +238,24 @@ class RemoteRepository() {
         searchUseCase.searchFeed(keyword, sort, myEmail, recyclerView, mDB, callback)
     }
 
+    /**
+     * Chat
+     */
 
+    fun requestLoadChatLog(myEmail: String, targetEmail: String, callback: LongTaskCallback<List<Chat>>){
+        chatUseCase.loadChatLog(myEmail, targetEmail, mRTDB, callback)
+    }
+
+    fun requestAddChat(myEmail : String, targetEmail : String, chat : Chat){
+        chatUseCase.addChat(myEmail, targetEmail, chat, mRTDB)
+    }
+
+    fun requestLoadChatList(myEmail : String, callback : LongTaskCallback<List<Chat>>){
+        chatUseCase.loadChatList(myEmail, mRTDB, callback)
+    }
+
+    fun requestRemoveChatList(targetEmail : String, myEmail : String, chat : Chat){
+        chatUseCase.removeChatList(targetEmail, myEmail, chat, mRTDB)
+    }
 
 }

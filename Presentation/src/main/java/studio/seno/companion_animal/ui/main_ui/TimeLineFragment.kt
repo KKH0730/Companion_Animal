@@ -1,6 +1,5 @@
 package studio.seno.companion_animal.ui.main_ui
 
-import android.content.DialogInterface
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -14,7 +13,6 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.observe
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.google.firebase.auth.FirebaseAuth
@@ -26,20 +24,15 @@ import studio.seno.companion_animal.databinding.FragmentTimeLineBinding
 import studio.seno.companion_animal.module.CommonFunction
 import studio.seno.companion_animal.module.ProfileModule
 import studio.seno.companion_animal.ui.MenuDialog
+import studio.seno.companion_animal.ui.chat.ChatActivity
 import studio.seno.companion_animal.ui.feed.FeedGridFragment
-import studio.seno.companion_animal.ui.feed.FeedListViewModel
 import studio.seno.companion_animal.ui.feed.ShowFeedActivity
 import studio.seno.companion_animal.ui.follow.FollowActivity
-import studio.seno.companion_animal.ui.search.OnSearchItemClickListener
-import studio.seno.companion_animal.ui.search.SearchResultAdapter
 import studio.seno.datamodule.LocalRepository
 import studio.seno.datamodule.RemoteRepository
-import studio.seno.datamodule.mapper.Mapper
 import studio.seno.domain.LongTaskCallback
 import studio.seno.domain.Result
-import studio.seno.domain.model.Feed
 import studio.seno.domain.model.User
-import studio.seno.domain.util.PrefereceManager
 
 
 class TimeLineFragment : Fragment(), View.OnClickListener,
@@ -101,9 +94,10 @@ class TimeLineFragment : Fragment(), View.OnClickListener,
             binding.bookmarkBtn.visibility = View.GONE
             binding.header.findViewById<ImageButton>(R.id.add).visibility = View.GONE
             binding.followBtn.visibility = View.VISIBLE
-            binding.chattingBtn.visibility = View.VISIBLE
+            binding.messageBtn.visibility = View.VISIBLE
             binding.followBtn.setOnClickListener(this)
-            binding.chattingBtn.setOnClickListener(this)
+            binding.messageBtn.setOnClickListener(this)
+
         } else {
             binding.bookmarkBtn.setOnClickListener(this)
             binding.timelineProfileImageView.setOnClickListener(this)
@@ -229,6 +223,12 @@ class TimeLineFragment : Fragment(), View.OnClickListener,
                             Log.e("error", "timeline followBtn error : ${result.exception}")
                         } } })
             }
+        } else if(v?.id == R.id.message_btn) {
+            startActivity<ChatActivity>(
+                "targetEmail" to profileEmail,
+                "targetProfileUri" to targetProfileUri,
+                "targetNickname" to targetNickname
+            )
         }
     }
 
@@ -283,13 +283,13 @@ class TimeLineFragment : Fragment(), View.OnClickListener,
 
     fun setFollowButton(flag : Boolean){
         if(flag) {
-            binding.followBtn.setBackgroundColor(requireContext().getColor(R.color.main_color))
-            binding.followBtn.setTextColor(requireContext().getColor(R.color.white))
-            binding.followBtn.text = getString(R.string.follow_ing)
+            context?.getColor(R.color.main_color)?.let { binding.followBtn.setBackgroundColor(it) }
+            context?.getColor(R.color.white)?.let { binding.followBtn.setTextColor(it) }
+            binding.followBtn.text = context?.getString(R.string.follow_ing)
         } else {
-            binding.followBtn.setBackgroundColor(requireContext().getColor(R.color.white))
-            binding.followBtn.setTextColor(requireContext().getColor(R.color.black))
-            binding.followBtn.text = getString(R.string.follow)
+            context?.getColor(R.color.white)?.let { binding.followBtn.setBackgroundColor(it) }
+            context?.getColor(R.color.black)?.let { binding.followBtn.setTextColor(it) }
+            binding.followBtn.text = context?.getString(R.string.follow)
         }
     }
 }
