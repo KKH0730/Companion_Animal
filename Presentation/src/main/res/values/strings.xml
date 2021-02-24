@@ -133,6 +133,9 @@
 
     <!-- noticiation module -->
     <string name="noti_title">님이 댓글을 남기셨습니다.</string>
+    <string name="chat_title">님으로부터 메세지가 도착했습니다.</string>
+    <string name="noti_name1">댓글알림</string>
+    <string name="noti_name2">채팅알림</string>
 
     <!--Binding Adapter-->
     <string name="binding_heart">좋아요</string>

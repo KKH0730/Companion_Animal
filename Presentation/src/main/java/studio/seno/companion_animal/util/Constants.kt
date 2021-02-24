@@ -15,7 +15,10 @@ object Constants {
     val FEED_MAKE_QEQUEST = 34
     val NOTI_REQUEST = 50
     val NOTI_ID = 51
-    val NOTI_CHANNEL = "52"
+
 
     val CHAT_ROOT = "chat"
+
+    val NOTI_CHANNEL1 = "101"
+    val NOTI_CHANNEL2 = "102"
 }

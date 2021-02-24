@@ -26,19 +26,21 @@ class ChatListVIewModel : ViewModel() {
     }
 
     fun requestAddChat(
-        myEmail: String, targetEmail: String, myNickname: String, targetNickname: String,
-        content: String, profileUri: String, targetProfileUri: String, timestamp: Long, isExit : Boolean
-    ) {
+        myEmail: String, realMyEmail :String, targetEmail: String, targetRealEmail : String, myNickname: String, targetNickname: String,
+        content: String, profileUri: String, targetProfileUri: String, timestamp: Long) {
         val chat = Mapper.getInstance()!!.mapperToChat(
             myEmail,
+            realMyEmail,
             targetEmail,
+            targetRealEmail,
             myNickname,
             targetNickname,
             content,
             profileUri,
             targetProfileUri,
             timestamp,
-            isExit
+            isExit = false,
+            isRead = false
         )
         remoteRepository.requestAddChat(myEmail, targetEmail, chat)
     }
@@ -53,7 +55,7 @@ class ChatListVIewModel : ViewModel() {
         chatListLiveData.value = tempList
     }
 
-    fun requestLoadChatLog(myEmail: String, targetEmail: String, recyclerView: RecyclerView) {
+    fun requestLoadChatLog(myEmail: String, targetEmail: String, recyclerView: RecyclerView, callback: LongTaskCallback<Boolean>) {
         remoteRepository.requestLoadChatLog(
             myEmail,
             targetEmail,
@@ -61,6 +63,7 @@ class ChatListVIewModel : ViewModel() {
                 override fun onResponse(result: Result<List<Chat>>) {
                     if (result is Result.Success) {
                         chatListLiveData.value = result.data
+                        callback.onResponse(Result.Success(true))
                         recyclerView.scrollToPosition(result.data.size - 1)
                     } else if (result is Result.Error) {
                         Log.e(
@@ -73,7 +76,7 @@ class ChatListVIewModel : ViewModel() {
     }
 
 
-    fun requestLoadChatList(myEmail: String) {
+    fun requestLoadChatList(myEmail: String, callback: LongTaskCallback<Boolean>) {
         remoteRepository.requestLoadChatList(myEmail, object : LongTaskCallback<List<Chat>> {
             override fun onResponse(result: Result<List<Chat>>) {
                 if (result is Result.Success) {
@@ -87,8 +90,8 @@ class ChatListVIewModel : ViewModel() {
                                 return 1
                         }
                     })
-
                     chatListLiveData.value = tempList
+                    callback.onResponse(Result.Success(true))
                 } else if (result is Result.Error) {
                     Log.e(
                         "error",
@@ -109,5 +112,9 @@ class ChatListVIewModel : ViewModel() {
         deleteChat.content = String.format(context.getString(R.string.chat_remove_content), myNickname)
         deleteChat.isExit = true
         remoteRepository.requestRemoveChatList(targetEmail, myEmail, deleteChat)
+    }
+
+    fun requestUpdateCheckDot(myEmail : String, targetEmail : String){
+        remoteRepository.requestUpdateCheckDot(myEmail, targetEmail)
     }
 }

@@ -14,7 +14,7 @@ import org.jetbrains.anko.support.v4.startActivity
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.FragmentMenuDialogBinding
 import studio.seno.companion_animal.ui.feed.MakeFeedActivity
-import studio.seno.domain.util.PrefereceManager
+import studio.seno.domain.util.PreferenceManager
 
 
 class MenuDialog : BottomSheetDialogFragment(), View.OnClickListener {
@@ -42,7 +42,7 @@ class MenuDialog : BottomSheetDialogFragment(), View.OnClickListener {
         }
         setStyle(STYLE_NORMAL, R.style.CustomBottomSheetStyle)
         isCancelable = true
-        PrefereceManager.setString(requireContext(), "mode", "initial_mode")
+        PreferenceManager.setString(requireContext(), "mode", "initial_mode")
     }
 
     override fun onCreateView(
@@ -102,22 +102,22 @@ class MenuDialog : BottomSheetDialogFragment(), View.OnClickListener {
 
         } else if(v?.id == R.id.modify_btn) {
             if(tag == "comment")
-                PrefereceManager.setString(requireContext(), "mode", "comment_modify")
+                PreferenceManager.setString(requireContext(), "mode", "comment_modify")
             else if(tag == "comment_answer")
-                PrefereceManager.setString(requireContext(), "mode", "comment_answer_modify")
+                PreferenceManager.setString(requireContext(), "mode", "comment_answer_modify")
             else if(tag == "feed")
-                PrefereceManager.setString(requireContext(), "mode", "feed_modify")
+                PreferenceManager.setString(requireContext(), "mode", "feed_modify")
 
         } else if(v?.id == R.id.delete_btn) {
             if(tag == "comment" || tag == "comment_answer")
-                PrefereceManager.setString(requireContext(), "mode", "comment_delete")
+                PreferenceManager.setString(requireContext(), "mode", "comment_delete")
           else if(tag == "feed")
-                PrefereceManager.setString(requireContext(), "mode", "feed_delete")
+                PreferenceManager.setString(requireContext(), "mode", "feed_delete")
 
         } else if(v?.id == R.id.follow_btn){
-            PrefereceManager.setString(requireContext(), "mode", "follow")
+            PreferenceManager.setString(requireContext(), "mode", "follow")
         } else if(v?.id == R.id.unfollow_btn) {
-            PrefereceManager.setString(requireContext(), "mode", "unfollow")
+            PreferenceManager.setString(requireContext(), "mode", "unfollow")
         } else {
 
         }

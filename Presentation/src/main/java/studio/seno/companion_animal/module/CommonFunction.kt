@@ -51,6 +51,7 @@ object CommonFunction {
     }
 
 
+
     fun calTime(millisecond: Long): String? {
         val result = System.currentTimeMillis() - millisecond
         val currentCalendar = Calendar.getInstance()

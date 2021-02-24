@@ -25,7 +25,6 @@ import studio.seno.companion_animal.module.CommonFunction
 import studio.seno.companion_animal.module.TextModule
 import studio.seno.domain.LongTaskCallback
 import studio.seno.domain.Result
-import studio.seno.domain.util.PrefereceManager
 
 
 class RegisterFragment : Fragment(), View.OnClickListener {
@@ -97,7 +96,7 @@ class RegisterFragment : Fragment(), View.OnClickListener {
                                         + '/' + resources.getResourceTypeName(R.drawable.menu_profile)
                                         + '/' + resources.getResourceEntryName(R.drawable.menu_profile))
 
-                                viewModel.requestUpload(imageUri, object : LongTaskCallback<Boolean> {
+                                viewModel.requestUploadInItProfileImage(imageUri, object : LongTaskCallback<Boolean> {
                                     override fun onResponse(result: Result<Boolean>) {
                                         if(result is Result.Success) {
 

@@ -100,7 +100,7 @@ class FeedListAdapter(
 
             binding.comment.addTextChangedListener(textWatcher)
 
-            binding.commentShow.setOnClickListener { mListener.onCommentShowClicked(binding.commentCount, feed) }
+            binding.commentShow.setOnClickListener { mListener.onCommentShowClicked(binding.commentCount, feed, bindingAdapterPosition) }
             binding.feedMenu.setOnClickListener { mListener.onMenuClicked(feed, adapterPosition) }
             binding.heartBtn.setOnClickListener { mListener.onHeartClicked(feed, binding.heartCount, binding.heartBtn) }
             binding.bookmarkBtn.setOnClickListener { mListener.onBookmarkClicked(feed, binding.bookmarkBtn) }

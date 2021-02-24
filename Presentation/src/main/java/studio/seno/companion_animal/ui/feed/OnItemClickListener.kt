@@ -11,7 +11,7 @@ import studio.seno.domain.model.Feed
 
 interface OnItemClickListener {
     fun onCommentBtnClicked(feed : Feed, commentEdit: EditText, commentCount: TextView, container : LinearLayout)
-    fun onCommentShowClicked(commentCount : TextView, feed : Feed)
+    fun onCommentShowClicked(commentCount : TextView, feed : Feed, position: Int)
     fun onMenuClicked(feed : Feed, position : Int)
     fun onHeartClicked(feed : Feed, heartCount : TextView, heart_btn : ImageButton)
     fun onBookmarkClicked(feed : Feed, bookmark_btn : ImageButton)

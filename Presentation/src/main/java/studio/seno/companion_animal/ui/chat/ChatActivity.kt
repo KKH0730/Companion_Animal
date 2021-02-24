@@ -16,6 +16,7 @@ import com.google.firebase.database.*
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.ActivityChattingBinding
 import studio.seno.companion_animal.module.CommonFunction
+import studio.seno.companion_animal.module.NotificationModule
 import studio.seno.companion_animal.util.Constants
 import studio.seno.datamodule.LocalRepository
 import studio.seno.domain.LongTaskCallback
@@ -27,8 +28,12 @@ import java.sql.Timestamp
 class ChatActivity : AppCompatActivity(), View.OnClickListener {
     private lateinit var binding : ActivityChattingBinding
     private lateinit var targetEmail : String
+    private lateinit var targetRealEmail : String
     private lateinit var targetProfileUri : String
     private lateinit var targetNickname : String
+    private val notificationModule : NotificationModule by lazy {
+        NotificationModule(this)
+    }
     private val chatListViewModel : ChatListVIewModel by viewModels()
     private val chatAdapter = ChatAdapter("chat")
     private val commonFunction = CommonFunction.getInstance()!!
@@ -43,6 +48,7 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener {
         binding.lifecycleOwner = this
         binding.chatRecyclerview.adapter = chatAdapter
 
+
         init()
         setUserInfo()
         setRecyclerPositionListener()
@@ -50,6 +56,7 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener {
 
     fun init(){
         targetEmail = intent.getStringExtra("targetEmail")
+        targetRealEmail = intent.getStringExtra("targetRealEmail")
         targetProfileUri = intent.getStringExtra("targetProfileUri")
         targetNickname = intent.getStringExtra("targetNickname")
         binding.sendBtn.setOnClickListener(this)
@@ -83,7 +90,14 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener {
         chatListViewModel.requestLoadChatLog(
             commonFunction.makeChatPath(user!!.email),
             commonFunction.makeChatPath(targetEmail),
-            binding.chatRecyclerview
+            binding.chatRecyclerview,
+            object : LongTaskCallback<Boolean> {
+                override fun onResponse(result: Result<Boolean>) {
+                    if(result is Result.Success){
+                        binding.progressBar.visibility = View.GONE
+                    }
+                }
+            }
         )
     }
 
@@ -96,7 +110,6 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener {
                 override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
                     val chat = snapshot.getValue(Chat::class.java)
                     if (chat != null) {
-                        Log.d("hi","onChildAdded chat isExit : ${chat.isExit}")
                         chatListViewModel.updateChatLog(chat)
                     }
                 }
@@ -139,12 +152,13 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener {
             finish()
         }else if(v?.id == R.id.send_btn) {
             chatListViewModel.requestAddChat(
-                commonFunction.makeChatPath(user!!.email),
-                commonFunction.makeChatPath(targetEmail),
+                commonFunction.makeChatPath(user!!.email), user!!.email,
+                commonFunction.makeChatPath(targetEmail), targetRealEmail,
                 user!!.nickname, targetNickname, binding.content.text.toString(),
-                user!!.profileUri, targetProfileUri, Timestamp(System.currentTimeMillis()).time, false
+                user!!.profileUri, targetProfileUri, Timestamp(System.currentTimeMillis()).time
             )
 
+            notificationModule.sendNotification(targetRealEmail, binding.content.text.toString(), Timestamp(System.currentTimeMillis()).time, null)
             commonFunction.closeKeyboard(this, binding.content)
             binding.content.setText("")
         }

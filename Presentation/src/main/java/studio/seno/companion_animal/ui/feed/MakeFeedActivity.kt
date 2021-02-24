@@ -3,7 +3,6 @@ package studio.seno.companion_animal.ui.feed
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.ImageButton
 import android.widget.RadioGroup
@@ -17,13 +16,12 @@ import com.google.firebase.auth.FirebaseAuth
 import com.kroegerama.imgpicker.BottomSheetImagePicker
 import com.pchmn.materialchips.ChipView
 import studio.seno.commonmodule.CustomToast
-import studio.seno.companion_animal.MainActivity
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.ActivityMakeFeedBinding
 import studio.seno.companion_animal.module.CommonFunction
 import studio.seno.companion_animal.util.Constants
 import studio.seno.datamodule.LocalRepository
-import studio.seno.domain.util.PrefereceManager
+import studio.seno.domain.util.PreferenceManager
 import studio.seno.domain.model.Feed
 import java.sql.Timestamp
 
@@ -202,11 +200,11 @@ class MakeFeedActivity : AppCompatActivity(), View.OnClickListener,
                         feed!!.hashTags = hashTags
                         feed!!.content = binding.content.text.toString()
                         feed!!.localUri = selectedImageAdapter.getItems()
-
-                        var intent = Intent()
-                        intent.putExtra("feed", feed)
-                        setResult(Constants.RESULT_OK, intent)
                     }
+
+                    var intent = Intent()
+                    intent.putExtra("feed", feed)
+                    setResult(Constants.RESULT_OK, intent)
 
                     finish()
                 }
@@ -216,7 +214,7 @@ class MakeFeedActivity : AppCompatActivity(), View.OnClickListener,
     }
 
     fun submitResult(timestamp: Long){
-        PrefereceManager.getString(this, "nickName")?.let {
+        PreferenceManager.getString(this, "nickName")?.let {
             feedListViewModel.requestUploadFeed(
                 this,
                 0,

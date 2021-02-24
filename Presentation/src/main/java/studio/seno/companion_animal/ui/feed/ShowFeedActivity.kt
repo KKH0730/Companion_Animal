@@ -3,22 +3,15 @@ package studio.seno.companion_animal.ui.feed
 import android.content.DialogInterface
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.ImageButton
 import android.widget.TextView
-import androidx.activity.viewModels
 import androidx.databinding.DataBindingUtil
-import androidx.fragment.app.viewModels
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.ActivityShowFeedBinding
-import studio.seno.companion_animal.module.FeedModule
-import studio.seno.companion_animal.ui.comment.CommentListViewModel
 import studio.seno.companion_animal.ui.main_ui.HomeFragment
-import studio.seno.companion_animal.ui.main_ui.MainViewModel
 import studio.seno.companion_animal.ui.main_ui.TimeLineFragment
-import studio.seno.domain.model.Feed
-import studio.seno.domain.util.PrefereceManager
+import studio.seno.domain.util.PreferenceManager
 
 class ShowFeedActivity : AppCompatActivity(), View.OnClickListener, DialogInterface.OnDismissListener {
     private lateinit var binding : ActivityShowFeedBinding
@@ -77,13 +70,13 @@ class ShowFeedActivity : AppCompatActivity(), View.OnClickListener, DialogInterf
     }
 
     override fun onDismiss(dialog: DialogInterface?) {
-        if (PrefereceManager.getString(applicationContext, "mode") == "feed_modify") {
+        if (PreferenceManager.getString(applicationContext, "mode") == "feed_modify") {
             homeFragment?.onDismissed("feed_modify")
-        } else if (PrefereceManager.getString(applicationContext, "mode") == "feed_delete") {
+        } else if (PreferenceManager.getString(applicationContext, "mode") == "feed_delete") {
             homeFragment?.onDismissed("feed_delete")
-        } else if(PrefereceManager.getString(applicationContext, "mode") == "follow") {
+        } else if(PreferenceManager.getString(applicationContext, "mode") == "follow") {
             homeFragment?.onDismissed("follow")
-        } else if(PrefereceManager.getString(applicationContext, "mode") == "unfollow") {
+        } else if(PreferenceManager.getString(applicationContext, "mode") == "unfollow") {
             homeFragment?.onDismissed("unfollow")
         }
     }

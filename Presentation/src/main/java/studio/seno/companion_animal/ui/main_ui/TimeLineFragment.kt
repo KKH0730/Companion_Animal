@@ -227,7 +227,8 @@ class TimeLineFragment : Fragment(), View.OnClickListener,
             startActivity<ChatActivity>(
                 "targetEmail" to profileEmail,
                 "targetProfileUri" to targetProfileUri,
-                "targetNickname" to targetNickname
+                "targetNickname" to targetNickname,
+                "targetRealEmail" to profileEmail
             )
         }
     }
@@ -276,7 +277,7 @@ class TimeLineFragment : Fragment(), View.OnClickListener,
                             }
                         })
                 } else if (result is Result.Error)
-                    Log.e("error", "timeline onImagesSelected error : ${result.exception}")
+                    Log.e("error", "timeline on ImagesSelected error : ${result.exception}")
             }
         })
     }

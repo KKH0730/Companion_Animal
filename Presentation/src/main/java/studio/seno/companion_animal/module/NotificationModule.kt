@@ -11,13 +11,11 @@ import android.graphics.BitmapFactory
 import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Build
-import android.util.Log
-import androidx.core.app.NotificationCompat.PRIORITY_DEFAULT
 import com.google.firebase.auth.FirebaseAuth
 import okhttp3.ResponseBody
 import studio.seno.companion_animal.R
-import studio.seno.companion_animal.ui.main_ui.MainViewModel
 import studio.seno.companion_animal.util.Constants
+import studio.seno.datamodule.RemoteRepository
 import studio.seno.datamodule.api.ApiClient
 import studio.seno.datamodule.api.ApiInterface
 import studio.seno.datamodule.model.NotificationModel
@@ -26,15 +24,14 @@ import studio.seno.domain.Result
 import studio.seno.domain.model.Feed
 import studio.seno.domain.model.NotificationData
 import studio.seno.domain.model.User
-import studio.seno.domain.util.PrefereceManager
+import studio.seno.domain.util.PreferenceManager
 
 
-class NotificationModule(context: Context, mainViewModel: MainViewModel?) {
+class NotificationModule(context: Context) {
     private var notificationManager: NotificationManager? = null
-    private val myEmail  = FirebaseAuth.getInstance().currentUser?.email.toString()
-    private val myNickname =  PrefereceManager.getString(context, "nickName")!!
+    private val myEmail = FirebaseAuth.getInstance().currentUser?.email.toString()
+    private val myNickname = PreferenceManager.getString(context, "nickName")!!
     private var mContext = context
-    private val mMainViewModel = mainViewModel
 
     fun getNotificationManager(): NotificationManager {
         if (notificationManager == null) {
@@ -44,16 +41,29 @@ class NotificationModule(context: Context, mainViewModel: MainViewModel?) {
         return notificationManager!!
     }
 
-    fun makeNotificationChannel() {
-        var channel = NotificationChannel(
-            Constants.NOTI_CHANNEL,
-            "Channel human readable title",
-            NotificationManager.IMPORTANCE_HIGH
-        )
-        getNotificationManager().createNotificationChannel(channel)
+    fun makeNotificationChannel(sort : String) {
+        var channel : NotificationChannel? = null
+
+        if(sort == "noti") {
+            channel = NotificationChannel(
+                Constants.NOTI_CHANNEL1,
+                mContext.getString(R.string.noti_name1),
+                NotificationManager.IMPORTANCE_HIGH
+            )
+        } else if(sort == "chat") {
+            channel = NotificationChannel(
+                Constants.NOTI_CHANNEL2,
+                mContext.getString(R.string.noti_name2),
+                NotificationManager.IMPORTANCE_HIGH
+            )
+        }
+
+        if (channel != null) {
+            getNotificationManager().createNotificationChannel(channel)
+        }
     }
 
-    fun makeNotification(title: String, content: String, intent: Intent) {
+    fun makeNotification(title: String, content: String, intent: Intent, sort : String) {
         var pendingIntent = PendingIntent.getActivity(
             mContext,
             Constants.NOTI_REQUEST,
@@ -61,61 +71,98 @@ class NotificationModule(context: Context, mainViewModel: MainViewModel?) {
             PendingIntent.FLAG_ONE_SHOT
         )
 
+
         val defaultSoundUri: Uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+        var notificationBuilder : Notification.Builder? = null
 
-        var notificationBuilder = Notification.Builder(mContext, Constants.NOTI_CHANNEL)
-            .setLargeIcon(BitmapFactory.decodeResource(mContext.resources, R.drawable.logo))
-            .setSmallIcon(R.mipmap.ic_launcher)
-            .setContentTitle(title + mContext.getString(R.string.noti_title))
-            .setContentText(content)
-            .setAutoCancel(true)
-            .setSound(defaultSoundUri)
-            .setPriority(PRIORITY_MAX)
-            .setDefaults(Notification.DEFAULT_VIBRATE)
-            .setContentIntent(pendingIntent)
+        if(sort == "noti")
+            notificationBuilder = Notification.Builder(mContext, Constants.NOTI_CHANNEL1)
+        else if(sort == "chat")
+            notificationBuilder = Notification.Builder(mContext, Constants.NOTI_CHANNEL2)
 
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            makeNotificationChannel()
+        if (notificationBuilder != null) {
+            notificationBuilder
+                .setLargeIcon(BitmapFactory.decodeResource(mContext.resources, R.drawable.logo))
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setContentTitle(title)
+                .setContentText(content)
+                .setAutoCancel(true)
+                .setSound(defaultSoundUri)
+                .setPriority(PRIORITY_MAX)
+                .setDefaults(Notification.DEFAULT_VIBRATE)
+                .setContentIntent(pendingIntent)
         }
 
-        getNotificationManager().notify(Constants.NOTI_ID, notificationBuilder.build())
+
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            makeNotificationChannel(sort)
+        }
+
+        getNotificationManager().notify(Constants.NOTI_ID, notificationBuilder?.build())
     }
 
 
-    fun sendNotification(targetEmail: String, content: String, currentTimestamp: Long, feed : Feed) {
+    fun sendNotification(
+        targetEmail: String,
+        content: String,
+        currentTimestamp: Long,
+        feed: Feed?
+    ) {
         //댓글을 작성하면 notification 알림이 전송
-        if(targetEmail == myEmail)
+        if (targetEmail == myEmail) {
             return
+        }
 
-        Log.d("hi", "send")
-
-        mMainViewModel?.requestUserData(targetEmail, object : LongTaskCallback<User> {
+        RemoteRepository.getInstance()!!.loadUserInfo(targetEmail, object : LongTaskCallback<User> {
             override fun onResponse(result: Result<User>) {
                 if (result is Result.Success) {
+                    var notificationModel: NotificationModel? = null
 
-                    val notificationModel = NotificationModel(
-                        result.data.token,
-                        NotificationData(
-                            myNickname,
-                            content,
-                            currentTimestamp,
-                            feed.email + currentTimestamp,
-                            feed.email + feed.timestamp,
-                            true
+                    if (feed != null) {
+                        notificationModel = NotificationModel(
+                            result.data.token,
+                            NotificationData(
+                                myNickname,
+                                content,
+                                currentTimestamp,
+                                feed.email + currentTimestamp,
+                                feed.email + feed.timestamp,
+                                true
+                            )
                         )
-                    )
+                    } else {
+                        notificationModel = NotificationModel(
+                            result.data.token,
+                            NotificationData(
+                                myNickname,
+                                content,
+                                currentTimestamp,
+                                "chat",
+                                "chat",
+                                true
+                            )
+                        )
+                    }
+
 
                     var apiService = ApiClient.getClient().create(ApiInterface::class.java)
                     var responseBodyCall: retrofit2.Call<ResponseBody> =
                         apiService.sendNotification(notificationModel)
                     responseBodyCall.enqueue(object : retrofit2.Callback<ResponseBody> {
-                        override fun onResponse(call: retrofit2.Call<ResponseBody>, response: retrofit2.Response<ResponseBody>) {}
+                        override fun onResponse(
+                            call: retrofit2.Call<ResponseBody>,
+                            response: retrofit2.Response<ResponseBody>
+                        ) {
+                        }
 
-                        override fun onFailure(call: retrofit2.Call<ResponseBody>, t: Throwable) {}
+                        override fun onFailure(call: retrofit2.Call<ResponseBody>, t: Throwable) {
+                        }
 
                     })
                 }
             }
         })
+
     }
 }

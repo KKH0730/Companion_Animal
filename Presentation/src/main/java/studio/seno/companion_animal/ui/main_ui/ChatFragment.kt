@@ -9,11 +9,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.FirebaseDatabase
 import org.jetbrains.anko.support.v4.startActivity
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.FragmentChatBinding
@@ -27,6 +29,7 @@ import studio.seno.domain.LongTaskCallback
 import studio.seno.domain.Result
 import studio.seno.domain.model.Chat
 import studio.seno.domain.model.User
+import studio.seno.domain.usecase.remote.ChatUseCase
 
 
 class ChatFragment : Fragment() {
@@ -88,42 +91,53 @@ class ChatFragment : Fragment() {
     }
 
     fun loadChatLog(){
-        chatListViewModel.requestLoadChatList(CommonFunction.makeChatPath(user!!.email))
+        chatListViewModel.requestLoadChatList(CommonFunction.makeChatPath(user!!.email), object : LongTaskCallback<Boolean>{
+            override fun onResponse(result: Result<Boolean>) {
+                if(result is Result.Success) {
+                    binding.progressBar.visibility = View.GONE
+                }
+            }
+        })
     }
 
     fun setChatItemEvent(){
         chatAdapter.setOnChatItemClickListener(object : OnChatItemClickListener{
-            override fun onChatItemClicked(chat: Chat) {
+            override fun onChatItemClicked(chat: Chat, checkDotImage : ImageView) {
+                checkDotImage.visibility = View.GONE
 
                 if(chat.email == CommonFunction.getInstance()!!.makeChatPath(FirebaseAuth.getInstance().currentUser?.email.toString())) {
                     startActivity<ChatActivity>(
                         "targetEmail" to chat.targetEmail,
                         "targetProfileUri" to chat.targetProfileUri,
-                        "targetNickname" to chat.targetNickname
+                        "targetNickname" to chat.targetNickname,
+                        "targetRealEmail" to chat.targetRealEmail
                     )
+                    Log.d("hi", "1 chat.targetRealEmail : ${chat.targetRealEmail}")
+                    chatListViewModel.requestUpdateCheckDot(chat.email!!, chat.targetEmail!!)
                 } else {
                     startActivity<ChatActivity>(
                         "targetEmail" to chat.email,
                         "targetProfileUri" to chat.profileUri,
-                        "targetNickname" to chat.nickname
+                        "targetNickname" to chat.nickname,
+                        "targetRealEmail" to chat.realEmail
                     )
+                    Log.d("hi", "2 chat.targetRealEmail : ${chat.targetRealEmail}")
+                   chatListViewModel.requestUpdateCheckDot(chat.targetEmail!!, chat.email!!)
                 }
             }
 
             override fun onExitButtonClicked(chat: Chat) {
                 val dialog = AlertDialog.Builder(requireContext(), android.R.style.Theme_DeviceDefault_Light_Dialog)
                 dialog.setMessage(getString(R.string.chatDialog_message))
-                    .setPositiveButton(getString(R.string.chat_no)) { dialog, which ->
+                    .setPositiveButton(getString(R.string.chat_no)) { dialog, _ ->
                         dialog.dismiss()
-                    }.setNegativeButton(getString(R.string.chat_yes)) { dialog, which ->
+                    }.setNegativeButton(getString(R.string.chat_yes)) { _, _ ->
                         if(chat.email == CommonFunction.getInstance()!!.makeChatPath(FirebaseAuth.getInstance().currentUser?.email.toString())) {
                             chatListViewModel.requestRemoveChatList(requireContext(), chat.targetEmail!!, chat.email!!, chat.nickname!!, chat)
                         } else {
                             chatListViewModel.requestRemoveChatList(requireContext(), chat.email!!, chat.targetEmail!!, chat.targetNickname!!, chat)
                         }
-                    }
-                    .show()
-
+                    }.show()
             }
         })
     }

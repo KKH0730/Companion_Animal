@@ -67,6 +67,7 @@ class ChatAdapter(type: String) : ListAdapter<Chat, RecyclerView.ViewHolder>(
             model.setChatLiveData(chat)
             holder.setModel(model)
             holder.setItemEvent(chat)
+            holder.setVisibility(chat)
         }
     }
 
@@ -90,7 +91,7 @@ class ChatAdapter(type: String) : ListAdapter<Chat, RecyclerView.ViewHolder>(
                     mBinding.chatMe.visibility = View.GONE
                 }
             } else {
-                Log.d("hi", "content : ${chat.content}")
+
                  mBinding.exitTextView.visibility = View.VISIBLE
                  mBinding.chatObject.visibility = View.GONE
                  mBinding.chatMe.visibility = View.GONE
@@ -115,8 +116,19 @@ class ChatAdapter(type: String) : ListAdapter<Chat, RecyclerView.ViewHolder>(
             mBinding.executePendingBindings()
         }
 
+        fun setVisibility(chat: Chat) {
+            if(chat.isRead == true)
+                mBinding.checkDot.visibility = View.GONE
+            else {
+                if(chat.realEmail == FirebaseAuth.getInstance().currentUser?.email.toString())
+                    mBinding.checkDot.visibility = View.GONE
+                else
+                    mBinding.checkDot.visibility = View.VISIBLE
+            }
+        }
+
         fun setItemEvent(chat: Chat) {
-            mBinding.chatLayout.setOnClickListener { mChatItemListener.onChatItemClicked(chat) }
+            mBinding.chatLayout.setOnClickListener { mChatItemListener.onChatItemClicked(chat, mBinding.checkDot) }
             mBinding.exitBtn.setOnClickListener { mChatItemListener.onExitButtonClicked(chat) }
         }
     }

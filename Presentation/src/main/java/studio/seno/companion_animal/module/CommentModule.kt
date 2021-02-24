@@ -16,10 +16,9 @@ import studio.seno.domain.model.Comment
 import studio.seno.domain.model.Feed
 
 class CommentModule(
-    mainViewModel: MainViewModel, commentListViewModel: CommentListViewModel,
-    feed : Feed, email : String, nickname : String, context: Context, commentAdapter : CommentAdapter
+    commentListViewModel: CommentListViewModel, feed : Feed, email : String,
+    nickname : String, context: Context, commentAdapter : CommentAdapter
 ) {
-    private val mMainViewModel = mainViewModel
     private val mCommentListViewModel = commentListViewModel
     private val mFeed = feed
     private val mContext = context

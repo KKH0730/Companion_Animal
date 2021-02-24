@@ -69,16 +69,19 @@ object Mapper {
 
     fun mapperToChat(
         email : String,
+        realEmail : String,
         targetEmail : String,
+        targetRealEmail : String,
         nickname : String,
         targetNickname : String,
         content : String,
         profileUri : String,
         targetProfileUri : String,
         timestamp : Long,
-        isExit : Boolean
+        isExit : Boolean,
+        isRead : Boolean
     ) : Chat {
-        return Chat(email, targetEmail, nickname, targetNickname, content, profileUri, targetProfileUri, timestamp, isExit)
+        return Chat(email, realEmail, targetEmail, targetRealEmail, nickname, targetNickname, content, profileUri, targetProfileUri, timestamp, isExit, isRead)
     }
 
 }

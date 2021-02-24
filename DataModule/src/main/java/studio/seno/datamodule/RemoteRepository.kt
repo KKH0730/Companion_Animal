@@ -257,5 +257,8 @@ class RemoteRepository() {
     fun requestRemoveChatList(targetEmail : String, myEmail : String, chat : Chat){
         chatUseCase.removeChatList(targetEmail, myEmail, chat, mRTDB)
     }
+    fun requestUpdateCheckDot(myEmail : String, targetEmail : String){
+        chatUseCase.updateCheckDot(myEmail, targetEmail, mRTDB)
+    }
 
 }

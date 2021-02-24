@@ -42,7 +42,6 @@ class ChatUseCase {
                 val size = it.result?.childrenCount
 
                 for(element in it.result?.children!!) {
-
                     val chatList = element.children.toList()
                     chatList[chatList.size - 1].getValue(Chat::class.java)?.let { it1 -> list.add(it1) }
 
@@ -63,4 +62,18 @@ class ChatUseCase {
         }
     }
 
+
+    fun updateCheckDot(myEmail : String, targetEmail : String, mRTDB : FirebaseDatabase){
+        mRTDB.reference.child(CHAT_ROOT).child(myEmail).child(myEmail + targetEmail).get().addOnCompleteListener {
+            val childCount = it.result?.childrenCount
+            var count = 0
+            if (it.result != null) {
+                val chatList = it.result?.children!!.toList()
+                val map = mutableMapOf<String, Any>()
+                map["read"] = true
+                mRTDB.reference.child(CHAT_ROOT).child(myEmail).child(myEmail + targetEmail).child(chatList[chatList.size - 1].key!!).updateChildren(map)
+
+            }
+        }
+    }
 }

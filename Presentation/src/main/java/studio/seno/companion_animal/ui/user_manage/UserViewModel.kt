@@ -52,7 +52,7 @@ class UserViewModel() : ViewModel() {
         repository.loadRemoteProfileImage(email, callback)
     }
 
-    fun requestUpload( imageUri : Uri, callback: LongTaskCallback<Boolean>){
+    fun requestUploadInItProfileImage( imageUri : Uri, callback: LongTaskCallback<Boolean>){
         repository.uploadInItProfileImage(imageUri, object : LongTaskCallback<Boolean>{
             override fun onResponse(result: Result<Boolean>) {
                 if(result is Result.Success) {

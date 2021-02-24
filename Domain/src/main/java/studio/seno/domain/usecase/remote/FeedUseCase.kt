@@ -13,7 +13,7 @@ import studio.seno.domain.database.AppDatabase
 import studio.seno.domain.model.Feed
 import studio.seno.domain.model.User
 import studio.seno.domain.usecase.local.LocalUserUseCase
-import studio.seno.domain.util.PrefereceManager
+import studio.seno.domain.util.PreferenceManager
 
 class FeedUseCase {
     private val userMangerUseCase = RemoteUserUseCase()
@@ -62,10 +62,10 @@ class FeedUseCase {
                                                         .addOnCompleteListener {
                                                             callback.onResponse(Result.Success(feed))
 
-                                                            PrefereceManager.setLong(
+                                                            PreferenceManager.setLong(
                                                                 context,
                                                                 "feedCount",
-                                                                PrefereceManager.getLong(
+                                                                PreferenceManager.getLong(
                                                                     context,
                                                                     "feedCount"
                                                                 ) + 1L

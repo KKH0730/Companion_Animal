@@ -51,9 +51,9 @@ class FeedListViewModel() : ViewModel() {
                             tempList = list.toMutableList()
 
                         if(recyclerView.layoutManager is LinearLayoutManager)
-                            feedListLiveData.setValue(tempList)
+                            feedListLiveData.value = tempList
                         else if(recyclerView.layoutManager is StaggeredGridLayoutManager)
-                            feedListLiveData.setValue(tempList)
+                            feedListLiveData.value = tempList
                     }
                     callback?.onResponse(result)
 
@@ -67,6 +67,18 @@ class FeedListViewModel() : ViewModel() {
 
     fun clearFeedList(){
         feedListLiveData.value = null
+    }
+
+    fun updateFeedList(feed: Feed, position : Int){
+        val tempList = feedListLiveData.value?.toMutableList()
+        tempList?.set(position, feed)
+        feedListLiveData.value = tempList
+    }
+
+    fun deleteFeedList(position: Int) {
+        val tempList = feedListLiveData.value?.toMutableList()
+        tempList?.removeAt(position)
+        feedListLiveData.value = tempList
     }
 
 

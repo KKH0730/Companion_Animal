@@ -21,7 +21,7 @@ import studio.seno.domain.Result
 import studio.seno.domain.database.AppDatabase
 import studio.seno.domain.model.Feed
 import studio.seno.domain.model.User
-import studio.seno.domain.util.PrefereceManager
+import studio.seno.domain.util.PreferenceManager
 
 class MainActivity : BaseActivity() , DialogInterface.OnDismissListener{
     private lateinit var binding: ActivityMainBinding
@@ -36,12 +36,9 @@ class MainActivity : BaseActivity() , DialogInterface.OnDismissListener{
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         init()
-
         loadUserInfo()
         navigateView()
-
         supportFragmentManager.beginTransaction().replace(R.id.container, homeFragment).commit()
-
         pendingIntent()
     }
 
@@ -72,9 +69,6 @@ class MainActivity : BaseActivity() , DialogInterface.OnDismissListener{
                                 }
                             }
                         })
-
-                        PrefereceManager.setUserInfo(applicationContext, user.email, user.nickname, user.follower,
-                            user.following, user.feedCount, user.token)
                     }
                 }
             })
@@ -100,30 +94,35 @@ class MainActivity : BaseActivity() , DialogInterface.OnDismissListener{
     }
 
     private fun pendingIntent(){
-        if(intent.getStringExtra("from") != null && intent.getStringExtra("from") == "notification") {
-            RemoteRepository.getInstance()!!.loadFeed(intent.getStringExtra("target_path")!!, object : LongTaskCallback<Feed>{
-                override fun onResponse(result: Result<Feed>) {
-                    if(result is Result.Success){
-                        if(result.data != null)
-                            startActivity<FeedDetailActivity>("feed" to result.data)
-                        else
-                            startActivity<ErrorActivity>()
-                    } else if(result is Result.Error) {
-                        Log.e("error", "MainActivity notification intent error: ${result.exception}")
+        if(intent.getStringExtra("from") != null){
+            if(intent.getStringExtra("from") == "notification") {
+                RemoteRepository.getInstance()!!.loadFeed(intent.getStringExtra("target_path")!!, object : LongTaskCallback<Feed>{
+                    override fun onResponse(result: Result<Feed>) {
+                        if(result is Result.Success){
+                            if(result.data != null)
+                                startActivity<FeedDetailActivity>("feed" to result.data)
+                            else
+                                startActivity<ErrorActivity>()
+                        } else if(result is Result.Error) {
+                            Log.e("error", "MainActivity notification intent error: ${result.exception}")
+                        }
                     }
-                }
-            })
+                })
+            } else if(intent.getStringExtra("from") == "chat") {
+                supportFragmentManager.beginTransaction().replace(R.id.container, chatFragment).commit()
+            }
         }
+
     }
 
     override fun onDismiss(dialog: DialogInterface?) {
-        if (PrefereceManager.getString(applicationContext, "mode") == "feed_modify") {
+        if (PreferenceManager.getString(applicationContext, "mode") == "feed_modify") {
             homeFragment.onDismissed("feed_modify")
-        } else if (PrefereceManager.getString(applicationContext, "mode") == "feed_delete") {
+        } else if (PreferenceManager.getString(applicationContext, "mode") == "feed_delete") {
             homeFragment.onDismissed("feed_delete")
-        } else if(PrefereceManager.getString(applicationContext, "mode") == "follow") {
+        } else if(PreferenceManager.getString(applicationContext, "mode") == "follow") {
             homeFragment.onDismissed("follow")
-        } else if(PrefereceManager.getString(applicationContext, "mode") == "unfollow") {
+        } else if(PreferenceManager.getString(applicationContext, "mode") == "unfollow") {
             homeFragment.onDismissed("unfollow")
         }
     }

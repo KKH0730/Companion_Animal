@@ -3,7 +3,7 @@ package studio.seno.domain.util
 import android.content.Context
 import android.content.SharedPreferences
 
-object PrefereceManager {
+object PreferenceManager {
     private fun getPreferences(context: Context): SharedPreferences {
         return context.getSharedPreferences("userData", Context.MODE_PRIVATE)
     }

@@ -11,14 +11,19 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Companion_Animal">
-        <activity android:name=".ui.chat.ChatActivity"></activity>
-        <activity android:name=".ui.feed.ShowFeedActivity" />
-        <activity android:name=".TestActivty" />
-        <activity android:name=".ui.follow.FollowActivity" />
-        <activity android:name=".ui.feed.FeedImageActivity" />
+        <activity android:name=".ui.chat.ChatActivity"
+            android:windowSoftInputMode="adjustUnspecified|adjustPan"/>
+        <activity android:name=".ui.feed.ShowFeedActivity"
+            android:windowSoftInputMode="adjustUnspecified|adjustPan"/>
+        <activity android:name=".ui.follow.FollowActivity"
+            android:windowSoftInputMode="adjustUnspecified|adjustPan"/>
+        <activity android:name=".ui.feed.FeedImageActivity"
+            android:windowSoftInputMode="adjustUnspecified|adjustPan"/>
         <activity android:name=".ErrorActivity" />
-        <activity android:name=".ui.search.SearchActivity" />
-        <activity android:name=".ui.feed.FeedDetailActivity" />
+        <activity android:name=".ui.search.SearchActivity"
+            android:windowSoftInputMode="adjustUnspecified|adjustPan"/>
+        <activity android:name=".ui.feed.FeedDetailActivity"
+            android:windowSoftInputMode="adjustUnspecified|adjustPan"/>
 
         <meta-data
             android:name="com.google.firebase.messaging.default_display_name_string_id"

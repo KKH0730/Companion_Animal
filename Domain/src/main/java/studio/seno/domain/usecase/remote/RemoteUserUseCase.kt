@@ -1,5 +1,6 @@
 package studio.seno.domain.usecase.remote
 
+import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
 import studio.seno.domain.LongTaskCallback
 import studio.seno.domain.Result
@@ -23,14 +24,15 @@ class RemoteUserUseCase {
             .document(email)
             .get()
             .addOnCompleteListener {
-
                 val result = it.result
-                if(result != null) {
+                if(result?.exists() == true) {
                     val user = User(result.getLong("id")!!, result.getString("email")!!, result.getString("nickname")!!,
                         result.getLong("follower")!!, result.getLong("following")!!, result.getLong("feedCount")!!,
                         result.getString("token")!!, result.getString("profileUri")!!
                     )
                     callback.onResponse(Result.Success(user))
+                } else {
+                    loadRemoteUserInfo(email, db, callback)
                 }
 
             }.addOnFailureListener{

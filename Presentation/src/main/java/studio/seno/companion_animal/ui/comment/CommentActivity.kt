@@ -19,9 +19,8 @@ import studio.seno.companion_animal.module.CommentModule
 import studio.seno.companion_animal.module.CommonFunction
 import studio.seno.companion_animal.module.NotificationModule
 import studio.seno.companion_animal.ui.MenuDialog
-import studio.seno.companion_animal.ui.main_ui.MainViewModel
 import studio.seno.companion_animal.util.Constants
-import studio.seno.domain.util.PrefereceManager
+import studio.seno.domain.util.PreferenceManager
 import studio.seno.domain.model.Comment
 import studio.seno.domain.model.Feed
 import java.sql.Timestamp
@@ -30,11 +29,9 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
     DialogInterface.OnDismissListener {
     private lateinit var binding: ActivityCommentBinding
     private val commentListViewModel: CommentListViewModel by viewModels()
-    private val mainViewModel: MainViewModel by viewModels()
     private val commentAdapter = CommentAdapter()
     private var answerMode = false
     private var modifyMode = false
-    private var backKeyPressedTime = 0L
     private lateinit var commentCountText: TextView
     private var curComment: Comment? = null
     private var answerComment: Comment? = null
@@ -43,10 +40,8 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
     private val feed: Feed by lazy { intent.getParcelableExtra<Feed>("feed") }
     private val commentModule : CommentModule by lazy {
         CommentModule(
-            mainViewModel, commentListViewModel, feed,
-            FirebaseAuth.getInstance().currentUser?.email.toString(),
-            PrefereceManager.getString(applicationContext, "nickName")!!,
-            applicationContext, commentAdapter
+            commentListViewModel, feed, FirebaseAuth.getInstance().currentUser?.email.toString(),
+            PreferenceManager.getString(applicationContext, "nickName")!!, applicationContext, commentAdapter
         )
     }
 
@@ -123,14 +118,23 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
         })
     }
 
+    fun setIntent(){
+        var intent = Intent(this, MainActivity::class.java)
+        intent.putExtra("comment_count", commentCountText.text.toString())
+        intent.putExtra("feed", feed)
+        setResult(Constants.RESULT_OK, intent)
+    }
+
+
     override fun onClick(v: View?) {
         if (v?.id == R.id.back_btn) {
+            setIntent()
             finish()
         } else if (v?.id == R.id.mode_close_btn) {
             initVariable()
         } else if (v?.id == R.id.comment_btn) {
             val timestamp = Timestamp(System.currentTimeMillis()).time
-            val notificationModule = NotificationModule(applicationContext, mainViewModel)
+            val notificationModule = NotificationModule(applicationContext)
 
             if (answerMode) { // 답글쓰기 모드
                 if (modifyMode && answerComment != null) { //답글 수정 모드
@@ -179,23 +183,20 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
 
     override fun onBackPressed() {
         if (binding.modeLayout.visibility == View.VISIBLE) {
-            if (System.currentTimeMillis() > backKeyPressedTime + 2000) {
-                backKeyPressedTime = System.currentTimeMillis()
-                initVariable()
-            } else {
-                finish()
-            }
-        } else
+            initVariable()
+        } else {
+            setIntent()
             finish()
+        }
     }
 
     override fun onDismiss(dialog: DialogInterface?) {
-        if (PrefereceManager.getString(applicationContext, "mode") == "comment_modify") {
+        if (PreferenceManager.getString(applicationContext, "mode") == "comment_modify") {
             binding.modeLayout.visibility = View.VISIBLE
             modifyMode = true
             commentModule.setHint(binding.comment, binding.modeTitle, 3)
             CommonFunction.showKeyboard(this)
-        } else if (PrefereceManager.getString(
+        } else if (PreferenceManager.getString(
                 applicationContext,
                 "mode"
             ) == "comment_answer_modify"
@@ -204,7 +205,7 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
             modifyMode = true
             commentModule.setHint(binding.comment, binding.modeTitle, 2)
             CommonFunction.showKeyboard(this)
-        } else if (PrefereceManager.getString(applicationContext, "mode") == "comment_delete") {
+        } else if (PreferenceManager.getString(applicationContext, "mode") == "comment_delete") {
             commentModule.deleteComment(
                 curComment, answerComment, commentPosition, answerPosition,
                 answerMode, binding.header.findViewById(R.id.comment_count)

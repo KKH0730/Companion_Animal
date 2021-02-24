@@ -70,6 +70,7 @@ class FeedGridFragment : Fragment() {
         binding.gridRecyclerview.visibility = View.GONE
 
         feedItemEvent()
+        setFeedList()
         observe()
     }
 
@@ -148,7 +149,5 @@ class FeedGridFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-
-        setFeedList()
     }
 }

@@ -1,7 +1,6 @@
 package studio.seno.companion_animal.module
 
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.text.SpannableStringBuilder
 import android.util.Log
@@ -10,39 +9,28 @@ import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.app.ActivityCompat.startActivityForResult
-import androidx.core.content.ContentProviderCompat.requireContext
-import androidx.core.content.ContextCompat.startActivity
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.LifecycleCoroutineScope
-import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.RecyclerView
-import org.jetbrains.anko.support.v4.intentFor
-import org.jetbrains.anko.support.v4.startActivity
 import com.google.firebase.auth.FirebaseAuth
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.ui.MenuDialog
-import studio.seno.companion_animal.ui.comment.CommentActivity
 import studio.seno.companion_animal.ui.comment.CommentListViewModel
 import studio.seno.companion_animal.ui.feed.*
-import studio.seno.companion_animal.ui.main_ui.MainViewModel
-import studio.seno.companion_animal.ui.search.SearchResultAdapter
 import studio.seno.companion_animal.util.Constants
 import studio.seno.datamodule.LocalRepository
 import studio.seno.domain.LongTaskCallback
 import studio.seno.domain.Result
 import studio.seno.domain.model.Feed
 import studio.seno.domain.model.User
-import studio.seno.domain.util.PrefereceManager
+import studio.seno.domain.util.PreferenceManager
 import java.sql.Timestamp
 
 class FeedModule(
     feedListViewModel: FeedListViewModel,
-    commentViewModel : CommentListViewModel,
-    mainViewModel : MainViewModel
+    commentViewModel : CommentListViewModel
 ) {
     private val mFeedListViewModel = feedListViewModel
     private val mCommentViewModel = commentViewModel
-    private val mMainViewModel  = mainViewModel
     private val currentUserEmail  = FirebaseAuth.getInstance().currentUser?.email.toString()
 
 
@@ -124,6 +112,7 @@ class FeedModule(
      */
     fun onCommentBtnClicked(
         feed: Feed,
+        nickname : String,
         commentEdit: EditText,
         commentCount: TextView,
         container: LinearLayout
@@ -131,7 +120,6 @@ class FeedModule(
         //피드에 보여지는 댓글의 라이브 데이터 업데이트
         //model.setFeedCommentLiveData(commentEdit.text.toString())
         val textView = TextView(commentEdit.context)
-        val nickname = PrefereceManager.getString(commentEdit.context, "nickName")
         val commentContent = commentEdit.text.toString()
         container.apply{
             removeAllViews()
@@ -142,7 +130,7 @@ class FeedModule(
                     commentEdit.context,
                     R.color.black,
                     0,
-                    nickname!!.length
+                    nickname.length
                 )
                 append("  $commentContent")
                 textView.text = this
@@ -157,7 +145,7 @@ class FeedModule(
             feed.timestamp,
             Constants.PARENT,
             FirebaseAuth.getInstance().currentUser?.email.toString(),
-            PrefereceManager.getString(
+            PreferenceManager.getString(
                 commentEdit.context,
                 "nickName"
             )!!,
@@ -186,7 +174,7 @@ class FeedModule(
 
 
         //댓글을 작성하면 notification 알림이 전송
-        NotificationModule(commentEdit.context, mMainViewModel).sendNotification(feed.email, commentContent, Timestamp(System.currentTimeMillis()).time, feed)
+        NotificationModule(commentEdit.context).sendNotification(feed.email, commentContent, Timestamp(System.currentTimeMillis()).time, feed)
     }
 
     fun onDismiss(type : String, targetFeed : Feed?, activity: Activity, localRepository: LocalRepository, feedAdapter :FeedListAdapter?, lifecycleScope : LifecycleCoroutineScope, ){
@@ -198,12 +186,10 @@ class FeedModule(
                 startActivityForResult(activity, intent, Constants.FEED_MODIFY_REQUEST, null)
 
             } else if(type == "feed_delete") {
-                if(feedAdapter != null)
-                    mFeedListViewModel.setFeedListLiveData(feedAdapter.currentList.toMutableList())
                 val intent = Intent(activity, MakeFeedActivity::class.java)
                 intent.putExtra("feed", targetFeed)
                 intent.putExtra("mode", "delete")
-                startActivity(activity, intent, null)
+                startActivityForResult(activity, intent, Constants.FEED_DELETE_REQUEST, null)
 
             } else if(type == "follow") {
                 localRepository.getUserInfo(lifecycleScope, object : LongTaskCallback<User>{

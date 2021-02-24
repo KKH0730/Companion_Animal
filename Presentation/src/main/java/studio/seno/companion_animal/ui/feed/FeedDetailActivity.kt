@@ -19,8 +19,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
 import com.google.firebase.auth.FirebaseAuth
+import org.jetbrains.anko.intentFor
 import org.jetbrains.anko.startActivity
-import org.jetbrains.anko.support.v4.startActivity
 import studio.seno.companion_animal.MainActivity
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.ActivityFeedDetailBinding
@@ -32,12 +32,11 @@ import studio.seno.companion_animal.ui.MenuDialog
 import studio.seno.companion_animal.ui.comment.CommentAdapter
 import studio.seno.companion_animal.ui.comment.CommentListViewModel
 import studio.seno.companion_animal.ui.comment.OnCommentEventListener
-import studio.seno.companion_animal.ui.main_ui.MainViewModel
 import studio.seno.companion_animal.util.Constants
 import studio.seno.datamodule.LocalRepository
 import studio.seno.domain.model.Comment
 import studio.seno.domain.model.Feed
-import studio.seno.domain.util.PrefereceManager
+import studio.seno.domain.util.PreferenceManager
 import java.sql.Timestamp
 
 class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
@@ -47,14 +46,9 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
     private lateinit var feedViewModel: FeedViewModel
     private val feedListViewModel: FeedListViewModel by viewModels()
     private val commentViewModel: CommentListViewModel by viewModels()
-    private val mainViewModel: MainViewModel by viewModels()
     private val commentListViewModel: CommentListViewModel by viewModels()
     private val feedModule: FeedModule by lazy {
-        FeedModule(
-            feedListViewModel,
-            commentViewModel,
-            mainViewModel
-        )
+        FeedModule(feedListViewModel, commentViewModel)
     }
     private var curComment: Comment? = null
     private var answerComment: Comment? = null
@@ -66,10 +60,8 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
     private var backKeyPressedTime = 0L
     private val commentModule: CommentModule by lazy {
         CommentModule(
-            mainViewModel, commentListViewModel, feed!!,
-            FirebaseAuth.getInstance().currentUser?.email.toString(),
-            PrefereceManager.getString(applicationContext, "nickName")!!,
-            applicationContext, commentAdapter
+            commentListViewModel, feed!!, FirebaseAuth.getInstance().currentUser?.email.toString(),
+            PreferenceManager.getString(applicationContext, "nickName")!!, applicationContext, commentAdapter
         )
     }
 
@@ -90,7 +82,6 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
 
         commentItemEvent()
         observe()
-
     }
 
     fun init() {
@@ -195,6 +186,7 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
 
     override fun onClick(v: View?) {
         if (v?.id == R.id.back_btn) {
+            setIntent()
             finish()
         } else if (v?.id == R.id.bookmark_btn) {
             feedModule.bookmarkButtonEvent(feed!!, binding.feedLayout.bookmarkBtn, null)
@@ -206,6 +198,7 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
                 binding.feedLayout.heartBtn,
                 null
             )
+
         } else if (v?.id == R.id.feed_menu) {
             feedModule.menuButtonEvent(feed!!, supportFragmentManager)
         } else if(v?.id == R.id.image_btn){
@@ -214,7 +207,7 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
             initVariable()
         } else if (v?.id == R.id.comment_btn) {
             val timestamp = Timestamp(System.currentTimeMillis()).time
-            val notificationModule = NotificationModule(applicationContext, mainViewModel)
+            val notificationModule = NotificationModule(applicationContext)
 
             if (answerMode) {
                 if (modifyMode && answerComment != null) {
@@ -237,6 +230,7 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
                         binding.feedLayout.commentCount, binding.feedLayout.comment
                     )
                 } else {
+                    feed!!.comment++
                     commentModule.submitComment(
                         timestamp, modifyMode, curComment, commentPosition,
                         binding.feedLayout.commentCount, binding.feedLayout.comment
@@ -266,56 +260,61 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
         binding.commentLayout.modeLayout.visibility = View.INVISIBLE
     }
 
+    fun setIntent(){
+        var intent = Intent(this, MainActivity::class.java)
+        intent.putExtra("feed", feed)
+        setResult(Constants.RESULT_OK, intent)
+    }
+
     override fun onDismiss(dialog: DialogInterface?) {
-        if (PrefereceManager.getString(applicationContext, "mode") == "comment_modify") {
+        if (PreferenceManager.getString(applicationContext, "mode") == "comment_modify") {
             binding.commentLayout.modeLayout.visibility = View.VISIBLE
             modifyMode = true
             commentModule.setHint(binding.feedLayout.comment, binding.commentLayout.modeTitle, 3)
             CommonFunction.showKeyboard(this)
 
-        } else if (PrefereceManager.getString(applicationContext, "mode") == "comment_answer_modify") {
+        } else if (PreferenceManager.getString(applicationContext, "mode") == "comment_answer_modify") {
             binding.commentLayout.modeLayout.visibility = View.VISIBLE
             modifyMode = true
             commentModule.setHint(binding.feedLayout.comment, binding.commentLayout.modeTitle, 2)
             CommonFunction.showKeyboard(this)
 
-        } else if (PrefereceManager.getString(applicationContext, "mode") == "comment_delete") {
+        } else if (PreferenceManager.getString(applicationContext, "mode") == "comment_delete") {
             commentModule.deleteComment(
                 curComment, answerComment, commentPosition, answerPosition,
                 answerMode, binding.feedLayout.commentCount
             )
 
-        } else if(PrefereceManager.getString(applicationContext, "mode") == "feed_modify"){
-            feedModule.onDismiss(
-                "feed_modify", feed, this, LocalRepository.getInstance(applicationContext)!!, null, lifecycleScope)
-        } else if(PrefereceManager.getString(applicationContext, "mode") == "feed_delete"){
-            feedModule.onDismiss("feed_delete", feed, this, LocalRepository.getInstance(applicationContext)!!, null, lifecycleScope)
+        } else if(PreferenceManager.getString(applicationContext, "mode") == "feed_modify"){
+            startActivityForResult(
+                intentFor<MakeFeedActivity>(
+                    "feed" to feed,
+                    "mode" to "modify"
+                ), Constants.FEED_MODIFY_REQUEST
+            )
+        } else if(PreferenceManager.getString(applicationContext, "mode") == "feed_delete"){
+            startActivityForResult(
+                intentFor<MakeFeedActivity>(
+                    "feed" to feed,
+                    "mode" to "delete"
+                ), Constants.FEED_DELETE_REQUEST
+            )
+
             finish()
-        } else if(PrefereceManager.getString(applicationContext, "mode") == "follow") {
+        } else if(PreferenceManager.getString(applicationContext, "mode") == "follow") {
             feedModule.onDismiss("follow", feed, this, LocalRepository.getInstance(applicationContext)!!, null, lifecycleScope)
-        } else if(PrefereceManager.getString(applicationContext, "mode") == "unfollow") {
+        } else if(PreferenceManager.getString(applicationContext, "mode") == "unfollow") {
             feedModule.onDismiss("unfollow", feed, this, LocalRepository.getInstance(applicationContext)!!, null, lifecycleScope)
         }
     }
 
     override fun onBackPressed() {
         if (binding.commentLayout.modeLayout.visibility == View.VISIBLE) {
-            if (System.currentTimeMillis() > backKeyPressedTime + 2000) {
-                backKeyPressedTime = System.currentTimeMillis()
-                initVariable()
-            } else {
-                finish()
-            }
-        } else
+            initVariable()
+        } else {
+            setIntent()
             finish()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-
-        var intent = Intent(this, MainActivity::class.java)
-        intent.putExtra("feed", feed)
-        setResult(Constants.RESULT_OK, intent)
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
