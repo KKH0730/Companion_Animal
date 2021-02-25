@@ -91,7 +91,6 @@ class ChatAdapter(type: String) : ListAdapter<Chat, RecyclerView.ViewHolder>(
                     mBinding.chatMe.visibility = View.GONE
                 }
             } else {
-
                  mBinding.exitTextView.visibility = View.VISIBLE
                  mBinding.chatObject.visibility = View.GONE
                  mBinding.chatMe.visibility = View.GONE

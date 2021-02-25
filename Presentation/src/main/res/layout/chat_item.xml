@@ -16,6 +16,7 @@
 
 
         <TextView
+            setNickname="@{chatViewModel.chatLiveData.content}"
             android:id="@+id/exit_textView"
             android:layout_width="0dp"
             android:layout_height="wrap_content"

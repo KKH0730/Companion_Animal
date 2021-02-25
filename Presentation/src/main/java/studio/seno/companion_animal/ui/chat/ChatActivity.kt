@@ -138,6 +138,8 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener {
     fun observe(){
         chatListViewModel.getChatListLiveData().observe(this, {
             chatAdapter.submitList(it)
+
+            Log.d("hi","pos : ${chatAdapter.itemCount}")
         })
     }
 
