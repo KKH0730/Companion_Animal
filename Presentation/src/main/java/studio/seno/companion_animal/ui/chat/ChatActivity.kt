@@ -8,6 +8,7 @@ import android.widget.ImageButton
 import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
@@ -60,6 +61,7 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener {
         targetNickname = intent.getStringExtra("targetNickname")
         binding.sendBtn.setOnClickListener(this)
         binding.header.findViewById<ImageButton>(R.id.back_btn).setOnClickListener(this)
+        //binding.header.findViewById<ConstraintLayout>(R.id.header_layout).setBackgroundColor(getColor(R.color.forest_green))
         binding.header.findViewById<TextView>(R.id.title).text = getString(R.string.chat_title1)
     }
 

@@ -8,6 +8,7 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="grey">#a9a9ac</color>
+    <color name="forest_green">#CDDC39</color>
 
     <color name="main_color">#f7a268</color>
     <color name="edit_back">#e8e8f2</color>
