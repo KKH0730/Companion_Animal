@@ -16,8 +16,8 @@ object Mapper {
 
     fun mapperToFeed(
         id : Long,
-        email : String,
-        nickname : String,
+        email : String?,
+        nickname : String?,
         sort : String,
         hashTags : List<String>,
         localUri : List<String>,

@@ -82,7 +82,7 @@ class LoginFragment : Fragment(), View.OnClickListener {
             if (email.isEmpty()  || password.isEmpty()) {
                 binding.loginBtn.stopAnimation(TransitionButton.StopAnimationStyle.SHAKE, null)
             } else {
-                viewModel.enableLogin(email, password, object : LongTaskCallback<Boolean> {
+                viewModel.requestCheckEnbleLogin(email, password, object : LongTaskCallback<Boolean> {
                     override fun onResponse(result: Result<Boolean>) {
                         if(result is Result.Success) {
                             if(result.data) {

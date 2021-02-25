@@ -77,7 +77,7 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
         }
 
         if (intent.getParcelableExtra<Feed>("feed") != null)
-            commentListViewModel.requestLoadComment(feed.email, feed.timestamp)
+            commentListViewModel.requestLoadComment(feed.email!!, feed.timestamp)
 
         binding.header.findViewById<ImageButton>(R.id.back_btn).setOnClickListener(this)
         binding.modeCloseBtn.setOnClickListener(this)
@@ -159,7 +159,6 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
                         answerPosition, commentPosition, binding.comment
                     )
 
-                    //commentModule.sendNotification(curComment!!.email, binding.comment.text.toString(), timestamp)
                     notificationModule.sendNotification(curComment!!.email, null, binding.comment.text.toString(), timestamp, feed)
                 }
             } else {
@@ -173,8 +172,8 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
                         timestamp, modifyMode, curComment, commentPosition,
                         binding.header.findViewById(R.id.comment_count), binding.comment
                     )
-                    //commentModule.sendNotification(feed.email, binding.comment.text.toString(), timestamp)
-                    notificationModule.sendNotification(feed.email, null, binding.comment.text.toString(), timestamp, feed)
+
+                    notificationModule.sendNotification(feed.email!!, null, binding.comment.text.toString(), timestamp, feed)
                 }
             }
             initVariable()

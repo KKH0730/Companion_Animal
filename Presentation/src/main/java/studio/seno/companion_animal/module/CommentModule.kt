@@ -54,7 +54,7 @@ class CommentModule(
 
         //일반 댓글 업로드
         mCommentListViewModel.requestUploadComment(
-            mFeed.email, mFeed.timestamp, Constants.PARENT,
+            mFeed.email!!, mFeed.timestamp, Constants.PARENT,
             myEmail, myNickname, content, timestamp
         )
         //총 댓글 수 업로드
@@ -89,14 +89,14 @@ class CommentModule(
 
         //답글 업로드
         mCommentListViewModel.requestUploadCommentAnswer(
-            mFeed.email, mFeed.timestamp, parentComment.email, parentComment.timestamp,
+            mFeed.email!!, mFeed.timestamp, parentComment.email, parentComment.timestamp,
             Constants.CHILD, myEmail, myNickname, content, answerTimestamp
         )
     }
 
     fun updateCommentCount(feed : Feed, countTextView : TextView, addFlag : Boolean){
         mCommentListViewModel.requestUploadCommentCount(
-            feed.email,
+            feed.email!!,
             feed.timestamp,
             countTextView.text.toString().toLong(),
             addFlag
@@ -126,7 +126,7 @@ class CommentModule(
 
             updateCommentCount(mFeed, countTextView, false)
             mCommentListViewModel.requestUploadCommentCount(
-                mFeed.email, mFeed.timestamp, countTextView.text.toString().toLong(), false
+                mFeed.email!!, mFeed.timestamp, countTextView.text.toString().toLong(), false
             )
 
             countTextView.text = (countTextView.text.toString().toLong() - 1L).toString()
@@ -134,7 +134,7 @@ class CommentModule(
         }
 
         mCommentListViewModel.requestDeleteComment(
-            mFeed.email, mFeed.timestamp, parentComment!!,
+            mFeed.email!!, mFeed.timestamp, parentComment!!,
             answerComment, type, list
         )
     }

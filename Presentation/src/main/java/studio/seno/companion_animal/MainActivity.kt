@@ -40,8 +40,9 @@ class MainActivity : BaseActivity() , DialogInterface.OnDismissListener{
         init()
         loadUserInfo()
         navigateView()
-        supportFragmentManager.beginTransaction().replace(R.id.container, homeFragment).commit()
         pendingIntent()
+
+        supportFragmentManager.beginTransaction().replace(R.id.container, homeFragment).commit()
     }
 
     fun init(){
@@ -97,9 +98,7 @@ class MainActivity : BaseActivity() , DialogInterface.OnDismissListener{
 
     private fun pendingIntent(){
         if(intent.getStringExtra("from") != null){
-            Log.d("hi", "from not null")
             if(intent.getStringExtra("from") == "notification") {
-                Log.d("hi", "notification")
                 RemoteRepository.getInstance()!!.loadFeed(intent.getStringExtra("target_path")!!, object : LongTaskCallback<Feed>{
                     override fun onResponse(result: Result<Feed>) {
                         if(result is Result.Success){
@@ -113,7 +112,6 @@ class MainActivity : BaseActivity() , DialogInterface.OnDismissListener{
                     }
                 })
             } else if(intent.getStringExtra("from") == "chat") {
-                Log.d("hi", "chat")
                 startActivity<ChatActivity>(
                     "targetEmail" to intent.getStringExtra("targetRealEmail"),
                     "targetProfileUri" to intent.getStringExtra("targetEmail"),

@@ -1,24 +1,19 @@
-package studio.seno.companion_animal.module
+package studio.seno.domain.usecase.remote
 
 import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
-import studio.seno.companion_animal.ui.user_manage.UserViewModel
 import studio.seno.domain.LongTaskCallback
 import studio.seno.domain.Result
 
-class UserViewModelModule(viewModel: UserViewModel) {
-    private val mAuth = FirebaseAuth.getInstance()
-    private val memberViewModel = viewModel
+class UserUseCase {
 
-    fun enableLogin(email: String, password: String, callback : LongTaskCallback<Boolean>)  {
+    fun checkEnableLogin(email: String, password: String, mAuth: FirebaseAuth, callback : LongTaskCallback<Boolean>)  {
         mAuth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener {
                 if (it.isSuccessful) {
                     callback.onResponse(Result.Success(true))
-                    //memberViewModel.setLoginLiveData(true)
                 } else {
                     callback.onResponse(Result.Success(false))
-                    //memberViewModel.setLoginLiveData(false)
                 }
             }.addOnFailureListener{
                 Log.e("login_error", "error " + it.message)
@@ -26,17 +21,17 @@ class UserViewModelModule(viewModel: UserViewModel) {
 
     }
 
-    fun sendFindEmail(emailAddress: String) {
+    fun sendFindEmail(emailAddress: String, mAuth: FirebaseAuth, calllback : LongTaskCallback<Boolean>) {
         mAuth.sendPasswordResetEmail(emailAddress)
             .addOnCompleteListener {
                 if (it.isSuccessful)
-                    memberViewModel.setFindPasswordListData(true)
+                    calllback.onResponse(Result.Success(true))
                 else
-                    memberViewModel.setFindPasswordListData(false)
+                    calllback.onResponse(Result.Success(false))
             }
     }
 
-    fun registerUser(email: String, password: String, callback: LongTaskCallback<Boolean>) {
+    fun registerUser(email: String, password: String, mAuth: FirebaseAuth, callback: LongTaskCallback<Boolean>) {
         mAuth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener {
                 if (it.isSuccessful)

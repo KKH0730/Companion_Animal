@@ -33,6 +33,7 @@ class PagingModule {
                 .addOnCompleteListener {it ->
                     var find = 0
                     var count = 0
+
                     if (it.isSuccessful) {
                         if (it.result?.size()!! <= 0) {
                             callback.onResponse(Result.Success(null))
@@ -74,6 +75,7 @@ class PagingModule {
                                             count++
 
                                             if(it2.result?.exists() == false){
+                                                callback.onResponse(Result.Success(null))
 
                                             } else {
                                                 find++
@@ -156,8 +158,6 @@ class PagingModule {
                     if (firstVisibleItemPosition != null) {
                         if (isScrolling && (firstVisibleItemPosition + visibleItemCount!! == totalItemCount) && !isLastItemReached) {
                             isScrolling = false
-
-                            Log.d("hi","second pageing")
 
                             nextSearchQuery(sort, myEmail, db)
                                 .get().addOnCompleteListener {

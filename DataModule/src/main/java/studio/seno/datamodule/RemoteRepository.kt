@@ -2,6 +2,7 @@ package studio.seno.datamodule
 
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.auth.FirebaseAuth
@@ -19,6 +20,7 @@ class RemoteRepository() {
     private val mStorageRef: StorageReference = FirebaseStorage.getInstance()
         .getReferenceFromUrl("gs://companion-animal-f0bfa.appspot.com/")
     private val mRTDB = FirebaseDatabase.getInstance()
+    private val userUseCase = UserUseCase()
     private val feedUseCase = FeedUseCase()
     private val uploadUseCase = UploadUseCase()
     private val userManagerUseCase = RemoteUserUseCase()
@@ -42,6 +44,20 @@ class RemoteRepository() {
 
     }
 
+    /**
+     * User
+     */
+    fun requestCheckEnableLogin(email: String, password: String, callback : LongTaskCallback<Boolean>)  {
+        userUseCase.checkEnableLogin(email, password, mAuth, callback)
+    }
+
+    fun requestRegisterUser(email: String, password: String, callback: LongTaskCallback<Boolean>) {
+        userUseCase.registerUser(email, password,mAuth, callback)
+    }
+
+    fun requestSendFindEmail(emailAddress : String, callback : LongTaskCallback<Boolean>) {
+        userUseCase.sendFindEmail(emailAddress, mAuth, callback)
+    }
 
     //회원가입시 회원정보 서버에 저장
     fun uploadUserInfo(user: User) {
@@ -81,15 +97,10 @@ class RemoteRepository() {
         userManagerUseCase.updateRemoteProfileUri(FirebaseAuth.getInstance().currentUser?.email.toString(), profileUri, mDB)
     }
 
-    //profile image uri 로드
-    fun loadRemoteProfileImage(email: String, callback: LongTaskCallback<String>){
-        uploadUseCase.loadRemoteProfileImage(email, mStorageRef, callback)
-    }
-
 
     //피드 작성후 서버에 업로드
-    fun uploadFeed(context: Context, feed: Feed,  lifecycleCoroutineScope: LifecycleCoroutineScope, callback: LongTaskCallback<Feed>) {
-        feedUseCase.uploadFeed(context, feed, mDB, mStorageRef, lifecycleCoroutineScope, callback)
+    fun uploadFeed(feed: Feed,  callback: LongTaskCallback<Feed>) {
+        feedUseCase.uploadFeed(feed, mDB, callback)
     }
 
     //피드 리스트 로드
@@ -116,6 +127,27 @@ class RemoteRepository() {
     //북마크 상태 업데이트
     fun requestUpdateBookmark(feed : Feed, flag: Boolean) {
         feedUseCase.updateBookmark(feed, mAuth.currentUser?.email.toString(), flag, mDB)
+    }
+
+    /**
+     * 이미지 업로드 및 이미지 로드
+     */
+
+    //profile image uri 로드
+    fun loadRemoteProfileImage(email: String, callback: LongTaskCallback<String>){
+        uploadUseCase.loadRemoteProfileImage(email, mStorageRef, callback)
+    }
+
+    fun requestUploadRemoteFeedImage(localUri : List<String>,  path : String, callback: LongTaskCallback<Boolean>){
+        uploadUseCase.uploadRemoteFeedImage(localUri, mStorageRef, path, callback)
+    }
+
+    fun requestDeleteRemoteFeedImage(email: String, timestamp : Long, callback: LongTaskCallback<Boolean>){
+        uploadUseCase.deleteRemoteFeedImage(email, timestamp, mStorageRef, callback)
+    }
+
+    fun requestLoadFeedImage(path : String, callback : LongTaskCallback<List<String>>){
+        uploadUseCase.loadRemoteFeedImage(path, mStorageRef, callback)
     }
 
 

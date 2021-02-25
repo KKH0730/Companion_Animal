@@ -65,6 +65,18 @@ class FeedListViewModel() : ViewModel() {
         })
     }
 
+    fun requestUploadFeedImage(localUri: List<String>, path: String, callback: LongTaskCallback<Boolean>){
+        repository.requestUploadRemoteFeedImage(localUri, path, callback)
+    }
+
+    fun requestDeleteRemoteFeedImage(email: String, timestamp : Long, callback: LongTaskCallback<Boolean>){
+        repository.requestDeleteRemoteFeedImage(email, timestamp, callback)
+    }
+
+    fun requestLoadFeedImage(path : String, callback : LongTaskCallback<List<String>>){
+        repository.requestLoadFeedImage(path, callback)
+    }
+
     fun clearFeedList(){
         feedListLiveData.value = null
     }
@@ -83,16 +95,8 @@ class FeedListViewModel() : ViewModel() {
 
 
 
-    fun requestUploadFeed(context : Context, id : Long, email : String, nickname : String, sort : String, hashTags : List<String>,
-        localUri : List<String>, content : String, timestamp: Long, lifecycleCoroutineScope: LifecycleCoroutineScope
-    ) {
-
-        var feed = Mapper.getInstance()!!.mapperToFeed(
-            id, email, nickname, sort, hashTags,
-            localUri, content, timestamp
-        )
-
-        repository.uploadFeed(context, feed ,lifecycleCoroutineScope, object : LongTaskCallback<Feed> {
+    fun requestUploadFeed(feed: Feed) {
+        repository.uploadFeed(feed, object : LongTaskCallback<Feed> {
             override fun onResponse(result: Result<Feed>) {
                 if (result is Result.Success) {
                     feedSaveStatus.value = true

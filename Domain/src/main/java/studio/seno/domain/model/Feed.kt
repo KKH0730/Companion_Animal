@@ -6,8 +6,8 @@ import android.os.Parcelable
 
 
 class Feed : Parcelable {
-    var email: String = ""
-    var nickname: String = ""
+    var email: String? = ""
+    var nickname: String? = ""
     var sort: String = ""
     var hashTags: List<String> = listOf()
     var localUri: List<String> = listOf()
@@ -21,8 +21,8 @@ class Feed : Parcelable {
     var bookmarkList: Map<String, String> = mapOf()
 
     constructor(
-        email: String,
-        nickname: String,
+        email: String?,
+        nickname: String?,
         sort: String,
         hashTags: List<String>,
         localUri: List<String>,

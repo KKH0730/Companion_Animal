@@ -10,6 +10,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.observe
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.google.firebase.database.*
@@ -31,9 +32,7 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener {
     private lateinit var targetRealEmail : String
     private lateinit var targetProfileUri : String
     private lateinit var targetNickname : String
-    private val notificationModule : NotificationModule by lazy {
-        NotificationModule(this)
-    }
+    private lateinit var notificationModule : NotificationModule
     private val chatListViewModel : ChatListVIewModel by viewModels()
     private val chatAdapter = ChatAdapter("chat")
     private val commonFunction = CommonFunction.getInstance()!!
@@ -69,6 +68,7 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener {
             override fun onResponse(result: Result<User>) {
                 if(result is Result.Success) {
                     user = result.data
+                    notificationModule = NotificationModule(applicationContext, user!!.nickname)
 
                     Glide.with(applicationContext)
                         .load(Uri.parse(user!!.profileUri))
@@ -94,7 +94,10 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener {
             object : LongTaskCallback<Boolean> {
                 override fun onResponse(result: Result<Boolean>) {
                     if(result is Result.Success){
-                        binding.progressBar.visibility = View.GONE
+                        if(result.data)
+                            binding.progressBar.visibility = View.GONE
+                        else
+                            binding.progressBar.visibility = View.GONE
                     }
                 }
             }
@@ -158,7 +161,7 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener {
                 user!!.profileUri, targetProfileUri, Timestamp(System.currentTimeMillis()).time
             )
 
-            notificationModule.sendNotification(targetRealEmail, binding.content.text.toString(), Timestamp(System.currentTimeMillis()).time, null)
+            notificationModule.sendNotification(targetRealEmail, user!!.profileUri, binding.content.text.toString(), Timestamp(System.currentTimeMillis()).time, null)
             commonFunction.closeKeyboard(this, binding.content)
             binding.content.setText("")
         }

@@ -88,16 +88,16 @@ class FeedModule(
      */
     fun menuButtonEvent(feed: Feed, fm : FragmentManager){
         mFeedListViewModel.requestCheckFollow(
-            feed.email,
+            feed.email!!,
             object : LongTaskCallback<Boolean> {
                 override fun onResponse(result: Result<Boolean>) {
                     var dialog: MenuDialog? = null
 
                     if (result is Result.Success) {
                         if (result.data)
-                            dialog = MenuDialog.newInstance(feed.email, true)
+                            dialog = MenuDialog.newInstance(feed.email!!, true)
                         else
-                            dialog = MenuDialog.newInstance(feed.email, false)
+                            dialog = MenuDialog.newInstance(feed.email!!, false)
                         dialog.show(fm, "feed")
                     } else if (result is Result.Error) {
                         Log.e("error", "follow check : ${result.exception}")
@@ -141,7 +141,7 @@ class FeedModule(
 
         //댓글을 서버에 업로드
         mCommentViewModel.requestUploadComment(
-            feed.email,
+            feed.email!!,
             feed.timestamp,
             Constants.PARENT,
             email,
@@ -152,7 +152,7 @@ class FeedModule(
 
         //서버에 댓글 개수 업로드
         mCommentViewModel.requestUploadCommentCount(
-            feed.email,
+            feed.email!!,
             feed.timestamp,
             commentCount.text.toString().toLong(),
             true
@@ -171,7 +171,7 @@ class FeedModule(
 
 
         //댓글을 작성하면 notification 알림이 전송
-        NotificationModule(commentEdit.context, nickname).sendNotification(feed.email, null, commentContent, Timestamp(System.currentTimeMillis()).time, feed)
+        NotificationModule(commentEdit.context, nickname).sendNotification(feed.email!!, null, commentContent, Timestamp(System.currentTimeMillis()).time, feed)
     }
 
     fun onDismiss(type : String, targetFeed : Feed?, activity: Activity, localRepository: LocalRepository, feedAdapter :FeedListAdapter?, lifecycleScope : LifecycleCoroutineScope, ){
@@ -192,7 +192,7 @@ class FeedModule(
                 localRepository.getUserInfo(lifecycleScope, object : LongTaskCallback<User>{
                     override fun onResponse(result: Result<User>) {
                         if(result is Result.Success) {
-                            mFeedListViewModel.requestUpdateFollower(targetFeed.email,  targetFeed.nickname, targetFeed.remoteProfileUri, true, result.data.nickname, result.data.profileUri)
+                            mFeedListViewModel.requestUpdateFollower(targetFeed.email!!,  targetFeed.nickname!!, targetFeed.remoteProfileUri, true, result.data.nickname, result.data.profileUri)
                             localRepository.updateFollowing(lifecycleScope, true)
 
                         } else if(result is Result.Error) {
@@ -204,7 +204,7 @@ class FeedModule(
                 localRepository.getUserInfo(lifecycleScope, object : LongTaskCallback<User>{
                     override fun onResponse(result: Result<User>) {
                         if(result is Result.Success) {
-                            mFeedListViewModel.requestUpdateFollower(targetFeed.email,  targetFeed.nickname, targetFeed.remoteProfileUri, false, result.data.nickname, result.data.profileUri)
+                            mFeedListViewModel.requestUpdateFollower(targetFeed.email!!,  targetFeed.nickname!!, targetFeed.remoteProfileUri, false, result.data.nickname, result.data.profileUri)
                             localRepository.updateFollowing(lifecycleScope,false)
 
                         } else if(result is Result.Error) {

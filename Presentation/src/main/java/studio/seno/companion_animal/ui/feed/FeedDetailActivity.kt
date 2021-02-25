@@ -107,7 +107,7 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
             feed = intent.getParcelableExtra("feed")
             feedViewModel.setFeedLiveData(feed!!)
             binding.feedLayout.commentShow.visibility = View.GONE
-            commentListViewModel.requestLoadComment(feed!!.email, feed!!.timestamp)
+            commentListViewModel.requestLoadComment(feed!!.email!!, feed!!.timestamp)
         }
 
 
@@ -240,7 +240,7 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
                         binding.feedLayout.commentCount, binding.feedLayout.comment
                     )
 
-                    notificationModule.sendNotification(feed!!.email, null, binding.feedLayout.comment.text.toString(), timestamp, feed!!)
+                    notificationModule.sendNotification(feed!!.email!!, null, binding.feedLayout.comment.text.toString(), timestamp, feed!!)
                 }
             }
             initVariable()
@@ -325,7 +325,17 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
         super.onActivityResult(requestCode, resultCode, data)
 
         if(requestCode == Constants.FEED_MODIFY_REQUEST && resultCode == Constants.RESULT_OK) {
-            Log.d("hi","intent : ${data?.getParcelableExtra<Feed>("feed")?.remoteUri?.size}")
+            val intentFeed = data?.getParcelableExtra<Feed>("feed")
+
+            if(intentFeed != null) {
+                feedViewModel.setFeedLiveData(intentFeed)
+
+                feed!!.localUri = intentFeed.localUri
+                feed!!.remoteUri = intentFeed.remoteUri
+                feed!!.sort = intentFeed.sort
+                feed!!.hashTags = intentFeed.hashTags
+                feed!!.content = intentFeed.content
+            }
         }
     }
 }

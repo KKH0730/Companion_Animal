@@ -19,72 +19,129 @@ class FeedUseCase {
     private val userMangerUseCase = RemoteUserUseCase()
     private val uploadUseCase = UploadUseCase()
 
+
+    //피드 사진들, 게시자 프로필 사진, 게시자 팔로워를 업로드 후 Feed 객체에 저장한 후 db에 저장
+    fun uploadFeed(
+        feed: Feed, mDB: FirebaseFirestore,
+        callback: LongTaskCallback<Feed>
+    ) {
+
+        //var remoteProfilePath = feed.email + "/profile/profileImage"
+        var remoteImagePath = feed.email + "/feed/" + feed.timestamp + "/"
+
+        //db에 객체 데이터 저장
+        mDB.collection("feed")
+            .document(feed.email + feed.timestamp)
+            .set(feed)
+            .addOnCompleteListener {
+                callback.onResponse(
+                    Result.Success(
+                        feed
+                    )
+                )
+
+            }.addOnFailureListener {
+                callback.onResponse(Result.Error(it))
+            }
+
+        //db에 내가 올린 글 업로드
+        mDB.collection("user")
+            .document(feed.email!!)
+            .collection("myFeed")
+            .document(feed.email + feed.timestamp)
+            .set(feed)
+
+        userMangerUseCase.updateRemoteUserInfo(feed.email!!, mDB)
+    }
+
+    /*
     //피드 사진들, 게시자 프로필 사진, 게시자 팔로워를 업로드 후 Feed 객체에 저장한 후 db에 저장
     fun uploadFeed(
         context: Context, feed: Feed, mDB: FirebaseFirestore,
         storageRef: StorageReference, lifecycleCoroutineScope: LifecycleCoroutineScope,
         callback: LongTaskCallback<Feed>
     ) {
-        var remoteProfilePath = feed.email + "/profile/profileImage"
+
+        //var remoteProfilePath = feed.email + "/profile/profileImage"
         var remoteImagePath = feed.email + "/feed/" + feed.timestamp + "/"
 
-        //Feed 이미지 업로드
-        uploadUseCase.uploadRemoteFeedImage(
-            feed,
-            storageRef,
-            remoteImagePath,
-            object : LongTaskCallback<Boolean> {
-                override fun onResponse(result: Result<Boolean>) {
+        uploadUseCase.deleteRemoteFeedImage(feed, storageRef, object : LongTaskCallback<Boolean>{
+            override fun onResponse(result: Result<Boolean>) {
+                if(result is Result.Success) {
+                    //Feed 이미지 업로드
+                    uploadUseCase.uploadRemoteFeedImage(
+                        feed,
+                        storageRef,
+                        remoteImagePath,
+                        object : LongTaskCallback<Boolean> {
+                            override fun onResponse(result: Result<Boolean>) {
 
-                    LocalUserUseCase().getUserInfo(lifecycleCoroutineScope, AppDatabase.getInstance(context)!!, object : LongTaskCallback<User>{
-                        override fun onResponse(result: Result<User>) {
-                            if(result is Result.Success) {
-                                feed.remoteProfileUri = result.data.profileUri
+                                LocalUserUseCase().getUserInfo(
+                                    lifecycleCoroutineScope,
+                                    AppDatabase.getInstance(context)!!,
+                                    object : LongTaskCallback<User> {
+                                        override fun onResponse(result: Result<User>) {
+                                            if (result is Result.Success) {
 
-                                storageRef.child(remoteImagePath).listAll()
-                                    .addOnCompleteListener { it2 ->
-                                        var listResult = it2.result?.items!!
+                                                feed.remoteProfileUri = result.data.profileUri
+
+                                                storageRef.child(remoteImagePath).listAll()
+                                                    .addOnCompleteListener { it2 ->
+                                                        var listResult = it2.result?.items!!
+
+                                                        //Feed 이미지 로드 후 객체에 저장
+                                                        uploadUseCase.loadRemoteFeedImage(
+                                                            listResult,
+                                                            object : LongTaskCallback<MutableList<String>> {
+                                                                override fun onResponse(result: Result<MutableList<String>>) {
+                                                                    var res = (result as Result.Success).data
+                                                                    feed.remoteUri = res
 
 
-                                        //Feed 이미지 로드 후 객체에 저장
-                                        UploadUseCase().loadRemoteFeedImage(
-                                            listResult,
-                                            object : LongTaskCallback<MutableList<String>> {
-                                                override fun onResponse(result: Result<MutableList<String>>) {
-                                                    var res = (result as Result.Success).data
-                                                    feed.remoteUri = res
+                                                                    //db에 객체 데이터 저장
+                                                                    mDB.collection("feed")
+                                                                        .document(feed.email + feed.timestamp)
+                                                                        .set(feed)
+                                                                        .addOnCompleteListener {
+                                                                            callback.onResponse(
+                                                                                Result.Success(
+                                                                                    feed
+                                                                                )
+                                                                            )
 
+                                                                        }.addOnFailureListener {
+                                                                            callback.onResponse(Result.Error(it))
+                                                                        }
 
-                                                    //db에 객체 데이터 저장
-                                                    mDB.collection("feed")
-                                                        .document(feed.email + feed.timestamp)
-                                                        .set(feed)
-                                                        .addOnCompleteListener {
-                                                            callback.onResponse(Result.Success(feed))
+                                                                    //db에 내가 올린 글 업로드
+                                                                    mDB.collection("user")
+                                                                        .document(feed.email)
+                                                                        .collection("myFeed")
+                                                                        .document(feed.email + feed.timestamp)
+                                                                        .set(feed)
+                                                                }
+                                                            })
 
-                                                        }.addOnFailureListener {
-                                                            callback.onResponse(Result.Error(it))
-                                                        }
-
-                                                    mDB.collection("user")
-                                                        .document(feed.email)
-                                                        .collection("myFeed")
-                                                        .document(feed.email + feed.timestamp)
-                                                        .set(feed)
-                                                }
-                                            })
-
-                                    }
-                                    .addOnFailureListener { callback.onResponse(Result.Error(it)) }
-                            } else if(result is Result.Error){
-                                Log.e("error", "FeedUseCase uploadFeed error : ${result.exception}")
+                                                    }
+                                                    .addOnFailureListener { callback.onResponse(Result.Error(it)) }
+                                            } else if (result is Result.Error) {
+                                                Log.e(
+                                                    "error",
+                                                    "FeedUseCase uploadFeed error : ${result.exception}"
+                                                )
+                                            }
+                                        }
+                                    })
                             }
-                        }
-                    })
+                        })
                 }
-            })
+            }
+        })
         userMangerUseCase.updateRemoteUserInfo(feed.email, mDB)
     }
+
+     */
+
 
     //피드 리스트를 불러온다.
     fun loadFeedList(
@@ -181,7 +238,7 @@ class FeedUseCase {
             }
 
         db.collection("user")
-            .document(feed.email)
+            .document(feed.email!!)
             .collection("myFeed")
             .document(feed.email + feed.timestamp)
             .delete()
@@ -194,7 +251,6 @@ class FeedUseCase {
                     element.delete()
                 }
             }
-
         }
     }
 
@@ -207,7 +263,7 @@ class FeedUseCase {
         db: FirebaseFirestore
     ) {
         var map = hashMapOf<String, Any>()
-        var heartList = feed.heartList!!.toMutableMap()
+        var heartList = feed.heartList.toMutableMap()
 
         if (flag)
             heartList[myEmail] = myEmail
@@ -272,5 +328,6 @@ class FeedUseCase {
                 .set(map)
         }
     }
+
 
 }

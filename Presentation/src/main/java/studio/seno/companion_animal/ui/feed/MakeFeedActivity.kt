@@ -3,6 +3,7 @@ package studio.seno.companion_animal.ui.feed
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.ImageButton
 import android.widget.RadioGroup
@@ -21,6 +22,8 @@ import studio.seno.companion_animal.databinding.ActivityMakeFeedBinding
 import studio.seno.companion_animal.module.CommonFunction
 import studio.seno.companion_animal.util.Constants
 import studio.seno.datamodule.LocalRepository
+import studio.seno.datamodule.RemoteRepository
+import studio.seno.datamodule.mapper.Mapper
 import studio.seno.domain.LongTaskCallback
 import studio.seno.domain.Result
 import studio.seno.domain.util.PreferenceManager
@@ -86,7 +89,7 @@ class MakeFeedActivity : AppCompatActivity(), View.OnClickListener,
 
     fun setModifyInfo(){
         // 이미지 업로드
-        for(element in feed!!.remoteUri) {
+        for(element in feed!!.localUri) {
             selectedImageAdapter.addItem(element)
         }
         selectedImageAdapter.notifyDataSetChanged()
@@ -184,9 +187,9 @@ class MakeFeedActivity : AppCompatActivity(), View.OnClickListener,
                 localRepository.updateFeedCount(lifecycleScope, true)
                 submitResult(Timestamp(System.currentTimeMillis()).time)
             } else if(feed != null && mode != "write") {
-                if(mode == "modify")
+                if(mode == "modify") {
                     submitResult(feed!!.timestamp)
-                else {
+                } else {
                     localRepository.updateFeedCount(lifecycleScope, false)
                     feedListViewModel.requestDeleteFeed(feed!!)
                 }
@@ -197,6 +200,7 @@ class MakeFeedActivity : AppCompatActivity(), View.OnClickListener,
                 if(it) {
                     CommonFunction.getInstance()!!.unlockTouch(window!!)
                     binding.progressBar.visibility = View.GONE
+
 
                     if(feed != null) {
                         feed!!.sort = currentChecked as String
@@ -217,24 +221,37 @@ class MakeFeedActivity : AppCompatActivity(), View.OnClickListener,
     }
 
     fun submitResult(timestamp: Long){
+        val submitFeed : Feed = Mapper.getInstance()!!.mapperToFeed(0, null, null, currentChecked!!, hashTags,  selectedImageAdapter.getItems(), binding.content.text.toString(), timestamp)
         LocalRepository.getInstance(this)!!.getUserInfo(lifecycleScope, object : LongTaskCallback<User>{
-            override fun onResponse(result: Result<User>) {
-                if(result is Result.Success) {
-                    feedListViewModel.requestUploadFeed(
-                        applicationContext,
-                        0,
-                        result.data.email,
-                        result.data.nickname,
-                        currentChecked!!,
-                        hashTags,
-                        selectedImageAdapter.getItems(),
-                        binding.content.text.toString(),
+            override fun onResponse(result1: Result<User>) {
+                if(result1 is Result.Success) {
+                    submitFeed.email = result1.data.email
+                    submitFeed.nickname = result1.data.nickname
+                    submitFeed.remoteProfileUri = result1.data.profileUri
+
+                    feedListViewModel.requestDeleteRemoteFeedImage(
+                        result1.data.email,
                         timestamp,
-                        lifecycleScope
-                    )
-                }
-            }
-        })
+                        object : LongTaskCallback<Boolean> {
+                        override fun onResponse(result2: Result<Boolean>) {
+                            if(result2 is Result.Success) {
+
+                                feedListViewModel.requestUploadFeedImage(
+                                    selectedImageAdapter.getItems(),
+                                    result1.data.email + "/feed/" + timestamp + "/",
+                                    object : LongTaskCallback<Boolean> {
+                                        override fun onResponse(result: Result<Boolean>) {
+
+                                            feedListViewModel.requestLoadFeedImage(
+                                                result1.data.email + "/feed/" + timestamp + "/",
+                                                object : LongTaskCallback<List<String>>{
+                                                    override fun onResponse(result3: Result<List<String>>) {
+                                                        if(result3 is Result.Success){
+                                                            submitFeed.remoteUri = result3.data
+
+                                                            feedListViewModel.requestUploadFeed(submitFeed)
+                                                            feed = submitFeed
+                                                        } } }) } }) } } }) } } })
     }
 
     fun makeHashTag(str : String){

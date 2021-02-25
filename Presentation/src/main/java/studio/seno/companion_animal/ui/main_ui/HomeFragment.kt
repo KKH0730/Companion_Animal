@@ -153,11 +153,12 @@ class HomeFragment : Fragment(), View.OnClickListener{
         feedListViewModel.getFeedListLiveData().observe(requireActivity(), {
             feedAdapter.submitList(it)
 
-                if(PreferenceManager.getInt(requireActivity().applicationContext, "feed_position") != 0) {
+            if(context != null) {
+                if(PreferenceManager.getInt(requireContext(), "feed_position") != 0) {
                     binding.feedRecyclerView.smoothScrollToPosition(PreferenceManager.getInt(requireActivity().applicationContext, "feed_position"))
-                    PreferenceManager.setInt(requireActivity().applicationContext, "feed_position", 0)
+                    PreferenceManager.setInt(requireContext().applicationContext, "feed_position", 0)
                 }
-
+            }
         })
     }
 
@@ -277,14 +278,19 @@ class HomeFragment : Fragment(), View.OnClickListener{
             val feed = data?.getParcelableExtra<Feed>("feed")!!
             feedListViewModel.updateFeedList(feed, PreferenceManager.getInt(requireActivity().applicationContext, "feed_position"))
 
-
         } else if(requestCode == Constants.FEED_MAKE_QEQUEST && resultCode == Constants.RESULT_OK) {
             loadFeedList()
-        } else if(requestCode == Constants.FEED_DELETE_REQUEST && resultCode == Constants.RESULT_OK) {
 
+        } else if(requestCode == Constants.FEED_DELETE_REQUEST && resultCode == Constants.RESULT_OK) {
             if(data?.getParcelableExtra<Feed>("feed") != null) {
                 feedListViewModel.deleteFeedList(PreferenceManager.getInt(requireActivity().applicationContext, "feed_position"))
             }
+        } else if(requestCode == Constants.FEED_MODIFY_REQUEST && resultCode == Constants.RESULT_OK) {
+            if(data?.getParcelableExtra<Feed>("feed") != null) {
+                val feed = data.getParcelableExtra<Feed>("feed")!!
+                feedListViewModel.updateFeedList(feed, PreferenceManager.getInt(requireActivity().applicationContext, "feed_position"))
+            }
+
         }
     }
 }
