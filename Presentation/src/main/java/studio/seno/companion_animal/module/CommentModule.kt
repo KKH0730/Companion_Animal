@@ -159,7 +159,6 @@ class CommentModule(
     }
 
     fun hideComment(readAnswer: Button, targetComment: Comment) {
-        //targetcomment의 child에 넣어야함
         var currentCommentList = mAdapter.currentList.toMutableList()
         var childList = mutableListOf<Comment>()
         var pos = currentCommentList.indexOf(targetComment)
@@ -194,50 +193,6 @@ class CommentModule(
         }
         return commentPosition + 1
     }
-/*
-    fun sendNotification(targetEmail: String, content: String, currentTimestamp: Long) {
-        //댓글을 작성하면 notification 알림이 전송
-        if(targetEmail == myEmail)
-            return
-
-        mMainViewModel.requestUserData(targetEmail, object : LongTaskCallback<User> {
-            override fun onResponse(result: Result<User>) {
-                if (result is Result.Success) {
-
-                    val notificationModel = NotificationModel(
-                        result.data.token,
-                        NotificationData(
-                            myNickname,
-                            content,
-                            currentTimestamp,
-                            mFeed.email + currentTimestamp,
-                            mFeed.email + mFeed.timestamp,
-                            true
-                        )
-                    )
-
-                    var apiService = ApiClient.getClient().create(ApiInterface::class.java)
-                    var responseBodyCall: retrofit2.Call<ResponseBody> =
-                        apiService.sendNotification(notificationModel)
-                    responseBodyCall.enqueue(object : retrofit2.Callback<ResponseBody> {
-                        override fun onResponse(
-                            call: retrofit2.Call<ResponseBody>,
-                            response: retrofit2.Response<ResponseBody>
-                        ) {
-                            Log.d("hi", "success")
-                        }
-
-                        override fun onFailure(call: retrofit2.Call<ResponseBody>, t: Throwable) {
-                            Log.d("hi", "onFailure")
-                        }
-
-                    })
-                }
-            }
-        })
-    }
-
- */
 
     fun setHint(commentEditText : EditText, modeTitleTextView : TextView, method: Int) {
         if (method == 0) {

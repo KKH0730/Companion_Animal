@@ -62,14 +62,6 @@ class FeedUseCase {
                                                         .addOnCompleteListener {
                                                             callback.onResponse(Result.Success(feed))
 
-                                                            PreferenceManager.setLong(
-                                                                context,
-                                                                "feedCount",
-                                                                PreferenceManager.getLong(
-                                                                    context,
-                                                                    "feedCount"
-                                                                ) + 1L
-                                                            )
                                                         }.addOnFailureListener {
                                                             callback.onResponse(Result.Error(it))
                                                         }
@@ -91,9 +83,7 @@ class FeedUseCase {
                     })
                 }
             })
-        var list = mutableListOf("feedCount")
-        userMangerUseCase.updateRemoteUserInfo(feed.email, mDB, list)
-
+        userMangerUseCase.updateRemoteUserInfo(feed.email, mDB)
     }
 
     //피드 리스트를 불러온다.

@@ -14,6 +14,7 @@ import android.widget.TextView
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.observe
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import org.jetbrains.anko.support.v4.startActivity
@@ -94,7 +95,10 @@ class ChatFragment : Fragment() {
         chatListViewModel.requestLoadChatList(CommonFunction.makeChatPath(user!!.email), object : LongTaskCallback<Boolean>{
             override fun onResponse(result: Result<Boolean>) {
                 if(result is Result.Success) {
-                    binding.progressBar.visibility = View.GONE
+                    if(result.data)
+                        binding.progressBar.visibility = View.GONE
+                    else
+                        binding.progressBar.visibility = View.GONE
                 }
             }
         })
@@ -112,7 +116,7 @@ class ChatFragment : Fragment() {
                         "targetNickname" to chat.targetNickname,
                         "targetRealEmail" to chat.targetRealEmail
                     )
-                    Log.d("hi", "1 chat.targetRealEmail : ${chat.targetRealEmail}")
+
                     chatListViewModel.requestUpdateCheckDot(chat.email!!, chat.targetEmail!!)
                 } else {
                     startActivity<ChatActivity>(
@@ -121,7 +125,7 @@ class ChatFragment : Fragment() {
                         "targetNickname" to chat.nickname,
                         "targetRealEmail" to chat.realEmail
                     )
-                    Log.d("hi", "2 chat.targetRealEmail : ${chat.targetRealEmail}")
+
                    chatListViewModel.requestUpdateCheckDot(chat.targetEmail!!, chat.email!!)
                 }
             }

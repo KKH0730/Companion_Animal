@@ -62,9 +62,14 @@ class ChatListVIewModel : ViewModel() {
             object : LongTaskCallback<List<Chat>> {
                 override fun onResponse(result: Result<List<Chat>>) {
                     if (result is Result.Success) {
-                        chatListLiveData.value = result.data
-                        callback.onResponse(Result.Success(true))
-                        recyclerView.scrollToPosition(result.data.size - 1)
+                        if(result.data != null){
+                            chatListLiveData.value = result.data
+                            callback.onResponse(Result.Success(true))
+                            recyclerView.scrollToPosition(result.data.size - 1)
+                        } else {
+                            callback.onResponse(Result.Success(false))
+                        }
+
                     } else if (result is Result.Error) {
                         Log.e(
                             "error",
@@ -80,18 +85,23 @@ class ChatListVIewModel : ViewModel() {
         remoteRepository.requestLoadChatList(myEmail, object : LongTaskCallback<List<Chat>> {
             override fun onResponse(result: Result<List<Chat>>) {
                 if (result is Result.Success) {
-                    val tempList = result.data
+                    if(result.data != null) {
+                        val tempList = result.data
 
-                    Collections.sort(tempList, object : Comparator<Chat> {
-                        override fun compare(o1: Chat?, o2: Chat?): Int {
-                            if (o1?.timestamp!! > o2?.timestamp!!) {
-                                return -1
-                            } else
-                                return 1
-                        }
-                    })
-                    chatListLiveData.value = tempList
-                    callback.onResponse(Result.Success(true))
+                        Collections.sort(tempList, object : Comparator<Chat> {
+                            override fun compare(o1: Chat?, o2: Chat?): Int {
+                                if (o1?.timestamp!! > o2?.timestamp!!) {
+                                    return -1
+                                } else
+                                    return 1
+                            }
+                        })
+                        chatListLiveData.value = tempList
+                        callback.onResponse(Result.Success(true))
+                    } else {
+                        callback.onResponse(Result.Success(false))
+                    }
+
                 } else if (result is Result.Error) {
                     Log.e(
                         "error",

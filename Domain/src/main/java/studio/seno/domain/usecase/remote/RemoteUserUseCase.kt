@@ -70,22 +70,19 @@ class RemoteUserUseCase {
             }
     }
 
-    fun updateRemoteUserInfo(email : String, db : FirebaseFirestore, list : MutableList<String>) {
+    fun updateRemoteUserInfo(email : String, db : FirebaseFirestore) {
+        db.collection("user")
+            .document(email)
+            .get()
+            .addOnSuccessListener {
+                var count : Long? = it.getLong("feedCount")
 
-        for(i in 0 until list.size) {
-            db.collection("user")
-                .document(email)
-                .get()
-                .addOnSuccessListener {
-                    var count : Long? = it.getLong(list[i])
-
-                    if (count != null) {
-                        db.collection("user")
-                            .document(email)
-                            .update(list[i], (count + 1))
-                    }
+                if (count != null) {
+                    db.collection("user")
+                        .document(email)
+                        .update("feedCount", (count + 1))
                 }
-        }
+            }
     }
 
     fun updateRemoteProfileUri(myEmail : String, profileUri : String, db : FirebaseFirestore){

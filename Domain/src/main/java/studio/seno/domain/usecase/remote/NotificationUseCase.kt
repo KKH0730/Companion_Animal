@@ -53,7 +53,7 @@ class NotificationUseCase {
         db.collection("user")
             .document(myEmail)
             .collection("notification")
-            .document(notificationData.targetPath!!)
+            .document(notificationData.myPath!!)
             .update("check",false)
     }
 

@@ -10,8 +10,10 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.iid.FirebaseInstanceId
 import me.ibrahimsn.lib.OnItemSelectedListener
 import org.jetbrains.anko.startActivity
+import org.jetbrains.anko.support.v4.startActivity
 import studio.seno.commonmodule.BaseActivity
 import studio.seno.companion_animal.databinding.ActivityMainBinding
+import studio.seno.companion_animal.ui.chat.ChatActivity
 import studio.seno.companion_animal.ui.feed.FeedDetailActivity
 import studio.seno.companion_animal.ui.main_ui.*
 import studio.seno.datamodule.LocalRepository
@@ -95,7 +97,9 @@ class MainActivity : BaseActivity() , DialogInterface.OnDismissListener{
 
     private fun pendingIntent(){
         if(intent.getStringExtra("from") != null){
+            Log.d("hi", "from not null")
             if(intent.getStringExtra("from") == "notification") {
+                Log.d("hi", "notification")
                 RemoteRepository.getInstance()!!.loadFeed(intent.getStringExtra("target_path")!!, object : LongTaskCallback<Feed>{
                     override fun onResponse(result: Result<Feed>) {
                         if(result is Result.Success){
@@ -109,7 +113,13 @@ class MainActivity : BaseActivity() , DialogInterface.OnDismissListener{
                     }
                 })
             } else if(intent.getStringExtra("from") == "chat") {
-                supportFragmentManager.beginTransaction().replace(R.id.container, chatFragment).commit()
+                Log.d("hi", "chat")
+                startActivity<ChatActivity>(
+                    "targetEmail" to intent.getStringExtra("targetRealEmail"),
+                    "targetProfileUri" to intent.getStringExtra("targetEmail"),
+                    "targetNickname" to intent.getStringExtra("targetNickname"),
+                    "targetRealEmail" to intent.getStringExtra("targetProfileUri"),
+                )
             }
         }
 

@@ -21,8 +21,11 @@ import studio.seno.companion_animal.databinding.ActivityMakeFeedBinding
 import studio.seno.companion_animal.module.CommonFunction
 import studio.seno.companion_animal.util.Constants
 import studio.seno.datamodule.LocalRepository
+import studio.seno.domain.LongTaskCallback
+import studio.seno.domain.Result
 import studio.seno.domain.util.PreferenceManager
 import studio.seno.domain.model.Feed
+import studio.seno.domain.model.User
 import java.sql.Timestamp
 
 class MakeFeedActivity : AppCompatActivity(), View.OnClickListener,
@@ -182,7 +185,7 @@ class MakeFeedActivity : AppCompatActivity(), View.OnClickListener,
                 submitResult(Timestamp(System.currentTimeMillis()).time)
             } else if(feed != null && mode != "write") {
                 if(mode == "modify")
-                    submitResult( feed!!.timestamp)
+                    submitResult(feed!!.timestamp)
                 else {
                     localRepository.updateFeedCount(lifecycleScope, false)
                     feedListViewModel.requestDeleteFeed(feed!!)
@@ -214,20 +217,24 @@ class MakeFeedActivity : AppCompatActivity(), View.OnClickListener,
     }
 
     fun submitResult(timestamp: Long){
-        PreferenceManager.getString(this, "nickName")?.let {
-            feedListViewModel.requestUploadFeed(
-                this,
-                0,
-                FirebaseAuth.getInstance().currentUser?.email.toString(),
-                it,
-                currentChecked!!,
-                hashTags,
-                selectedImageAdapter.getItems(),
-                binding.content.text.toString(),
-                timestamp,
-                lifecycleScope
-            )
-        }
+        LocalRepository.getInstance(this)!!.getUserInfo(lifecycleScope, object : LongTaskCallback<User>{
+            override fun onResponse(result: Result<User>) {
+                if(result is Result.Success) {
+                    feedListViewModel.requestUploadFeed(
+                        applicationContext,
+                        0,
+                        result.data.email,
+                        result.data.nickname,
+                        currentChecked!!,
+                        hashTags,
+                        selectedImageAdapter.getItems(),
+                        binding.content.text.toString(),
+                        timestamp,
+                        lifecycleScope
+                    )
+                }
+            }
+        })
     }
 
     fun makeHashTag(str : String){

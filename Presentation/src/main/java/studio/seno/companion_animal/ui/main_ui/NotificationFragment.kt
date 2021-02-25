@@ -70,7 +70,6 @@ class NotificationFragment : Fragment() {
     private fun itemEvent(){
         notiAdater.setOnNotificationListener(object : OnNotificationClickedListener{
             override fun onNotificationClicked(checkImage : ImageView, item: NotificationData) {
-                checkImage.visibility = View.GONE
                 notiListViewModel.requestUpdateCheckDot(item)
 
                 RemoteRepository.getInstance()!!.loadFeed(item.targetPath!!, object : LongTaskCallback<Feed>{
@@ -81,6 +80,7 @@ class NotificationFragment : Fragment() {
                             else
                                 startActivity<ErrorActivity>()
 
+                            checkImage.visibility = View.GONE
                         } else if(result is Result.Error) {
                             Log.e("error", "NotificationFragment intent error : ${result.exception}")
                         }

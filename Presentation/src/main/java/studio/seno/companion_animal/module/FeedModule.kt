@@ -22,7 +22,6 @@ import studio.seno.domain.LongTaskCallback
 import studio.seno.domain.Result
 import studio.seno.domain.model.Feed
 import studio.seno.domain.model.User
-import studio.seno.domain.util.PreferenceManager
 import java.sql.Timestamp
 
 class FeedModule(
@@ -112,6 +111,7 @@ class FeedModule(
      */
     fun onCommentBtnClicked(
         feed: Feed,
+        email : String,
         nickname : String,
         commentEdit: EditText,
         commentCount: TextView,
@@ -144,11 +144,8 @@ class FeedModule(
             feed.email,
             feed.timestamp,
             Constants.PARENT,
-            FirebaseAuth.getInstance().currentUser?.email.toString(),
-            PreferenceManager.getString(
-                commentEdit.context,
-                "nickName"
-            )!!,
+            email,
+            nickname,
             commentEdit.text.toString(),
             Timestamp(System.currentTimeMillis()).time
         )
@@ -174,7 +171,7 @@ class FeedModule(
 
 
         //댓글을 작성하면 notification 알림이 전송
-        NotificationModule(commentEdit.context).sendNotification(feed.email, commentContent, Timestamp(System.currentTimeMillis()).time, feed)
+        NotificationModule(commentEdit.context, nickname).sendNotification(feed.email, null, commentContent, Timestamp(System.currentTimeMillis()).time, feed)
     }
 
     fun onDismiss(type : String, targetFeed : Feed?, activity: Activity, localRepository: LocalRepository, feedAdapter :FeedListAdapter?, lifecycleScope : LifecycleCoroutineScope, ){

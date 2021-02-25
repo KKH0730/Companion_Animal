@@ -34,8 +34,11 @@ import studio.seno.companion_animal.ui.comment.CommentListViewModel
 import studio.seno.companion_animal.ui.comment.OnCommentEventListener
 import studio.seno.companion_animal.util.Constants
 import studio.seno.datamodule.LocalRepository
+import studio.seno.domain.LongTaskCallback
+import studio.seno.domain.Result
 import studio.seno.domain.model.Comment
 import studio.seno.domain.model.Feed
+import studio.seno.domain.model.User
 import studio.seno.domain.util.PreferenceManager
 import java.sql.Timestamp
 
@@ -47,9 +50,8 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
     private val feedListViewModel: FeedListViewModel by viewModels()
     private val commentViewModel: CommentListViewModel by viewModels()
     private val commentListViewModel: CommentListViewModel by viewModels()
-    private val feedModule: FeedModule by lazy {
-        FeedModule(feedListViewModel, commentViewModel)
-    }
+    private val feedModule: FeedModule by lazy { FeedModule(feedListViewModel, commentViewModel) }
+    private lateinit var notificationModule : NotificationModule
     private var curComment: Comment? = null
     private var answerComment: Comment? = null
     private var answerPosition = 0
@@ -57,22 +59,13 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
     private val commentAdapter = CommentAdapter()
     private var answerMode = false
     private var modifyMode = false
-    private var backKeyPressedTime = 0L
-    private val commentModule: CommentModule by lazy {
-        CommentModule(
-            commentListViewModel, feed!!, FirebaseAuth.getInstance().currentUser?.email.toString(),
-            PreferenceManager.getString(applicationContext, "nickName")!!, applicationContext, commentAdapter
-        )
-    }
-
+    private lateinit var commentModule: CommentModule
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_feed_detail)
 
         init()
-
-
         binding.feedLayout.lifecycleOwner = this
         binding.feedLayout.model = feedViewModel
         binding.feedLayout.executePendingBindings()
@@ -80,8 +73,20 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
         binding.commentLayout.lifecycleOwner = this
         binding.commentLayout.model = commentListViewModel
 
-        commentItemEvent()
-        observe()
+        LocalRepository.getInstance(this)!!.getUserInfo(lifecycleScope, object :
+            LongTaskCallback<User> {
+            override fun onResponse(result: Result<User>) {
+                if(result is Result.Success) {
+                    notificationModule = NotificationModule(applicationContext, result.data.nickname)
+                    commentModule = CommentModule(
+                        commentListViewModel, feed!!, result.data.email,
+                        result.data.nickname, applicationContext, commentAdapter
+                    )
+                    commentItemEvent()
+                    observe()
+                }
+            }
+        })
     }
 
     fun init() {
@@ -207,7 +212,6 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
             initVariable()
         } else if (v?.id == R.id.comment_btn) {
             val timestamp = Timestamp(System.currentTimeMillis()).time
-            val notificationModule = NotificationModule(applicationContext)
 
             if (answerMode) {
                 if (modifyMode && answerComment != null) {
@@ -221,7 +225,7 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
                         answerPosition, commentPosition, binding.feedLayout.comment
                     )
 
-                    notificationModule.sendNotification(curComment!!.email, binding.feedLayout.comment.text.toString(), timestamp, feed!!)
+                    notificationModule.sendNotification(curComment!!.email, null, binding.feedLayout.comment.text.toString(), timestamp, feed!!)
                 }
             } else {
                 if (modifyMode) {
@@ -236,7 +240,7 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
                         binding.feedLayout.commentCount, binding.feedLayout.comment
                     )
 
-                    notificationModule.sendNotification(feed!!.email, binding.feedLayout.comment.text.toString(), timestamp, feed!!)
+                    notificationModule.sendNotification(feed!!.email, null, binding.feedLayout.comment.text.toString(), timestamp, feed!!)
                 }
             }
             initVariable()

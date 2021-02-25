@@ -10,6 +10,7 @@ import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
 import com.google.firebase.auth.FirebaseAuth
 import studio.seno.companion_animal.MainActivity
@@ -20,9 +21,13 @@ import studio.seno.companion_animal.module.CommonFunction
 import studio.seno.companion_animal.module.NotificationModule
 import studio.seno.companion_animal.ui.MenuDialog
 import studio.seno.companion_animal.util.Constants
+import studio.seno.datamodule.LocalRepository
+import studio.seno.domain.LongTaskCallback
+import studio.seno.domain.Result
 import studio.seno.domain.util.PreferenceManager
 import studio.seno.domain.model.Comment
 import studio.seno.domain.model.Feed
+import studio.seno.domain.model.User
 import java.sql.Timestamp
 
 class CommentActivity : AppCompatActivity(), View.OnClickListener,
@@ -38,12 +43,8 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
     private var answerPosition = 0
     private var commentPosition = 0
     private val feed: Feed by lazy { intent.getParcelableExtra<Feed>("feed") }
-    private val commentModule : CommentModule by lazy {
-        CommentModule(
-            commentListViewModel, feed, FirebaseAuth.getInstance().currentUser?.email.toString(),
-            PreferenceManager.getString(applicationContext, "nickName")!!, applicationContext, commentAdapter
-        )
-    }
+    private lateinit var commentModule : CommentModule
+    private lateinit var notificationModule : NotificationModule
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,8 +53,19 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
         binding.model = commentListViewModel
 
         initView()
-        commentEvent()
-        observe()
+        LocalRepository.getInstance(this)!!.getUserInfo(lifecycleScope, object : LongTaskCallback<User>{
+            override fun onResponse(result: Result<User>) {
+                if(result is Result.Success) {
+                    notificationModule = NotificationModule(applicationContext, result.data.nickname)
+                    commentModule = CommentModule(
+                        commentListViewModel, feed, result.data.email, result.data.nickname,
+                        applicationContext, commentAdapter
+                    )
+                    commentEvent()
+                    observe()
+                }
+            }
+        })
     }
 
     private fun initView() {
@@ -134,7 +146,6 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
             initVariable()
         } else if (v?.id == R.id.comment_btn) {
             val timestamp = Timestamp(System.currentTimeMillis()).time
-            val notificationModule = NotificationModule(applicationContext)
 
             if (answerMode) { // 답글쓰기 모드
                 if (modifyMode && answerComment != null) { //답글 수정 모드
@@ -149,7 +160,7 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
                     )
 
                     //commentModule.sendNotification(curComment!!.email, binding.comment.text.toString(), timestamp)
-                    notificationModule.sendNotification(curComment!!.email, binding.comment.text.toString(), timestamp, feed)
+                    notificationModule.sendNotification(curComment!!.email, null, binding.comment.text.toString(), timestamp, feed)
                 }
             } else {
                 if (modifyMode) { //댓글 수정 모드
@@ -163,7 +174,7 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
                         binding.header.findViewById(R.id.comment_count), binding.comment
                     )
                     //commentModule.sendNotification(feed.email, binding.comment.text.toString(), timestamp)
-                    notificationModule.sendNotification(feed.email, binding.comment.text.toString(), timestamp, feed)
+                    notificationModule.sendNotification(feed.email, null, binding.comment.text.toString(), timestamp, feed)
                 }
             }
             initVariable()

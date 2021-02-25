@@ -11,10 +11,12 @@ import android.graphics.BitmapFactory
 import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Build
+import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import okhttp3.ResponseBody
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.util.Constants
+import studio.seno.datamodule.LocalRepository
 import studio.seno.datamodule.RemoteRepository
 import studio.seno.datamodule.api.ApiClient
 import studio.seno.datamodule.api.ApiInterface
@@ -27,10 +29,9 @@ import studio.seno.domain.model.User
 import studio.seno.domain.util.PreferenceManager
 
 
-class NotificationModule(context: Context) {
+class NotificationModule(context: Context, title: String) {
     private var notificationManager: NotificationManager? = null
-    private val myEmail = FirebaseAuth.getInstance().currentUser?.email.toString()
-    private val myNickname = PreferenceManager.getString(context, "nickName")!!
+    private val myNickname = title
     private var mContext = context
 
     fun getNotificationManager(): NotificationManager {
@@ -105,12 +106,13 @@ class NotificationModule(context: Context) {
 
     fun sendNotification(
         targetEmail: String,
+        myProfileUri : String?,
         content: String,
         currentTimestamp: Long,
         feed: Feed?
     ) {
         //댓글을 작성하면 notification 알림이 전송
-        if (targetEmail == myEmail) {
+        if (targetEmail == FirebaseAuth.getInstance().currentUser?.email.toString()) {
             return
         }
 
@@ -138,7 +140,10 @@ class NotificationModule(context: Context) {
                                 myNickname,
                                 content,
                                 currentTimestamp,
-                                "chat",
+                                FirebaseAuth.getInstance().currentUser?.email.toString() + " "
+                                        + CommonFunction.getInstance()!!.makeChatPath(FirebaseAuth.getInstance().currentUser?.email.toString()) + " "
+                                        + myNickname + " "
+                                        + myProfileUri,
                                 "chat",
                                 true
                             )
@@ -155,7 +160,6 @@ class NotificationModule(context: Context) {
                             response: retrofit2.Response<ResponseBody>
                         ) {
                         }
-
                         override fun onFailure(call: retrofit2.Call<ResponseBody>, t: Throwable) {
                         }
 
