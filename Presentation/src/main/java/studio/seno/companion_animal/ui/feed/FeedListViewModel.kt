@@ -65,18 +65,6 @@ class FeedListViewModel() : ViewModel() {
         })
     }
 
-    fun requestUploadFeedImage(localUri: List<String>, path: String, callback: LongTaskCallback<Boolean>){
-        repository.requestUploadRemoteFeedImage(localUri, path, callback)
-    }
-
-    fun requestDeleteRemoteFeedImage(email: String, timestamp : Long, callback: LongTaskCallback<Boolean>){
-        repository.requestDeleteRemoteFeedImage(email, timestamp, callback)
-    }
-
-    fun requestLoadFeedImage(path : String, callback : LongTaskCallback<List<String>>){
-        repository.requestLoadFeedImage(path, callback)
-    }
-
     fun clearFeedList(){
         feedListLiveData.value = null
     }
@@ -95,12 +83,18 @@ class FeedListViewModel() : ViewModel() {
 
 
 
-    fun requestUploadFeed(feed: Feed) {
-        repository.uploadFeed(feed, object : LongTaskCallback<Feed> {
+    fun requestUploadFeed(email : String, nickname: String, sort:String, hashTags : List<String>,
+                          localUri: List<String>, content: String, timestamp: Long, toRemoveUri : List<Int>, mode : String, callback : LongTaskCallback<Feed>) {
+        val feed = Mapper.getInstance()!!.mapperToFeed(
+            0, email, nickname, sort, hashTags, localUri, content, timestamp
+        )
+
+        repository.uploadFeed(feed, toRemoveUri, mode, object : LongTaskCallback<Feed> {
             override fun onResponse(result: Result<Feed>) {
                 if (result is Result.Success) {
                     feedSaveStatus.value = true
 
+                    callback.onResponse(Result.Success(result.data))
                 } else if(result is Result.Error) {
                     Log.e("error", "upload feed error : ${result.exception}")
                 }

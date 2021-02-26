@@ -99,8 +99,8 @@ class RemoteRepository() {
 
 
     //피드 작성후 서버에 업로드
-    fun uploadFeed(feed: Feed,  callback: LongTaskCallback<Feed>) {
-        feedUseCase.uploadFeed(feed, mDB, callback)
+    fun uploadFeed(feed: Feed,  toRemoveUri : List<Int>, mode : String, callback: LongTaskCallback<Feed>) {
+        feedUseCase.uploadFeed(feed, toRemoveUri, mode, mStorageRef, mDB, callback)
     }
 
     //피드 리스트 로드
@@ -136,18 +136,6 @@ class RemoteRepository() {
     //profile image uri 로드
     fun loadRemoteProfileImage(email: String, callback: LongTaskCallback<String>){
         uploadUseCase.loadRemoteProfileImage(email, mStorageRef, callback)
-    }
-
-    fun requestUploadRemoteFeedImage(localUri : List<String>,  path : String, callback: LongTaskCallback<Boolean>){
-        uploadUseCase.uploadRemoteFeedImage(localUri, mStorageRef, path, callback)
-    }
-
-    fun requestDeleteRemoteFeedImage(email: String, timestamp : Long, callback: LongTaskCallback<Boolean>){
-        uploadUseCase.deleteRemoteFeedImage(email, timestamp, mStorageRef, callback)
-    }
-
-    fun requestLoadFeedImage(path : String, callback : LongTaskCallback<List<String>>){
-        uploadUseCase.loadRemoteFeedImage(path, mStorageRef, callback)
     }
 
 

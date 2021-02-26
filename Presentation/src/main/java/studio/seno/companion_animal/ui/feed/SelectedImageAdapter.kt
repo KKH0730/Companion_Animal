@@ -44,7 +44,7 @@ class SelectedImageAdapter(context: Context) : RecyclerView.Adapter<RecyclerView
         imageItems.add(uriString)
     }
 
-    fun removeItem(uriString: String){
+    fun removeItem(uriString: String) {
         imageItems.remove(uriString)
     }
 

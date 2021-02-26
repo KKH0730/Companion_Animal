@@ -22,35 +22,64 @@ class FeedUseCase {
 
     //피드 사진들, 게시자 프로필 사진, 게시자 팔로워를 업로드 후 Feed 객체에 저장한 후 db에 저장
     fun uploadFeed(
-        feed: Feed, mDB: FirebaseFirestore,
-        callback: LongTaskCallback<Feed>
+        feed: Feed, toRemoveUri : List<Int>, mode : String, storageRef: StorageReference,
+        mDB: FirebaseFirestore, callback: LongTaskCallback<Feed>
     ) {
 
         //var remoteProfilePath = feed.email + "/profile/profileImage"
         var remoteImagePath = feed.email + "/feed/" + feed.timestamp + "/"
 
-        //db에 객체 데이터 저장
-        mDB.collection("feed")
-            .document(feed.email + feed.timestamp)
-            .set(feed)
-            .addOnCompleteListener {
-                callback.onResponse(
-                    Result.Success(
-                        feed
-                    )
-                )
 
-            }.addOnFailureListener {
-                callback.onResponse(Result.Error(it))
+        uploadUseCase.deleteRemoteFeedImage(feed.email!!, feed.timestamp, toRemoveUri, mode, storageRef, object : LongTaskCallback<Boolean>{
+            override fun onResponse(result: Result<Boolean>) {
+                if(result is Result.Success) {
+
+                    uploadUseCase.loadRemoteProfileImage(feed.email!!, storageRef, object : LongTaskCallback<String> {
+                        override fun onResponse(result: Result<String>) {
+                            if(result is Result.Success) {
+                                feed.remoteProfileUri = result.data
+
+                                uploadUseCase.uploadRemoteFeedImage(feed.localUri, remoteImagePath, storageRef, object : LongTaskCallback<Boolean> {
+                                    override fun onResponse(result: Result<Boolean>) {
+                                        if(result is Result.Success) {
+
+                                            uploadUseCase.loadRemoteFeedImage(remoteImagePath, feed.localUri.size, storageRef, object : LongTaskCallback<List<String>>{
+                                                override fun onResponse(result: Result<List<String>>) {
+                                                    if(result is Result.Success) {
+                                                        feed.remoteUri = result.data
+
+                                                        //db에 객체 데이터 저장
+                                                        mDB.collection("feed")
+                                                            .document(feed.email + feed.timestamp)
+                                                            .set(feed)
+                                                            .addOnCompleteListener {
+                                                                callback.onResponse(Result.Success(feed))
+
+                                                            }.addOnFailureListener {
+                                                                callback.onResponse(Result.Error(it))
+                                                            }
+
+                                                        //db에 내가 올린 글 업로드
+                                                        mDB.collection("user")
+                                                            .document(feed.email!!)
+                                                            .collection("myFeed")
+                                                            .document(feed.email + feed.timestamp)
+                                                            .set(feed)
+                                                    }
+                                                }
+
+                                            })
+                                        }
+                                    }
+
+                                })
+                            }
+                        }
+
+                    })
+                }
             }
-
-        //db에 내가 올린 글 업로드
-        mDB.collection("user")
-            .document(feed.email!!)
-            .collection("myFeed")
-            .document(feed.email + feed.timestamp)
-            .set(feed)
-
+        })
         userMangerUseCase.updateRemoteUserInfo(feed.email!!, mDB)
     }
 

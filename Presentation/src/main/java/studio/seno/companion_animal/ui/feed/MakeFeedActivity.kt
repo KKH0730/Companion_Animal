@@ -1,5 +1,6 @@
 package studio.seno.companion_animal.ui.feed
 
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -16,6 +17,8 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import com.google.firebase.auth.FirebaseAuth
 import com.kroegerama.imgpicker.BottomSheetImagePicker
 import com.pchmn.materialchips.ChipView
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import studio.seno.commonmodule.CustomToast
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.ActivityMakeFeedBinding
@@ -39,7 +42,8 @@ class MakeFeedActivity : AppCompatActivity(), View.OnClickListener,
     private val localRepository = LocalRepository(this)
     private var feed : Feed? = null
     private var mode = "write"
-
+    private var toRemoveUri = mutableListOf<Int>()
+    private var toRemoteUriArray : Array<String>? = null
 
     private var currentChecked: String? = null
     private var hashTags = mutableListOf<String>()
@@ -58,7 +62,19 @@ class MakeFeedActivity : AppCompatActivity(), View.OnClickListener,
         selectedImageAdapter.setOnDeleteItemListener(object :
             OnItemDeleteListener {
             override fun onDeleted(position: Int) {
-                selectedImageAdapter.removeItem(selectedImageAdapter.getItem(position))
+                val deleteItem : String = selectedImageAdapter.getItem(position)
+                    selectedImageAdapter.removeItem(deleteItem)
+                Log.d("hi", "deleteItem ${deleteItem}")
+                if(mode == "modify"){
+                    Log.d("hi", "modify ")
+                    for(i in 0 until toRemoteUriArray!!.size) {
+                        if (toRemoteUriArray!![i] == deleteItem) {
+                            Log.d("hi", "i -> $i")
+                            toRemoveUri.add(i)
+                        }
+                    }
+
+                }
                 selectedImageAdapter.notifyDataSetChanged()
             }
         })
@@ -88,11 +104,13 @@ class MakeFeedActivity : AppCompatActivity(), View.OnClickListener,
     }
 
     fun setModifyInfo(){
+        toRemoteUriArray = Array(feed!!.remoteUri.size, {""})
         // 이미지 업로드
-        for(element in feed!!.localUri) {
-            selectedImageAdapter.addItem(element)
+        for(i in 0 until feed!!.remoteUri.size) {
+            toRemoteUriArray!![i] = feed!!.remoteUri[i]
+            selectedImageAdapter.addItem(feed!!.remoteUri[i])
         }
-        selectedImageAdapter.notifyDataSetChanged()
+
 
         //반려동물 종류
         when(feed!!.sort) {
@@ -195,31 +213,9 @@ class MakeFeedActivity : AppCompatActivity(), View.OnClickListener,
                 }
             }
 
-
-            feedListViewModel.getFeedListSaveStatus().observe(this, {
-                if(it) {
-                    CommonFunction.getInstance()!!.unlockTouch(window!!)
-                    binding.progressBar.visibility = View.GONE
-
-
-                    if(feed != null) {
-                        feed!!.sort = currentChecked as String
-                        feed!!.hashTags = hashTags
-                        feed!!.content = binding.content.text.toString()
-                        feed!!.localUri = selectedImageAdapter.getItems()
-                    }
-
-                    var intent = Intent()
-                    intent.putExtra("feed", feed)
-                    setResult(Constants.RESULT_OK, intent)
-
-                    finish()
-                }
-            })
-
         }
     }
-
+/*
     fun submitResult(timestamp: Long){
         val submitFeed : Feed = Mapper.getInstance()!!.mapperToFeed(0, null, null, currentChecked!!, hashTags,  selectedImageAdapter.getItems(), binding.content.text.toString(), timestamp)
         LocalRepository.getInstance(this)!!.getUserInfo(lifecycleScope, object : LongTaskCallback<User>{
@@ -253,6 +249,43 @@ class MakeFeedActivity : AppCompatActivity(), View.OnClickListener,
                                                             feed = submitFeed
                                                         } } }) } }) } } }) } } })
     }
+ */
+
+    fun submitResult(timestamp: Long){
+        LocalRepository.getInstance(this)!!.getUserInfo(lifecycleScope, object : LongTaskCallback<User>{
+            override fun onResponse(result: Result<User>) {
+                if (result is Result.Success) {
+
+                    feedListViewModel.requestUploadFeed(
+                        result.data.email, result.data.nickname, currentChecked!!,
+                        hashTags, selectedImageAdapter.getItems(), binding.content.text.toString(),
+                        timestamp, toRemoveUri, mode, object: LongTaskCallback<Feed> {
+                            override fun onResponse(result: Result<Feed>) {
+                                if(result is Result.Success) {
+                                    feed = result.data
+
+                                    feedListViewModel.getFeedListSaveStatus().observe(this@MakeFeedActivity, {
+                                        if(it) {
+                                            CommonFunction.getInstance()!!.unlockTouch(window!!)
+                                            binding.progressBar.visibility = View.GONE
+
+
+                                            var intent = Intent()
+                                            intent.putExtra("feed", feed)
+                                            setResult(Constants.RESULT_OK, intent)
+
+                                            finish()
+                                        }
+                                    })
+                                }
+                            }
+
+                        }
+                    )
+                }
+            }})
+    }
+
 
     fun makeHashTag(str : String){
         var sb = StringBuilder()
