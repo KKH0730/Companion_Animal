@@ -109,9 +109,6 @@
             android:id="@+id/constraintLayout3"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
-            android:background="@drawable/divider_bottom"
             android:gravity="center_vertical"
             android:orientation="horizontal"
             android:paddingTop="10dp"
@@ -139,6 +136,8 @@
                 android:layout_height="30dp"
                 android:layout_weight="1"
                 android:background="@color/white"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="5dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/heart_count"
                 app:layout_constraintTop_toTopOf="parent"
@@ -150,6 +149,8 @@
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:layout_weight="1"
+                android:layout_marginStart="5dp"
+                android:layout_marginEnd="10dp"
                 android:background="@color/white"
                 app:srcCompat="@drawable/photo" />
 
@@ -195,6 +196,7 @@
                 android:id="@+id/textView9"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="5dp"
                 android:text="@string/binding_heart"
                 android:textColor="@color/black"
                 android:textSize="12sp"
@@ -216,15 +218,29 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
+                android:id="@+id/textView7"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="5dp"
+                android:text="·"
+                android:textColor="@color/black"
+                android:textSize="12sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/heart_count"
+                app:layout_constraintTop_toTopOf="parent" />
+
+
+            <TextView
                 android:id="@+id/textView8"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="5dp"
                 android:text="@string/binding_comment"
                 android:textColor="@color/black"
                 android:textSize="12sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toEndOf="@+id/heart_count"
+                app:layout_constraintStart_toEndOf="@+id/textView7"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView

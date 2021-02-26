@@ -5,10 +5,12 @@
     <color name="purple_700">#FF000000</color>
     <color name="teal_200">#FF03DAC5</color>
     <color name="teal_700">#FF018786</color>
-    <color name="black">#FF000000</color>
+    <color name="black">#212121</color>
     <color name="white">#FFFFFFFF</color>
     <color name="grey">#a9a9ac</color>
     <color name="forest_green">#CDDC39</color>
+    <color name="bookmark_yellow">#FFEB3B</color>
+    <color name="heart_red">#F44336</color>
 
     <color name="main_color">#f7a268</color>
     <color name="edit_back">#e8e8f2</color>

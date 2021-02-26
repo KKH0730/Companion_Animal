@@ -32,7 +32,7 @@ class CommentListViewModel : ViewModel() {
                     if (result is Result.Success) {
                         var commentList = result.data
                         Collections.sort(commentList)
-                        commentListLiveData.value = null
+                        //commentListLiveData.value = null
                         commentListLiveData.value = commentList
                     } else if(result is Result.Error) {
                         Log.e("error", "comment load error : ${result.exception}")
