@@ -235,13 +235,12 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
                         answerPosition, commentPosition, binding.feedLayout.comment
                     )
 
-                    notificationModule.sendNotification(
-                        curComment!!.email,
-                        null,
-                        binding.feedLayout.comment.text.toString(),
-                        timestamp,
-                        feed!!
-                    )
+                    LocalRepository.getInstance(this)!!.getUserInfo(lifecycleScope, object : LongTaskCallback<User>{
+                        override fun onResponse(result: Result<User>) {
+                            if(result is Result.Success)
+                                notificationModule.sendNotification(curComment!!.email, result.data.profileUri, binding.feedLayout.comment.text.toString(), timestamp, feed!!)
+                        }
+                    })
                 }
             } else {
                 if (modifyMode) {
@@ -256,13 +255,12 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
                         binding.feedLayout.commentCount, binding.feedLayout.comment
                     )
 
-                    notificationModule.sendNotification(
-                        feed!!.email!!,
-                        null,
-                        binding.feedLayout.comment.text.toString(),
-                        timestamp,
-                        feed!!
-                    )
+                    LocalRepository.getInstance(this)!!.getUserInfo(lifecycleScope, object : LongTaskCallback<User>{
+                        override fun onResponse(result: Result<User>) {
+                            if(result is Result.Success)
+                                notificationModule.sendNotification(feed!!.email!!, result.data.profileUri, binding.feedLayout.comment.text.toString(), timestamp, feed!!)
+                        }
+                    })
                 }
             }
             initVariable()

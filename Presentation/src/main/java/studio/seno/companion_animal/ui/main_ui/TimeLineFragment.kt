@@ -18,6 +18,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.google.firebase.auth.FirebaseAuth
 import com.kroegerama.imgpicker.BottomSheetImagePicker
 import com.kroegerama.imgpicker.ButtonType
+import org.jetbrains.anko.support.v4.intentFor
 import org.jetbrains.anko.support.v4.startActivity
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.FragmentTimeLineBinding
@@ -26,8 +27,10 @@ import studio.seno.companion_animal.module.ProfileModule
 import studio.seno.companion_animal.ui.MenuDialog
 import studio.seno.companion_animal.ui.chat.ChatActivity
 import studio.seno.companion_animal.ui.feed.FeedGridFragment
+import studio.seno.companion_animal.ui.feed.MakeFeedActivity
 import studio.seno.companion_animal.ui.feed.ShowFeedActivity
 import studio.seno.companion_animal.ui.follow.FollowActivity
+import studio.seno.companion_animal.util.Constants
 import studio.seno.datamodule.LocalRepository
 import studio.seno.datamodule.RemoteRepository
 import studio.seno.domain.LongTaskCallback
@@ -102,14 +105,14 @@ class TimeLineFragment : Fragment(), View.OnClickListener,
             binding.bookmarkBtn.setOnClickListener(this)
             binding.timelineProfileImageView.setOnClickListener(this)
             binding.header.findViewById<LinearLayout>(R.id.menu_set).visibility = View.VISIBLE
-            binding.header.findViewById<TextView>(R.id.title).visibility = View.GONE
+            //binding.header.findViewById<TextView>(R.id.title).visibility = View.GONE
+            binding.header.findViewById<TextView>(R.id.title).text = getString(R.string.timeline_title)
             binding.header.findViewById<ImageButton>(R.id.add).setOnClickListener(this)
             binding.infoModifyBtn.setOnClickListener(this)
         }
 
 
         binding.header.findViewById<ImageButton>(R.id.back_btn).visibility = View.GONE
-        binding.header.findViewById<TextView>(R.id.title).text = getString(R.string.timeline_title)
         binding.header.findViewById<ImageButton>(R.id.search).visibility = View.GONE
         binding.header.findViewById<ImageButton>(R.id.refresh).visibility = View.GONE
         binding.header.findViewById<ImageButton>(R.id.scroll_up).visibility = View.GONE
@@ -163,8 +166,7 @@ class TimeLineFragment : Fragment(), View.OnClickListener,
 
     override fun onClick(v: View?) {
         if (v?.id == R.id.add) {
-            var menuDialog = MenuDialog.newInstance("null", false)
-            menuDialog.show(parentFragmentManager, "write")
+            startActivity<MakeFeedActivity>()
         } else if (v?.id == R.id.info_modify_btn) {
             if (binding.infoModifyBtn.text == getString(R.string.info_complete)) {
                 binding.nickNameEdit.isEnabled = false

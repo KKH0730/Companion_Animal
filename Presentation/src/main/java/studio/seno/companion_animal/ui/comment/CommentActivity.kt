@@ -6,6 +6,7 @@ import android.graphics.Rect
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
@@ -47,6 +48,7 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
     private var modifyMode = false
     private var keybord = false
     private lateinit var commentCountText: TextView
+    private var profileUri : String? = null
     private var curComment: Comment? = null
     private var answerComment: Comment? = null
     private var answerPosition = 0
@@ -66,8 +68,9 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
         LocalRepository.getInstance(this)!!.getUserInfo(lifecycleScope, object : LongTaskCallback<User>{
             override fun onResponse(result: Result<User>) {
                 if(result is Result.Success) {
+                    profileUri = result.data.profileUri
                     Glide.with(this@CommentActivity)
-                        .load(result.data.profileUri)
+                        .load(profileUri)
                         .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
                         .into(binding.profileImageVIew)
 
@@ -76,6 +79,7 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
                         commentListViewModel, feed, result.data.email, result.data.nickname,
                         applicationContext, commentAdapter
                     )
+
                     checkKeyboardStatus()
                     commentEvent()
                     observe()
@@ -117,7 +121,6 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
                 curComment = targetComment
                 commentPosition = position
                 answerMode = true
-
 
                 binding.modeLayout.visibility = View.VISIBLE
                 showCommentContainer()
@@ -190,7 +193,8 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
                         answerPosition, commentPosition, binding.comment
                     )
 
-                    notificationModule.sendNotification(curComment!!.email, null, binding.comment.text.toString(), timestamp, feed)
+                    notificationModule.sendNotification(curComment!!.email, profileUri, binding.comment.text.toString(), timestamp, feed)
+
                 }
             } else {
                 if (modifyMode) { //댓글 수정 모드
@@ -204,7 +208,8 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
                         binding.header.findViewById(R.id.comment_count), binding.comment
                     )
 
-                    notificationModule.sendNotification(feed.email!!, null, binding.comment.text.toString(), timestamp, feed)
+                    notificationModule.sendNotification(feed.email!!, profileUri, binding.comment.text.toString(), timestamp, feed)
+
                 }
             }
             initVariable()

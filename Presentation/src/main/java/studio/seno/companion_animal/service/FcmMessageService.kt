@@ -16,17 +16,27 @@ class FcmMessageService : FirebaseMessagingService() {
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         val title = remoteMessage.data["title"].toString()
         val body = remoteMessage.data["body"].toString()
+        val timestamp = remoteMessage.data["timestamp"]?.toLong()
         val myPath = remoteMessage.data["myPath"].toString()
+        val targetPath = remoteMessage.data["targetPath"].toString()
+        val myEmail = remoteMessage.data["myEmail"].toString()
+        val chatPathEmail = remoteMessage.data["chatPathEmail"].toString()
+        val myNickname = remoteMessage.data["myNickname"].toString()
+        val myProfileUri = remoteMessage.data["myProfileUri"].toString()
 
         if(remoteMessage.data["targetPath"] != "chat") {
             RemoteRepository.getInstance()!!.uploadNotificationInfo( //notification 저장경로
                 NotificationData(
                     title,
                     body, //content
-                    remoteMessage.data["timestamp"]?.toLong(),
+                    timestamp,
                     myPath, //알림받은 피드의 경로
-                    remoteMessage.data["targetPath"].toString(),
-                    true
+                    targetPath,
+                    true,
+                    myEmail,
+                    chatPathEmail,
+                    myNickname,
+                    myProfileUri
                 )
             )
         }
@@ -44,13 +54,12 @@ class FcmMessageService : FirebaseMessagingService() {
             intent.putExtra("target_path", remoteMessage.data["targetPath"].toString())
             notificationModel.makeNotification(title + applicationContext.getString(R.string.noti_title), body, intent, "noti")
         } else {
-            val chatInfo : List<String> = myPath.split(" ")
             val intent = Intent(applicationContext, MainActivity::class.java)
             intent.putExtra("from", "chat")
-            intent.putExtra("targetRealEmail", chatInfo[0])
-            intent.putExtra("targetEmail", chatInfo[1])
-            intent.putExtra("targetNickname", chatInfo[2])
-            intent.putExtra("targetProfileUri", chatInfo[3])
+            intent.putExtra("targetRealEmail", myEmail)
+            intent.putExtra("targetEmail", chatPathEmail)
+            intent.putExtra("targetNickname", myNickname)
+            intent.putExtra("targetProfileUri", myProfileUri)
             notificationModel.makeNotification(title + applicationContext.getString(R.string.chat_title), body, intent, "chat")
         }
     }

@@ -2,6 +2,8 @@ package studio.seno.companion_animal.ui.chat
 
 import android.net.Uri
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.View
 import android.widget.ImageButton
@@ -59,9 +61,11 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener {
         targetRealEmail = intent.getStringExtra("targetRealEmail")
         targetProfileUri = intent.getStringExtra("targetProfileUri")
         targetNickname = intent.getStringExtra("targetNickname")
+        binding.content.addTextChangedListener(textWatcher)
+        binding.content.requestFocus()
         binding.sendBtn.setOnClickListener(this)
         binding.header.findViewById<ImageButton>(R.id.back_btn).setOnClickListener(this)
-        binding.header.findViewById<TextView>(R.id.title2).text = getString(R.string.chat_title2)
+        binding.header.findViewById<TextView>(R.id.title2).text = targetNickname
     }
 
     fun setUserInfo(){
@@ -113,9 +117,9 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener {
             .addChildEventListener(object : ChildEventListener{
                 override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
                     val chat = snapshot.getValue(Chat::class.java)
-                    if (chat != null) {
-                        chatListViewModel.updateChatLog(chat)
-                    }
+                    if (chat != null)
+                        chatListViewModel.updateChatLog(chat, binding.chatRecyclerview, lifecycleScope)
+
                 }
 
                 override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
@@ -166,5 +170,18 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener {
             commonFunction.closeKeyboard(this, binding.content)
             binding.content.setText("")
         }
+    }
+
+    private val textWatcher : TextWatcher = object : TextWatcher {
+        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            if(binding.content.text.isEmpty())
+                binding.sendBtn.visibility = View.INVISIBLE
+            else
+                binding.sendBtn.visibility = View.VISIBLE
+        }
+
+        override fun afterTextChanged(s: Editable?) {}
     }
 }

@@ -68,14 +68,7 @@ class MenuDialog : BottomSheetDialogFragment(), View.OnClickListener {
         binding.followBtn.setOnClickListener(this)
         binding.unfollowBtn.setOnClickListener(this)
 
-        if(tag == "write") {
-            binding.menuTitle.text = getString(R.string.menu_title)
-            binding.modifyBtn.visibility = View.GONE
-            binding.deleteBtn.visibility = View.GONE
-            binding.reportBtn.visibility = View.GONE
-            binding.followBtn.visibility = View.GONE
-            binding.unfollowBtn.visibility = View.GONE
-        } else {
+
             binding.menuTitle.text = getString(R.string.menu_setting)
 
             if(FirebaseAuth.getInstance().currentUser?.email.toString() != email) { //글과 보는사람이 동일하지 않음
@@ -92,7 +85,7 @@ class MenuDialog : BottomSheetDialogFragment(), View.OnClickListener {
             }
             binding.makeFeedBtn.visibility = View.GONE
             binding.makeQuestionBtn.visibility = View.GONE
-        }
+
     }
 
     override fun onClick(v: View?) {

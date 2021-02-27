@@ -113,12 +113,12 @@ class FeedModule(
         feed: Feed,
         email : String,
         nickname : String,
+        myProfileUri: String,
         commentEdit: EditText,
         commentCount: TextView,
         container: LinearLayout
     ){
         //피드에 보여지는 댓글의 라이브 데이터 업데이트
-        //model.setFeedCommentLiveData(commentEdit.text.toString())
         val textView = TextView(commentEdit.context)
         val commentContent = commentEdit.text.toString()
         container.apply{
@@ -171,7 +171,7 @@ class FeedModule(
 
 
         //댓글을 작성하면 notification 알림이 전송
-        NotificationModule(commentEdit.context, nickname).sendNotification(feed.email!!, null, commentContent, Timestamp(System.currentTimeMillis()).time, feed)
+        NotificationModule(commentEdit.context, nickname).sendNotification(feed.email!!, myProfileUri, commentContent, Timestamp(System.currentTimeMillis()).time, feed)
     }
 
     fun onDismiss(type : String, targetFeed : Feed?, activity: Activity, localRepository: LocalRepository, feedAdapter :FeedListAdapter?, lifecycleScope : LifecycleCoroutineScope, ){

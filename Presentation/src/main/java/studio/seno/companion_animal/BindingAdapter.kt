@@ -177,6 +177,8 @@ object BindingAdapter {
             object: LongTaskCallback<String> {
                 override fun onResponse(result: Result<String>) {
                     if(result is Result.Success) {
+                        if(result.data == null)
+                            return
 
                         Glide.with(circleImageView.context)
                             .load(Uri.parse(result.data))

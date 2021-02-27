@@ -22,6 +22,7 @@ class RemoteRepository() {
     private val mRTDB = FirebaseDatabase.getInstance()
     private val userUseCase = UserUseCase()
     private val feedUseCase = FeedUseCase()
+    private val pagingModule = PagingModule()
     private val uploadUseCase = UploadUseCase()
     private val userManagerUseCase = RemoteUserUseCase()
     private val commentUseCase = CommentUseCase()
@@ -255,7 +256,7 @@ class RemoteRepository() {
     }
 
     fun requestLoadFeedList(keyword: String?, sort: String, myEmail: String?,recyclerView: RecyclerView, callback: LongTaskCallback<List<Feed>>){
-        searchUseCase.searchFeed(keyword, sort, myEmail, recyclerView, mDB, callback)
+        pagingModule.pagingFeed(keyword, sort, myEmail, recyclerView, mDB, callback)
     }
 
     /**

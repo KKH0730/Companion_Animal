@@ -58,8 +58,11 @@ class FollowActivity : AppCompatActivity(), View.OnClickListener {
             followAdapter = FollowAdapter(category!!)
         binding.notiRecyclerView.adapter = followAdapter
 
-        binding.header.findViewById<TextView>(R.id.title).visibility = View.GONE
         binding.header.findViewById<ImageButton>(R.id.back_btn).setOnClickListener(this)
+        if (category == "follower")
+            binding.header.findViewById<TextView>(R.id.title2).text = getString(R.string.follower)
+        else
+            binding.header.findViewById<TextView>(R.id.title2).text = getString(R.string.following)
     }
 
     fun followItemEvent() {

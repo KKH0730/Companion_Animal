@@ -6,6 +6,11 @@ data class NotificationData(
     val timestamp : Long?,
     val myPath : String?,
     val targetPath : String?,
-    val check : Boolean = true
+    val check : Boolean = true,
+    val myEmail : String?,
+    val chatPathEmail : String?,
+    val myNickname : String?,
+    val myProfileUri : String?
+
 ) {
 }

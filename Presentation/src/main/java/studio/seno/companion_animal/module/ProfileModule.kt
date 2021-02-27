@@ -17,7 +17,7 @@ import studio.seno.domain.model.User
 class ProfileModule(email : String?) {
     private val mEmail = email
 
-    fun userInfoSet(user : User, nickNameEdit: EditText, feedCount : TextView, followerBtn : Button, followingBtn : Button, profileImageView : CircleImageView){
+    fun userInfoSet(user : User, nickNameEdit: EditText, feedCount : TextView, followerBtn : TextView, followingBtn : TextView, profileImageView : CircleImageView){
         if(mEmail != null) {
             nickNameEdit.setText(user.nickname)
             feedCount.text = String.format(feedCount.context.getString(R.string.timeLine_menu1), user.feedCount)

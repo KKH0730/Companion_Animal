@@ -130,7 +130,11 @@ class NotificationModule(context: Context, title: String) {
                                 currentTimestamp,
                                 feed.email + currentTimestamp,
                                 feed.email + feed.timestamp,
-                                true
+                                true,
+                                FirebaseAuth.getInstance().currentUser?.email.toString(),
+                                CommonFunction.getInstance()!!.makeChatPath(FirebaseAuth.getInstance().currentUser?.email.toString()),
+                                myNickname,
+                                myProfileUri
                             )
                         )
                     } else {
@@ -140,12 +144,13 @@ class NotificationModule(context: Context, title: String) {
                                 myNickname,
                                 content,
                                 currentTimestamp,
-                                FirebaseAuth.getInstance().currentUser?.email.toString() + " "
-                                        + CommonFunction.getInstance()!!.makeChatPath(FirebaseAuth.getInstance().currentUser?.email.toString()) + " "
-                                        + myNickname + " "
-                                        + myProfileUri,
+                                null,
                                 "chat",
-                                true
+                                true,
+                                FirebaseAuth.getInstance().currentUser?.email.toString() ,
+                                CommonFunction.getInstance()!!.makeChatPath(FirebaseAuth.getInstance().currentUser?.email.toString()),
+                                myNickname,
+                                myProfileUri,
                             )
                         )
                     }

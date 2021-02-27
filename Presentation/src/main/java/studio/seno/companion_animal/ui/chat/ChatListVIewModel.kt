@@ -2,9 +2,12 @@ package studio.seno.companion_animal.ui.chat
 
 import android.content.Context
 import android.util.Log
+import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import studio.seno.companion_animal.R
 import studio.seno.datamodule.RemoteRepository
 import studio.seno.datamodule.mapper.Mapper
@@ -45,7 +48,7 @@ class ChatListVIewModel : ViewModel() {
         remoteRepository.requestAddChat(myEmail, targetEmail, chat)
     }
 
-    fun updateChatLog(chat: Chat) {
+    fun updateChatLog(chat: Chat, recyclerView: RecyclerView, lifecycleCoroutineScope: LifecycleCoroutineScope) {
         var tempList = chatListLiveData.value?.toMutableList()
         if (tempList == null) {
             tempList = mutableListOf()
@@ -53,6 +56,10 @@ class ChatListVIewModel : ViewModel() {
 
         tempList.add(chat)
         chatListLiveData.value = tempList
+
+        lifecycleCoroutineScope.launch(Dispatchers.Main){
+            recyclerView.smoothScrollToPosition(tempList.size - 1)
+        }
     }
 
     fun requestLoadChatLog(myEmail: String, targetEmail: String, recyclerView: RecyclerView, callback: LongTaskCallback<Boolean>) {
@@ -90,10 +97,7 @@ class ChatListVIewModel : ViewModel() {
 
                         Collections.sort(tempList, object : Comparator<Chat> {
                             override fun compare(o1: Chat?, o2: Chat?): Int {
-                                if (o1?.timestamp!! > o2?.timestamp!!) {
-                                    return -1
-                                } else
-                                    return 1
+                                return if (o1?.timestamp!! > o2?.timestamp!!) -1 else 1
                             }
                         })
                         chatListLiveData.value = tempList
@@ -117,7 +121,7 @@ class ChatListVIewModel : ViewModel() {
         tempList?.remove(chat)
         chatListLiveData.value = tempList?.toList()
 
-        Log.d("hi", "targetNickname $myNickname")
+
         var deleteChat = chat
         deleteChat.content = String.format(context.getString(R.string.chat_remove_content), myNickname)
         deleteChat.isExit = true
@@ -127,4 +131,57 @@ class ChatListVIewModel : ViewModel() {
     fun requestUpdateCheckDot(myEmail : String, targetEmail : String){
         remoteRepository.requestUpdateCheckDot(myEmail, targetEmail)
     }
+
+    /*
+    fun setListener(chat: Chat){
+        var email : String ? = null
+        var realEmail : String? = null
+        var targetEmail : String? = null
+        var targetRealEmail : String?  = null
+
+        if(chat.email == FirebaseAuth.getInstance().currentUser?.email.toString()) {
+            email = chat.email
+            realEmail = chat.realEmail
+            targetEmail = chat.targetEmail
+            targetRealEmail = chat.targetRealEmail
+        } else {
+            email = chat.targetEmail
+            realEmail = chat.targetRealEmail
+            targetEmail = chat.email
+            targetRealEmail = chat.realEmail
+        }
+
+        FirebaseDatabase.getInstance().reference
+            .child(Constants.CHAT_ROOT)
+            .child(email!!)
+            .child(email + targetEmail)
+            .addChildEventListener(object : ChildEventListener {
+                override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
+                    Log.d("hi","2")
+                    val chat = snapshot.getValue(Chat::class.java)
+                    if (chat != null) {
+                        Log.d("hi","1")
+                        //chatListViewModel.updateChatLog(chat, binding.chatRecyclerview, lifecycleScope)
+                    }
+                }
+
+                override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
+
+                }
+
+                override fun onChildRemoved(snapshot: DataSnapshot) {
+
+                }
+
+                override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {
+
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+
+                }
+            })
+    }
+
+     */
 }

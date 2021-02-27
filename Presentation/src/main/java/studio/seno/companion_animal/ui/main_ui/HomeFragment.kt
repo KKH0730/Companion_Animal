@@ -185,7 +185,7 @@ class HomeFragment : Fragment(), View.OnClickListener{
                 LocalRepository.getInstance(activity?.applicationContext!!)?.getUserInfo(lifecycleScope, object : LongTaskCallback<User>{
                     override fun onResponse(result: Result<User>) {
                         if(result is Result.Success) {
-                            feedModule.onCommentBtnClicked(feed, result.data.email, result.data.nickname, commentEdit, commentCount, container)
+                            feedModule.onCommentBtnClicked(feed, result.data.email, result.data.nickname, result.data.profileUri, commentEdit, commentCount, container)
                         }
                     }
                 })

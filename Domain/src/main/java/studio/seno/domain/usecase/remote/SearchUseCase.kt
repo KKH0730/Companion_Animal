@@ -57,15 +57,4 @@ class SearchUseCase {
             .document(myEmail + lastSearch.timestamp)
             .delete()
     }
-
-    fun searchFeed(
-        keyword: String?,
-        sort: String,
-        myEmail: String?,
-        recyclerView: RecyclerView,
-        db: FirebaseFirestore,
-        callback: LongTaskCallback<List<Feed>>
-    ) {
-        PagingModule().pagingFeed(keyword, sort, myEmail, recyclerView, db, callback)
-    }
 }

@@ -1,14 +1,23 @@
 package studio.seno.companion_animal.ui.chat
 
+import android.net.Uri
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.ChildEventListener
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import org.jetbrains.anko.sdk27.coroutines.onClick
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.ChatItemBinding
 import studio.seno.companion_animal.databinding.ChatListItemBinding
@@ -28,6 +37,7 @@ class ChatAdapter(type: String) : ListAdapter<Chat, RecyclerView.ViewHolder>(
     }
 ) {
     private var mChatItemListener: OnChatItemClickListener? = null
+    private var items = listOf<Chat>()
     private val mType = type
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -52,7 +62,6 @@ class ChatAdapter(type: String) : ListAdapter<Chat, RecyclerView.ViewHolder>(
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-
         if (mType == "chat") {
             val holder = holder as ChatViewHolder
             val chat = getItem(position)
@@ -62,6 +71,7 @@ class ChatAdapter(type: String) : ListAdapter<Chat, RecyclerView.ViewHolder>(
             holder.setVisibility(chat)
         } else if (mType == "chat_list") {
             val holder = holder as ChatListViewHolder
+
             val chat = getItem(position)
             val model = ChatViewModel()
             model.setChatLiveData(chat)
@@ -69,6 +79,10 @@ class ChatAdapter(type: String) : ListAdapter<Chat, RecyclerView.ViewHolder>(
             holder.setItemEvent(chat)
             holder.setVisibility(chat)
         }
+    }
+
+    fun setItem(items : List<Chat>){
+        this.items = items
     }
 
     fun setOnChatItemClickListener(chatItemClickListener: OnChatItemClickListener) {
@@ -109,6 +123,7 @@ class ChatAdapter(type: String) : ListAdapter<Chat, RecyclerView.ViewHolder>(
     ) : RecyclerView.ViewHolder(binding.root) {
         private val mBinding = binding
         private var mChatItemListener = chatItemClickListener
+
 
         fun setModel(model: ChatViewModel) {
             mBinding.chatViewModel = model

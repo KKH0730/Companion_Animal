@@ -37,12 +37,13 @@ class PagingModule {
                     if (it.isSuccessful) {
                         if (it.result?.size()!! <= 0) {
                             callback.onResponse(Result.Success(null))
+
                         } else {
                             val document: List<DocumentSnapshot> = it.result!!.documents
                             val size = document.size
                             val list = mutableListOf<Feed>()
 
-                            for (element in document) {
+                            loop@ for (element in document) {
                                 if (sort == "feed_search" && keyword != null) {
                                     count++
                                     val feed = mapperFeed(element)
@@ -51,11 +52,16 @@ class PagingModule {
                                         find++
                                     }
 
-                                    if (find == limit || find == size || count == size || count >= 50) {
+                                    if (find == limit || find == size) {
                                         callback.onResponse(Result.Success(list))
+                                        lastVisible = it.result!!.documents[find - 1]
+                                        break@loop
+                                    } else if(count == size || count >= 500) {
                                         lastVisible = it.result!!.documents[count - 1]
-                                        break
+                                        break@loop
                                     }
+
+
                                 } else if (sort == "feed_timeline" || sort == "feed_list") {
                                     count++
                                     val feed = mapperFeed(element)
@@ -64,7 +70,7 @@ class PagingModule {
                                     if (count == limit || count == size) {
                                         callback.onResponse(Result.Success(list))
                                         lastVisible = it.result!!.documents[count - 1]
-                                        break
+                                        break@loop
                                     }
 
                                 } else if (sort == "feed_bookmark") {
@@ -74,23 +80,29 @@ class PagingModule {
                                         .addOnCompleteListener {it2 ->
                                             count++
 
-                                            if(it2.result?.exists() == false){
-                                                callback.onResponse(Result.Success(null))
-
-                                            } else {
+                                            if(it2.result?.exists() == true){
                                                 find++
                                                 val feedBookmark = mapperFeed(it2.result!!)
                                                 list.add(feedBookmark)
 
-                                                if (count == limit || count == size) {
-                                                    callback.onResponse(Result.Success(list))
-                                                    lastVisible = it.result!!.documents[count - 1]
-                                                } else if(count == size && find < size) {
+                                                if (find == limit || find == size) {
                                                     callback.onResponse(Result.Success(list))
                                                     lastVisible = it.result!!.documents[find - 1]
                                                 }
                                             }
+
+                                            if(count == size || count >= 500) {
+                                                callback.onResponse(Result.Success(list))
+                                                lastVisible = it.result!!.documents[count - 1]
+                                                return@addOnCompleteListener
+                                            }
                                         }
+
+                                    if(count == size || count >= 500) {
+                                        callback.onResponse(Result.Success(list))
+                                        lastVisible = it.result!!.documents[count - 1]
+                                        break@loop
+                                    }
                                 }
                             }
 
@@ -170,24 +182,25 @@ class PagingModule {
                                         val size = document.size
                                         val list = mutableListOf<Feed>()
 
-                                        for (element in document) {
+                                        loop@ for (element in document) {
                                             if (sort == "feed_search" && keyword != null) {
                                                 count++
                                                 val feed = mapperFeed(element)
-                                                if (keyword != "" && (feed.content.contains(keyword) || feed.hashTags.contains(
-                                                        "#$keyword"
-                                                    ))
-                                                ) {
+                                                if (keyword != "" && (feed.content.contains(keyword) || feed.hashTags.contains("#$keyword"))) {
                                                     list.add(feed)
                                                     find++
                                                 }
 
-                                                if (find == limit || find == size || count == size || count >= 50) {
+                                                if (find == limit || find == size) {
                                                     callback.onResponse(Result.Success(list))
-                                                    lastVisible =
-                                                        it.result!!.documents[count - 1]
-                                                    break
+                                                    lastVisible = it.result!!.documents[find - 1]
+                                                    break@loop
+                                                } else if(count == size || count >= 500) {
+                                                    lastVisible = it.result!!.documents[count - 1]
+                                                    break@loop
                                                 }
+
+
                                             } else if (sort == "feed_timeline" || sort == "feed_list") {
                                                 count++
                                                 val feed = mapperFeed(element)
@@ -195,30 +208,40 @@ class PagingModule {
 
                                                 if (count == limit || count == size) {
                                                     callback.onResponse(Result.Success(list))
-                                                    lastVisible =
-                                                        it.result!!.documents[count - 1]
-                                                    break
+                                                    lastVisible = it.result!!.documents[count - 1]
+                                                    break@loop
                                                 }
 
                                             } else if (sort == "feed_bookmark") {
                                                 db.collection("feed")
                                                     .document(element.getString("feed")!!)
                                                     .get()
-                                                    .addOnCompleteListener { it2 ->
-                                                        if (it2.result != null) {
-                                                            count++
-                                                            val feedBookmark =
-                                                                mapperFeed(it2.result!!)
+                                                    .addOnCompleteListener {it2 ->
+                                                        count++
+
+                                                        if(it2.result?.exists() == true){
+                                                            find++
+                                                            val feedBookmark = mapperFeed(it2.result!!)
                                                             list.add(feedBookmark)
+
+                                                            if (find == limit || find == size) {
+                                                                callback.onResponse(Result.Success(list))
+                                                                lastVisible = it.result!!.documents[find - 1]
+                                                            }
                                                         }
-                                                        if (count == limit || count == size) {
+
+                                                        if(count == size || count >= 500) {
                                                             callback.onResponse(Result.Success(list))
                                                             lastVisible = it.result!!.documents[count - 1]
-                                                        } else if(count == size && find < size) {
-                                                            callback.onResponse(Result.Success(list))
-                                                            lastVisible = it.result!!.documents[find - 1]
+                                                            return@addOnCompleteListener
                                                         }
                                                     }
+
+                                                if(count == size || count >= 500) {
+                                                    callback.onResponse(Result.Success(list))
+                                                    lastVisible = it.result!!.documents[count - 1]
+                                                    break@loop
+                                                }
                                             }
                                         }
 
@@ -231,7 +254,6 @@ class PagingModule {
                                 }
                         }
                     }
-
                 }
             }
         return onScrollListener

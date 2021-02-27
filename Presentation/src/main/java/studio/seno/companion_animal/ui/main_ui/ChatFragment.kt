@@ -16,6 +16,9 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.ChildEventListener
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import org.jetbrains.anko.support.v4.startActivity
 import studio.seno.companion_animal.R
@@ -25,6 +28,7 @@ import studio.seno.companion_animal.ui.chat.ChatActivity
 import studio.seno.companion_animal.ui.chat.ChatAdapter
 import studio.seno.companion_animal.ui.chat.ChatListVIewModel
 import studio.seno.companion_animal.ui.chat.OnChatItemClickListener
+import studio.seno.companion_animal.util.Constants
 import studio.seno.datamodule.LocalRepository
 import studio.seno.domain.LongTaskCallback
 import studio.seno.domain.Result
@@ -95,9 +99,11 @@ class ChatFragment : Fragment() {
         chatListViewModel.requestLoadChatList(CommonFunction.makeChatPath(user!!.email), object : LongTaskCallback<Boolean>{
             override fun onResponse(result: Result<Boolean>) {
                 if(result is Result.Success) {
-                    if(result.data)
+                    if(result.data != null) {
                         binding.progressBar.visibility = View.GONE
-                    else
+
+
+                    } else
                         binding.progressBar.visibility = View.GONE
                 }
             }
@@ -145,6 +151,7 @@ class ChatFragment : Fragment() {
             }
         })
     }
+
 
     fun observe(){
         chatListViewModel.getChatListLiveData().observe(this, {

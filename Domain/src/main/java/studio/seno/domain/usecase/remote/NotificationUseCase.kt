@@ -36,7 +36,11 @@ class NotificationUseCase {
                             element.getLong("timestamp")!!,
                             element.getString("myPath")!!,
                             element.getString("targetPath")!!,
-                            element.getBoolean("check")!!
+                            element.getBoolean("check")!!,
+                            element.getString("myEmail")!!,
+                            element.getString("chatPathEmail")!!,
+                            element.getString("myNickname")!!,
+                            element.getString("myProfileUri")
                         )
                         resultList.add(notiData)
                     }

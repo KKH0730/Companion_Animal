@@ -20,7 +20,7 @@
             android:id="@+id/imageView5"
             android:layout_width="15dp"
             android:layout_height="15dp"
-            android:layout_marginStart="10dp"
+            android:layout_marginStart="40dp"
             android:src="@drawable/comment"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -29,8 +29,8 @@
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/comment_profile"
             setProfileImage="@{model.childCommentLiveData.component5()}"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
             android:layout_marginStart="5dp"
             app:civ_border_width="1px"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -43,11 +43,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
-            android:layout_marginTop="8dp"
             android:text="TextView"
+            android:textColor="@color/black"
             android:textSize="12sp"
             android:textStyle="bold"
-            android:textColor="@color/black"
             app:layout_constraintStart_toEndOf="@+id/comment_profile"
             app:layout_constraintTop_toTopOf="@+id/comment_profile" />
 
@@ -56,13 +55,13 @@
             setTime="@{model.childCommentLiveData.component6()}"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
+            android:layout_marginTop="2dp"
             android:text="TextView"
             android:textSize="8sp"
-            app:layout_constraintBottom_toBottomOf="@+id/comment_profile"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="@+id/comment_nickName" />
+            app:layout_constraintStart_toStartOf="@+id/comment_nickName"
+            app:layout_constraintTop_toBottomOf="@+id/comment_nickName" />
 
 
         <TextView

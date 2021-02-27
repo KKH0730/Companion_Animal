@@ -44,7 +44,7 @@ class ShowFeedActivity : AppCompatActivity(), View.OnClickListener, DialogInterf
         if(feedSort == "feed_timeline")
             binding.header.findViewById<TextView>(R.id.title).visibility = View.GONE
         else if(feedSort == "feed_bookmark")
-            binding.header.findViewById<TextView>(R.id.title).visibility = View.GONE
+            binding.header.findViewById<TextView>(R.id.title2).text = getString(R.string.showFeed_title2)
         else if(feedSort == "profile")
             binding.header.visibility = View.GONE
 

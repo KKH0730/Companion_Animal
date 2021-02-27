@@ -89,22 +89,6 @@ class UploadUseCase {
         }
     }
 
-/*
-    fun loadRemoteFeedImage(listResult : MutableList<StorageReference>, callback : LongTaskCallback<MutableList<String>>)  {
-        var list = mutableListOf<String>()
-
-        for(i in 0 until listResult.size) {
-            listResult[i].downloadUrl.addOnCompleteListener {
-                list.add(it.result.toString())
-
-                if(list.size == listResult.size) {
-                    callback.onResponse(Result.Success(list))
-                    timer.cancel()
-                }
-            }
-        }
-    }
- */
 
     fun loadRemoteFeedImage(path : String, uriSize : Int, storageRef: StorageReference, callback : LongTaskCallback<List<String>>)  {
         storageRef.child(path).listAll().addOnCompleteListener {
