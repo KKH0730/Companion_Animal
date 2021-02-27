@@ -2,8 +2,12 @@ package studio.seno.companion_animal.ui.comment
 
 import android.content.DialogInterface
 import android.content.Intent
+import android.graphics.Rect
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
@@ -12,6 +16,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.google.firebase.auth.FirebaseAuth
 import studio.seno.companion_animal.MainActivity
 import studio.seno.companion_animal.R
@@ -30,6 +36,8 @@ import studio.seno.domain.model.Feed
 import studio.seno.domain.model.User
 import java.sql.Timestamp
 
+const val SOFT_KEYBOARD_HEIGHT_DP_THRESHOLD = 128
+
 class CommentActivity : AppCompatActivity(), View.OnClickListener,
     DialogInterface.OnDismissListener {
     private lateinit var binding: ActivityCommentBinding
@@ -37,6 +45,7 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
     private val commentAdapter = CommentAdapter()
     private var answerMode = false
     private var modifyMode = false
+    private var keybord = false
     private lateinit var commentCountText: TextView
     private var curComment: Comment? = null
     private var answerComment: Comment? = null
@@ -45,6 +54,7 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
     private val feed: Feed by lazy { intent.getParcelableExtra<Feed>("feed") }
     private lateinit var commentModule : CommentModule
     private lateinit var notificationModule : NotificationModule
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,11 +66,17 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
         LocalRepository.getInstance(this)!!.getUserInfo(lifecycleScope, object : LongTaskCallback<User>{
             override fun onResponse(result: Result<User>) {
                 if(result is Result.Success) {
+                    Glide.with(this@CommentActivity)
+                        .load(result.data.profileUri)
+                        .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
+                        .into(binding.profileImageVIew)
+
                     notificationModule = NotificationModule(applicationContext, result.data.nickname)
                     commentModule = CommentModule(
                         commentListViewModel, feed, result.data.email, result.data.nickname,
                         applicationContext, commentAdapter
                     )
+                    checkKeyboardStatus()
                     commentEvent()
                     observe()
                 }
@@ -69,7 +85,6 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
     }
 
     private fun initView() {
-        binding.header.findViewById<TextView>(R.id.title).text = getString(R.string.header_title)
         commentCountText = binding.header.findViewById(R.id.comment_count)
         binding.header.findViewById<TextView>(R.id.comment_count).apply {
             visibility = View.VISIBLE
@@ -79,9 +94,11 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
         if (intent.getParcelableExtra<Feed>("feed") != null)
             commentListViewModel.requestLoadComment(feed.email!!, feed.timestamp)
 
+        binding.header.findViewById<TextView>(R.id.title2).text = getString(R.string.header_title)
         binding.header.findViewById<ImageButton>(R.id.back_btn).setOnClickListener(this)
-        binding.modeCloseBtn.setOnClickListener(this)
         binding.commentBtn.setOnClickListener(this)
+        binding.showCommentBar.setOnClickListener(this)
+        binding.comment.addTextChangedListener(textWatcher)
         binding.commentRecyclerView.adapter = commentAdapter
     }
 
@@ -96,12 +113,15 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
             }
 
             override fun onWriteAnswerClicked(targetComment: Comment, position: Int) {
+                commentModule.setHint(binding.comment, binding.modeTitle, 1)
                 curComment = targetComment
                 commentPosition = position
-
-                commentModule.setHint(binding.comment, binding.modeTitle, 1)
                 answerMode = true
+
+
                 binding.modeLayout.visibility = View.VISIBLE
+                showCommentContainer()
+
             }
 
             override fun onMenuClicked(comment: Comment, position: Int) {
@@ -137,14 +157,25 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
         setResult(Constants.RESULT_OK, intent)
     }
 
+    private val textWatcher : TextWatcher = object : TextWatcher {
+        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            if(binding.comment.text.isEmpty())
+                binding.commentBtn.visibility = View.INVISIBLE
+            else
+                binding.commentBtn.visibility = View.VISIBLE
+        }
+
+        override fun afterTextChanged(s: Editable?) {}
+    }
+
 
     override fun onClick(v: View?) {
         if (v?.id == R.id.back_btn) {
             setIntent()
             finish()
-        } else if (v?.id == R.id.mode_close_btn) {
-            initVariable()
-        } else if (v?.id == R.id.comment_btn) {
+        }  else if (v?.id == R.id.comment_btn) {
             val timestamp = Timestamp(System.currentTimeMillis()).time
 
             if (answerMode) { // 답글쓰기 모드
@@ -177,6 +208,8 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
                 }
             }
             initVariable()
+        } else if(v?.id == R.id.show_comment_bar) {
+            showCommentContainer()
         }
     }
 
@@ -191,14 +224,40 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
         binding.modeLayout.visibility = View.INVISIBLE
     }
 
-    override fun onBackPressed() {
-        if (binding.modeLayout.visibility == View.VISIBLE) {
-            initVariable()
-        } else {
-            setIntent()
-            finish()
+    fun showCommentContainer(){
+        binding.commentContainer.visibility = View.VISIBLE
+        CommonFunction.getInstance()!!.showKeyboard(this)
+        binding.comment.requestFocus()
+    }
+
+    private fun checkKeyboardStatus(){
+        binding.rootView.viewTreeObserver.addOnGlobalLayoutListener {
+            keybord = isKeyboardShown(binding.rootView.rootView)
         }
     }
+
+    private fun isKeyboardShown(rootView : View) : Boolean {
+        val r = Rect()
+        rootView.getWindowVisibleDisplayFrame(r)
+        val dm = rootView.resources.displayMetrics
+        val heightDiff = rootView.bottom - r.bottom
+
+        return heightDiff > SOFT_KEYBOARD_HEIGHT_DP_THRESHOLD * dm.density
+    }
+
+    override fun onBackPressed() {
+        if (binding.modeLayout.visibility == View.VISIBLE || keybord == true) {
+            initVariable()
+        } else {
+            if(binding.commentContainer.visibility == View.VISIBLE)
+                binding.commentContainer.visibility = View.GONE
+            else {
+                setIntent()
+                finish()
+            }
+        }
+    }
+
 
     override fun onDismiss(dialog: DialogInterface?) {
         if (PreferenceManager.getString(applicationContext, "mode") == "comment_modify") {

@@ -50,7 +50,6 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
                     android:orientation="vertical">
 
 
@@ -60,12 +59,22 @@
                         android:layout_margin="5dp"
                         android:orientation="horizontal">
 
-                        <ImageButton
-                            android:id="@+id/camera_btn"
-                            android:layout_width="50dp"
-                            android:layout_height="match_parent"
-                            android:layout_margin="5dp"
-                            app:srcCompat="@drawable/photo" />
+                        <androidx.cardview.widget.CardView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:cardUseCompatPadding="true"
+                            app:cardCornerRadius="5dp"
+                            app:cardElevation="5dp">
+
+                            <ImageButton
+                                android:id="@+id/camera_btn"
+                                android:layout_width="50dp"
+                                android:layout_height="50dp"
+                                android:layout_margin="5dp"
+                                android:background="@color/white"
+                                app:srcCompat="@drawable/photo" />
+
+                        </androidx.cardview.widget.CardView>
 
                         <androidx.recyclerview.widget.RecyclerView
                             android:id="@+id/imageRecyclerView"
@@ -192,7 +201,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_margin="5dp"
-                        android:layout_weight="2"
+                        android:layout_weight="1"
                         android:background="@null"
                         android:hint="@string/ShowAnimal_hint1"
                         android:inputType="text"
@@ -203,7 +212,9 @@
                         android:id="@+id/hashTag_btn"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:layout_weight="8"
+                        android:layout_weight="9"
+                        android:layout_marginRight="5dp"
+                        android:background="@color/white"
                         android:src="@drawable/add" />
                 </LinearLayout>
 

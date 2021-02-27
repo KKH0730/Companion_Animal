@@ -61,8 +61,7 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener {
         targetNickname = intent.getStringExtra("targetNickname")
         binding.sendBtn.setOnClickListener(this)
         binding.header.findViewById<ImageButton>(R.id.back_btn).setOnClickListener(this)
-        //binding.header.findViewById<ConstraintLayout>(R.id.header_layout).setBackgroundColor(getColor(R.color.forest_green))
-        binding.header.findViewById<TextView>(R.id.title).text = getString(R.string.chat_title1)
+        binding.header.findViewById<TextView>(R.id.title2).text = getString(R.string.chat_title2)
     }
 
     fun setUserInfo(){
@@ -140,8 +139,6 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener {
     fun observe(){
         chatListViewModel.getChatListLiveData().observe(this, {
             chatAdapter.submitList(it)
-
-            Log.d("hi","pos : ${chatAdapter.itemCount}")
         })
     }
 

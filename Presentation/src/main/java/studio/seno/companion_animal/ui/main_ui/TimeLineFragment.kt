@@ -102,6 +102,7 @@ class TimeLineFragment : Fragment(), View.OnClickListener,
             binding.bookmarkBtn.setOnClickListener(this)
             binding.timelineProfileImageView.setOnClickListener(this)
             binding.header.findViewById<LinearLayout>(R.id.menu_set).visibility = View.VISIBLE
+            binding.header.findViewById<TextView>(R.id.title).visibility = View.GONE
             binding.header.findViewById<ImageButton>(R.id.add).setOnClickListener(this)
             binding.infoModifyBtn.setOnClickListener(this)
         }
@@ -111,6 +112,7 @@ class TimeLineFragment : Fragment(), View.OnClickListener,
         binding.header.findViewById<TextView>(R.id.title).text = getString(R.string.timeline_title)
         binding.header.findViewById<ImageButton>(R.id.search).visibility = View.GONE
         binding.header.findViewById<ImageButton>(R.id.refresh).visibility = View.GONE
+        binding.header.findViewById<ImageButton>(R.id.scroll_up).visibility = View.GONE
         binding.followerBtn.setOnClickListener(this)
         binding.followingBtn.setOnClickListener(this)
         binding.nickNameEdit.isEnabled = false

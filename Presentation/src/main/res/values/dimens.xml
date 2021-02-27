@@ -6,4 +6,6 @@
     <dimen name="peekHeight">260dp</dimen>
     <dimen name="columnSize">92dp</dimen>
 
+    <dimen name="header_layout_height">70dp</dimen>
+
 </resources>

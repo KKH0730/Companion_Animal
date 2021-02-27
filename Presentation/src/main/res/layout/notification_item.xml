@@ -10,11 +10,22 @@
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/layout_item"
+        alreadyRead="@{model.notificationLiveData.component6()}"
+        android:id="@+id/noti_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:foreground="@drawable/divider_bottom"
         android:background="?attr/selectableItemBackground">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/circleImageView"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginStart="20dp"
+            android:src="@drawable/menu_profile"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <ImageButton
             android:id="@+id/noti_menu"
@@ -34,14 +45,14 @@
             setNotificationTitle="@{model.notificationLiveData.component1()}"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="35dp"
+            android:layout_marginStart="20dp"
             android:layout_marginTop="10dp"
             android:layout_marginEnd="20dp"
             android:ellipsize="end"
             android:maxLines="1"
             android:textColor="@color/black"
             app:layout_constraintEnd_toStartOf="@+id/noti_menu"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/circleImageView"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
@@ -72,17 +83,5 @@
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="@+id/noti_content" />
 
-        <ImageView
-            android:id="@+id/check_dot"
-            alreadyRead="@{model.notificationLiveData.component6()}"
-            android:layout_width="5dp"
-            android:layout_height="5dp"
-            android:layout_marginStart="15dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/noti_content"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/circle" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

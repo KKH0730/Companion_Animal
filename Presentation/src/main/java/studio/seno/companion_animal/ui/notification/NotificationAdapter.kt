@@ -62,7 +62,7 @@ class NotificationAdapter : ListAdapter<NotificationData, RecyclerView.ViewHolde
         }
 
         fun setEvent(item : NotificationData){
-            binding.layoutItem.setOnClickListener { mNotificationlistener.onNotificationClicked(binding.checkDot, item) }
+            binding.notiLayout.setOnClickListener { mNotificationlistener.onNotificationClicked(binding.notiLayout, item) }
             binding.notiMenu.setOnClickListener { mNotificationlistener.onDeleteClicked(item) }
         }
     }

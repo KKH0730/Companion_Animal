@@ -6,19 +6,18 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
-import com.google.firebase.auth.FirebaseAuth
 import org.jetbrains.anko.intentFor
 import org.jetbrains.anko.startActivity
 import studio.seno.companion_animal.MainActivity
@@ -76,8 +75,14 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
         LocalRepository.getInstance(this)!!.getUserInfo(lifecycleScope, object :
             LongTaskCallback<User> {
             override fun onResponse(result: Result<User>) {
-                if(result is Result.Success) {
-                    notificationModule = NotificationModule(applicationContext, result.data.nickname)
+                if (result is Result.Success) {
+                    notificationModule = NotificationModule(
+                        applicationContext,
+                        result.data.nickname
+                    )
+
+                    binding.feedLayout.bookmarkBtn2.isSelected = feed!!.bookmarkList[result.data.email] != null
+
                     commentModule = CommentModule(
                         commentListViewModel, feed!!, result.data.email,
                         result.data.nickname, applicationContext, commentAdapter
@@ -111,19 +116,24 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
         }
 
 
-        binding.header.findViewById<TextView>(R.id.title).visibility = View.GONE
+        binding.header.findViewById<TextView>(R.id.title2).text = feed!!.nickname
         binding.header.findViewById<ImageButton>(R.id.back_btn).setOnClickListener(this)
         binding.commentLayout.commentContainer.visibility = View.GONE
+        binding.commentLayout.showCommentBar.visibility = View.GONE
         binding.commentLayout.header.visibility = View.GONE
-        binding.commentLayout.modeCloseBtn.setOnClickListener(this)
         binding.feedLayout.detailBtn.visibility = View.GONE
-        binding.feedLayout.bookmarkBtn.setOnClickListener(this)
+        binding.feedLayout.profileHeader.visibility = View.GONE
+        binding.feedLayout.feedMenu2.visibility = View.VISIBLE
+        binding.feedLayout.profileBtn.visibility = View.VISIBLE
+        binding.feedLayout.profileBtn.setOnClickListener(this)
+        binding.feedLayout.bookmarkBtn2.visibility = View.VISIBLE
+        binding.feedLayout.bookmarkBtn2.setOnClickListener(this)
         binding.feedLayout.heartBtn.setOnClickListener(this)
-        binding.feedLayout.feedMenu.setOnClickListener(this)
+        binding.feedLayout.feedMenu2.setOnClickListener(this)
         binding.feedLayout.commentBtn.setOnClickListener(this)
         binding.feedLayout.imageBtn.setOnClickListener(this)
-        binding.feedLayout.profileLayout.setOnClickListener(this)
         binding.feedLayout.comment.addTextChangedListener(textWatcher)
+
 
         binding.commentLayout.commentRecyclerView.adapter = commentAdapter
     }
@@ -141,6 +151,8 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
             override fun onWriteAnswerClicked(targetComment: Comment, position: Int) {
                 curComment = targetComment
                 commentPosition = position
+                binding.feedLayout.comment.requestFocus()
+                CommonFunction.getInstance()!!.showKeyboard(applicationContext)
 
                 commentModule.setHint(
                     binding.feedLayout.comment,
@@ -193,8 +205,8 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
         if (v?.id == R.id.back_btn) {
             setIntent()
             finish()
-        } else if (v?.id == R.id.bookmark_btn) {
-            feedModule.bookmarkButtonEvent(feed!!, binding.feedLayout.bookmarkBtn, null)
+        } else if (v?.id == R.id.bookmark_btn2) {
+            feedModule.bookmarkButtonEvent(feed!!, binding.feedLayout.bookmarkBtn2, null)
 
         } else if (v?.id == R.id.heart_btn) {
             feedModule.heartButtonEvent(
@@ -204,13 +216,11 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
                 null
             )
 
-        } else if (v?.id == R.id.feed_menu) {
+        } else if (v?.id == R.id.feed_menu2) {
             feedModule.menuButtonEvent(feed!!, supportFragmentManager)
         } else if(v?.id == R.id.image_btn){
             startActivity<FeedImageActivity>("feed" to feed)
-        } else if (v?.id == R.id.mode_close_btn) {
-            initVariable()
-        } else if (v?.id == R.id.comment_btn) {
+        }  else if (v?.id == R.id.comment_btn) {
             val timestamp = Timestamp(System.currentTimeMillis()).time
 
             if (answerMode) {
@@ -225,7 +235,13 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
                         answerPosition, commentPosition, binding.feedLayout.comment
                     )
 
-                    notificationModule.sendNotification(curComment!!.email, null, binding.feedLayout.comment.text.toString(), timestamp, feed!!)
+                    notificationModule.sendNotification(
+                        curComment!!.email,
+                        null,
+                        binding.feedLayout.comment.text.toString(),
+                        timestamp,
+                        feed!!
+                    )
                 }
             } else {
                 if (modifyMode) {
@@ -240,11 +256,17 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
                         binding.feedLayout.commentCount, binding.feedLayout.comment
                     )
 
-                    notificationModule.sendNotification(feed!!.email!!, null, binding.feedLayout.comment.text.toString(), timestamp, feed!!)
+                    notificationModule.sendNotification(
+                        feed!!.email!!,
+                        null,
+                        binding.feedLayout.comment.text.toString(),
+                        timestamp,
+                        feed!!
+                    )
                 }
             }
             initVariable()
-        } else if(v?.id == R.id.profile_layout) {
+        } else if(v?.id == R.id.profile_btn) {
             startActivity<ShowFeedActivity>(
                 "profileEmail" to feed?.email,
                 "feedSort" to "profile"
@@ -275,12 +297,14 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
             binding.commentLayout.modeLayout.visibility = View.VISIBLE
             modifyMode = true
             commentModule.setHint(binding.feedLayout.comment, binding.commentLayout.modeTitle, 3)
+            binding.feedLayout.comment.requestFocus()
             CommonFunction.showKeyboard(this)
 
         } else if (PreferenceManager.getString(applicationContext, "mode") == "comment_answer_modify") {
             binding.commentLayout.modeLayout.visibility = View.VISIBLE
             modifyMode = true
             commentModule.setHint(binding.feedLayout.comment, binding.commentLayout.modeTitle, 2)
+            binding.feedLayout.comment.requestFocus()
             CommonFunction.showKeyboard(this)
 
         } else if (PreferenceManager.getString(applicationContext, "mode") == "comment_delete") {
@@ -306,9 +330,17 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
 
             finish()
         } else if(PreferenceManager.getString(applicationContext, "mode") == "follow") {
-            feedModule.onDismiss("follow", feed, this, LocalRepository.getInstance(applicationContext)!!, null, lifecycleScope)
+            feedModule.onDismiss(
+                "follow", feed, this, LocalRepository.getInstance(
+                    applicationContext
+                )!!, null, lifecycleScope
+            )
         } else if(PreferenceManager.getString(applicationContext, "mode") == "unfollow") {
-            feedModule.onDismiss("unfollow", feed, this, LocalRepository.getInstance(applicationContext)!!, null, lifecycleScope)
+            feedModule.onDismiss(
+                "unfollow", feed, this, LocalRepository.getInstance(
+                    applicationContext
+                )!!, null, lifecycleScope
+            )
         }
     }
 

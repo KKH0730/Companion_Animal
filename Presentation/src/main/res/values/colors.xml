@@ -8,6 +8,7 @@
     <color name="black">#212121</color>
     <color name="white">#FFFFFFFF</color>
     <color name="grey">#a9a9ac</color>
+    <color name="grey_2">#f1f1f1</color>
     <color name="forest_green">#CDDC39</color>
     <color name="bookmark_yellow">#FFEB3B</color>
     <color name="heart_red">#F44336</color>

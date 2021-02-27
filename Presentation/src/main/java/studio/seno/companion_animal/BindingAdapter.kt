@@ -6,6 +6,7 @@ import android.text.SpannableStringBuilder
 import android.util.Log
 import android.view.View
 import android.widget.*
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.databinding.BindingAdapter
 import androidx.fragment.app.FragmentManager
@@ -217,11 +218,11 @@ object BindingAdapter {
 
     @BindingAdapter("alreadyRead")
     @JvmStatic
-    fun alreadyRead(imageView: ImageView, flag: Boolean) {
+    fun alreadyRead(constraintLayout: ConstraintLayout, flag: Boolean) {
         if (flag)
-            imageView.visibility = View.VISIBLE
+            constraintLayout.setBackgroundColor(constraintLayout.context.getColor(R.color.bottom_tab_color))
         else
-            imageView.visibility = View.GONE
+            constraintLayout.setBackgroundColor(constraintLayout.context.getColor(R.color.white))
     }
 
     /**

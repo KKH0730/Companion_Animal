@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
@@ -69,7 +70,7 @@ class NotificationFragment : Fragment() {
 
     private fun itemEvent(){
         notiAdater.setOnNotificationListener(object : OnNotificationClickedListener{
-            override fun onNotificationClicked(checkImage : ImageView, item: NotificationData) {
+            override fun onNotificationClicked(notiLayout : ConstraintLayout, item: NotificationData) {
                 notiListViewModel.requestUpdateCheckDot(item)
 
                 RemoteRepository.getInstance()!!.loadFeed(item.targetPath!!, object : LongTaskCallback<Feed>{
@@ -80,7 +81,7 @@ class NotificationFragment : Fragment() {
                             else
                                 startActivity<ErrorActivity>()
 
-                            checkImage.visibility = View.GONE
+                            notiLayout.setBackgroundColor(requireActivity().applicationContext.getColor(R.color.white))
                         } else if(result is Result.Error) {
                             Log.e("error", "NotificationFragment intent error : ${result.exception}")
                         }

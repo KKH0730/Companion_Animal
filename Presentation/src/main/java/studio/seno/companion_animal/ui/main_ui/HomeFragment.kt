@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -105,6 +106,9 @@ class HomeFragment : Fragment(), View.OnClickListener{
             binding.header.findViewById<ImageView>(R.id.logo).visibility = View.VISIBLE
             binding.header.findViewById<LinearLayout>(R.id.menu_set).visibility = View.VISIBLE
             binding.header.findViewById<ImageButton>(R.id.setting).visibility = View.GONE
+            binding.header.findViewById<ConstraintLayout>(R.id.header_layout).layoutParams.height =
+                requireActivity().applicationContext.resources.getDimension(R.dimen.header_layout_height).toInt()
+
         } else if(feedSort != null && feedSort == "feed_timeline")
             binding.header.visibility = View.GONE
 

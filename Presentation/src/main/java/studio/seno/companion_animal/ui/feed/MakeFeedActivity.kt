@@ -8,6 +8,7 @@ import android.util.Log
 import android.view.View
 import android.widget.ImageButton
 import android.widget.RadioGroup
+import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
@@ -84,6 +85,7 @@ class MakeFeedActivity : AppCompatActivity(), View.OnClickListener,
         selectedImageAdapter = SelectedImageAdapter(applicationContext)
         binding.cameraBtn.setOnClickListener(this)
         binding.header.findViewById<ImageButton>(R.id.back_btn).setOnClickListener(this)
+        binding.header.findViewById<TextView>(R.id.title2).text = getString(R.string.ShowAnimal_title)
         binding.radioGroup.setOnCheckedChangeListener(this)
         binding.hashTagBtn.setOnClickListener(this)
         binding.submitBtn.setOnClickListener(this)

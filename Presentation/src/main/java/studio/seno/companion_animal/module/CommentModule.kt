@@ -198,8 +198,8 @@ class CommentModule(
         if (method == 0) {
             commentEditText.setHint(R.string.comment_hint)
         } else if (method == 1) {
-            commentEditText.setHint(R.string.answer_write_hint)
-            modeTitleTextView.setText(R.string.answer_write_hint)
+            commentEditText.setHint(R.string.answer_write_ing)
+            modeTitleTextView.setText(R.string.answer_write_ing)
         } else if (method == 2) {
             commentEditText.setHint(R.string.answer_modify_ing)
             modeTitleTextView.setText(R.string.answer_modify_ing)

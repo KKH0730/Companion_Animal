@@ -63,7 +63,8 @@
                     android:id="@+id/comment_layout"
                     layout="@layout/activity_comment"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"/>
 
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>

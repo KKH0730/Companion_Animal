@@ -3,7 +3,10 @@ package studio.seno.companion_animal.ui.search
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.KeyEvent
 import android.view.View
+import android.view.inputmethod.EditorInfo
+import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
@@ -44,12 +47,23 @@ class SearchActivity : AppCompatActivity(), View.OnClickListener {
 
         init()
         lastSearchItemEvent()
+
+        binding.searchBar.setOnEditorActionListener(object : TextView.OnEditorActionListener{
+            override fun onEditorAction(v: TextView?, actionId: Int, event: KeyEvent?): Boolean {
+                if(actionId == EditorInfo.IME_ACTION_SEARCH) {
+                    searchButtonEvent()
+                    return true
+                }
+                return false
+            }
+        })
+
+
         listViewModel.requestLoadLastSearch()
         observe()
     }
 
     fun init() {
-        binding.searchBtn.setOnClickListener(this)
         binding.backBtn.setOnClickListener(this)
     }
 
@@ -89,8 +103,6 @@ class SearchActivity : AppCompatActivity(), View.OnClickListener {
             }else
                 finish()
 
-        } else if (v?.id == R.id.search_btn) {
-            searchButtonEvent()
         }
     }
 
@@ -138,5 +150,6 @@ class SearchActivity : AppCompatActivity(), View.OnClickListener {
         binding.lastSearchRecyclerView.visibility = View.GONE
         feedGridFragment = FeedGridFragment.newInstance(content, "feed_search", null)
         supportFragmentManager.beginTransaction().replace(R.id.container, feedGridFragment).commit()
+
     }
 }

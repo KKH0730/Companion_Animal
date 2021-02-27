@@ -1,9 +1,10 @@
 package studio.seno.companion_animal.ui.notification
 
 import android.widget.ImageView
+import androidx.constraintlayout.widget.ConstraintLayout
 import studio.seno.domain.model.NotificationData
 
 interface OnNotificationClickedListener {
-    fun onNotificationClicked(checkImage : ImageView, item : NotificationData)
+    fun onNotificationClicked(notiLayout : ConstraintLayout, item : NotificationData)
     fun onDeleteClicked(item : NotificationData)
 }
