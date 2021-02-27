@@ -1,5 +1,8 @@
 package studio.seno.companion_animal.ui.main_ui
 
+import android.app.AlertDialog
+import android.content.Context
+import android.content.DialogInterface
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -9,6 +12,7 @@ import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -18,19 +22,20 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.google.firebase.auth.FirebaseAuth
 import com.kroegerama.imgpicker.BottomSheetImagePicker
 import com.kroegerama.imgpicker.ButtonType
-import org.jetbrains.anko.support.v4.intentFor
+import com.marcoscg.easylicensesdialog.EasyLicensesDialogCompat
 import org.jetbrains.anko.support.v4.startActivity
+import studio.seno.commonmodule.CustomToast
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.FragmentTimeLineBinding
 import studio.seno.companion_animal.module.CommonFunction
 import studio.seno.companion_animal.module.ProfileModule
-import studio.seno.companion_animal.ui.MenuDialog
 import studio.seno.companion_animal.ui.chat.ChatActivity
 import studio.seno.companion_animal.ui.feed.FeedGridFragment
 import studio.seno.companion_animal.ui.feed.MakeFeedActivity
 import studio.seno.companion_animal.ui.feed.ShowFeedActivity
 import studio.seno.companion_animal.ui.follow.FollowActivity
-import studio.seno.companion_animal.util.Constants
+import studio.seno.companion_animal.ui.user_manage.UserManageActivity
+import studio.seno.companion_animal.util.ViewControlListener
 import studio.seno.datamodule.LocalRepository
 import studio.seno.datamodule.RemoteRepository
 import studio.seno.domain.LongTaskCallback
@@ -44,12 +49,22 @@ class TimeLineFragment : Fragment(), View.OnClickListener,
     private lateinit var localRepository: LocalRepository
     private val remoteRepository: RemoteRepository = RemoteRepository.getInstance()!!
     private val mainViewModel: MainViewModel by viewModels()
+    private lateinit var viewControlListener : ViewControlListener
     private var profileEmail : String? = null
     private var targetNickname : String? = null
     private var targetProfileUri : String? = null
     private val profileModule : ProfileModule by lazy {
         ProfileModule(profileEmail)
     }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
+        if(context is ViewControlListener)
+            viewControlListener = context
+    }
+
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -61,7 +76,7 @@ class TimeLineFragment : Fragment(), View.OnClickListener,
 
     companion object {
         @JvmStatic
-        fun newInstance(profileEmail : String?) =
+        fun newInstance(profileEmail: String?) =
             TimeLineFragment().apply { arguments = Bundle().apply {
                 putString("profileEmail", profileEmail)
             } }
@@ -82,11 +97,13 @@ class TimeLineFragment : Fragment(), View.OnClickListener,
         init()
         userInfoSet()
 
-        childFragmentManager.beginTransaction().replace(R.id.container, FeedGridFragment.newInstance(
-            null,
-            "feed_timeline",
-            profileEmail
-        )).commit()
+        childFragmentManager.beginTransaction().replace(
+            R.id.container, FeedGridFragment.newInstance(
+                null,
+                "feed_timeline",
+                profileEmail
+            )
+        ).commit()
     }
 
     fun init() {
@@ -105,12 +122,11 @@ class TimeLineFragment : Fragment(), View.OnClickListener,
             binding.bookmarkBtn.setOnClickListener(this)
             binding.timelineProfileImageView.setOnClickListener(this)
             binding.header.findViewById<LinearLayout>(R.id.menu_set).visibility = View.VISIBLE
-            //binding.header.findViewById<TextView>(R.id.title).visibility = View.GONE
             binding.header.findViewById<TextView>(R.id.title).text = getString(R.string.timeline_title)
             binding.header.findViewById<ImageButton>(R.id.add).setOnClickListener(this)
+            binding.header.findViewById<ImageButton>(R.id.setting).setOnClickListener(this)
             binding.infoModifyBtn.setOnClickListener(this)
         }
-
 
         binding.header.findViewById<ImageButton>(R.id.back_btn).visibility = View.GONE
         binding.header.findViewById<ImageButton>(R.id.search).visibility = View.GONE
@@ -127,40 +143,57 @@ class TimeLineFragment : Fragment(), View.OnClickListener,
                 override fun onResponse(result: Result<User>) {
                     if (result is Result.Success) {
                         profileModule.userInfoSet(
-                            result.data, binding.nickNameEdit, binding.feedCount,
-                            binding.followerBtn, binding.followingBtn, binding.timelineProfileImageView
+                            result.data,
+                            binding.nickNameEdit,
+                            binding.feedCount,
+                            binding.followerBtn,
+                            binding.followingBtn,
+                            binding.timelineProfileImageView
                         )
                     } else if (result is Result.Error) {
                         Log.e("error", "timeline userInfoSet error : ${result.exception}")
-                    } } })
+                    }
+                }
+            })
         } else {
-            mainViewModel.requestUserData(profileEmail!!, object : LongTaskCallback<User>{
+            mainViewModel.requestUserData(profileEmail!!, object : LongTaskCallback<User> {
                 override fun onResponse(result: Result<User>) {
                     if (result is Result.Success) {
                         profileModule.userInfoSet(
-                            result.data, binding.nickNameEdit, binding.feedCount,
-                            binding.followerBtn, binding.followingBtn, binding.timelineProfileImageView
+                            result.data,
+                            binding.nickNameEdit,
+                            binding.feedCount,
+                            binding.followerBtn,
+                            binding.followingBtn,
+                            binding.timelineProfileImageView
                         )
 
                         targetNickname = result.data.nickname
                         targetProfileUri = result.data.profileUri
                     } else if (result is Result.Error) {
                         Log.e("error", "timeline userInfoSet error : ${result.exception}")
-                    } } })
-
-            RemoteRepository.getInstance()!!.requestCheckFollow(profileEmail!!, object : LongTaskCallback<Boolean>{
-                override fun onResponse(result: Result<Boolean>) {
-                    if(result is Result.Success) {
-                        if(result.data == true) {
-                            setFollowButton(true)
-                        } else {
-                            setFollowButton(false)
-                        }
-                    } else if(result is Result.Error) {
-                        Log.e("error", "timeline fragment userInfoSet error : ${result.exception}")
                     }
                 }
             })
+
+            RemoteRepository.getInstance()!!.requestCheckFollow(
+                profileEmail!!,
+                object : LongTaskCallback<Boolean> {
+                    override fun onResponse(result: Result<Boolean>) {
+                        if (result is Result.Success) {
+                            if (result.data == true) {
+                                setFollowButton(true)
+                            } else {
+                                setFollowButton(false)
+                            }
+                        } else if (result is Result.Error) {
+                            Log.e(
+                                "error",
+                                "timeline fragment userInfoSet error : ${result.exception}"
+                            )
+                        }
+                    }
+                })
         }
     }
 
@@ -199,33 +232,42 @@ class TimeLineFragment : Fragment(), View.OnClickListener,
                 "feedSort" to "feed_bookmark",
                 "feedPosition" to 0
             )
+
         } else if(v?.id == R.id.follow_btn) {
             if(binding.followBtn.text == getString(R.string.follow_ing)) {
                 localRepository.getUserInfo(lifecycleScope, object : LongTaskCallback<User> {
                     override fun onResponse(result: Result<User>) {
                         if (result is Result.Success) {
-                            profileModule.requestUpdateFollower(profileEmail!!, targetNickname!!, targetProfileUri!!,
-                                false, result.data.nickname, result.data.profileUri)
+                            profileModule.requestUpdateFollower(
+                                profileEmail!!, targetNickname!!, targetProfileUri!!,
+                                false, result.data.nickname, result.data.profileUri
+                            )
 
                             setFollowButton(false)
 
                         } else if (result is Result.Error) {
                             Log.e("error", "timeline follow_btn error : ${result.exception}")
-                        } } })
+                        }
+                    }
+                })
 
 
             } else if(binding.followBtn.text == getString(R.string.follow)){
                 localRepository.getUserInfo(lifecycleScope, object : LongTaskCallback<User> {
                     override fun onResponse(result: Result<User>) {
                         if (result is Result.Success) {
-                            profileModule.requestUpdateFollower(profileEmail!!, targetNickname!!, targetProfileUri!!,
-                                true, result.data.nickname, result.data.profileUri)
+                            profileModule.requestUpdateFollower(
+                                profileEmail!!, targetNickname!!, targetProfileUri!!,
+                                true, result.data.nickname, result.data.profileUri
+                            )
 
                             setFollowButton(true)
 
                         } else if (result is Result.Error) {
                             Log.e("error", "timeline followBtn error : ${result.exception}")
-                        } } })
+                        }
+                    }
+                })
             }
         } else if(v?.id == R.id.message_btn) {
             startActivity<ChatActivity>(
@@ -234,8 +276,37 @@ class TimeLineFragment : Fragment(), View.OnClickListener,
                 "targetNickname" to targetNickname,
                 "targetRealEmail" to profileEmail
             )
+        } else if(v?.id == R.id.setting) {
+            makeAlertDialog()
         }
     }
+
+    fun makeAlertDialog(){
+
+        val info = arrayOf<CharSequence>("라이센스", "로그아웃")
+        val builder= AlertDialog.Builder(requireContext())
+
+        builder.setItems(info) { dialog, which ->
+            when (which) {
+                0 -> {
+                    EasyLicensesDialogCompat(requireContext())
+                        .setTitle("Licenses")
+                        .setPositiveButton(android.R.string.ok, null)
+                        .show()
+                }
+                1 -> {
+                    FirebaseAuth.getInstance().signOut()
+                    startActivity<UserManageActivity>()
+                    viewControlListener.finishCurrentActivity()
+                }
+            }
+            dialog.dismiss()
+        }
+
+        builder.show()
+    }
+
+
 
     override fun onImagesSelected(uris: List<Uri>, tag: String?) {
         CommonFunction.getInstance()!!.lockTouch(activity?.window!!)
@@ -286,7 +357,7 @@ class TimeLineFragment : Fragment(), View.OnClickListener,
         })
     }
 
-    fun setFollowButton(flag : Boolean){
+    fun setFollowButton(flag: Boolean){
         if(flag) {
             context?.getColor(R.color.main_color)?.let { binding.followBtn.setBackgroundColor(it) }
             context?.getColor(R.color.white)?.let { binding.followBtn.setTextColor(it) }

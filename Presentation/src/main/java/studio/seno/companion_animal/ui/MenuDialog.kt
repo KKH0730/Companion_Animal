@@ -60,8 +60,7 @@ class MenuDialog : BottomSheetDialogFragment(), View.OnClickListener {
     }
 
     private fun initView(){
-        binding.makeFeedBtn.setOnClickListener(this)
-        binding.makeQuestionBtn.setOnClickListener(this)
+
         binding.modifyBtn.setOnClickListener(this)
         binding.deleteBtn.setOnClickListener(this)
         binding.reportBtn.setOnClickListener(this)
@@ -83,17 +82,11 @@ class MenuDialog : BottomSheetDialogFragment(), View.OnClickListener {
                 binding.followBtn.visibility = View.GONE
                 binding.unfollowBtn.visibility = View.GONE
             }
-            binding.makeFeedBtn.visibility = View.GONE
-            binding.makeQuestionBtn.visibility = View.GONE
 
     }
 
     override fun onClick(v: View?) {
-        if(v?.id == R.id.make_feed_btn) {
-            startActivity<MakeFeedActivity>()
-        } else if(v?.id == R.id.make_question_btn){
-
-        } else if(v?.id == R.id.modify_btn) {
+        if(v?.id == R.id.modify_btn) {
             if(tag == "comment")
                 PreferenceManager.setString(requireContext(), "mode", "comment_modify")
             else if(tag == "comment_answer")

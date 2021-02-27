@@ -2,7 +2,9 @@ package studio.seno.companion_animal.ui.user_manage
 
 import android.content.Context
 import android.os.Bundle
+import android.text.InputType
 import android.text.SpannableStringBuilder
+import android.text.method.PasswordTransformationMethod
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -11,6 +13,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import com.google.firebase.auth.FirebaseAuth
 import com.royrodriguez.transitionbutton.TransitionButton
 import org.jetbrains.anko.support.v4.startActivity
 import studio.seno.commonmodule.CustomToast
@@ -28,6 +31,7 @@ class LoginFragment : Fragment(), View.OnClickListener {
     private lateinit var binding: FragmentLoginBinding
     private val viewModel : UserViewModel by viewModels()
     private lateinit var viewControlListener : ViewControlListener
+    private var key = false
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -47,7 +51,13 @@ class LoginFragment : Fragment(), View.OnClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        initView()
+        if(FirebaseAuth.getInstance().currentUser == null)
+            initView()
+        else {
+            startActivity<MainActivity>()
+            viewControlListener.finishCurrentActivity()
+        }
+
     }
 
     private fun initView() {
@@ -64,6 +74,7 @@ class LoginFragment : Fragment(), View.OnClickListener {
 
         binding.findPasswordBtn.setOnClickListener(this)
         binding.moveRegisterBtn.setOnClickListener(this)
+        binding.keyBtn.setOnClickListener(this)
         binding.loginBtn.setOnClickListener(this)
     }
 
@@ -100,6 +111,14 @@ class LoginFragment : Fragment(), View.OnClickListener {
                         }
                     }
                 })
+            }
+        } else if(v?.id == R.id.key_btn) {
+            if(key == true){
+                binding.passInput.transformationMethod = PasswordTransformationMethod.getInstance()
+                key = false
+            } else {
+                binding.passInput.transformationMethod = null
+                key = true
             }
         }
     }

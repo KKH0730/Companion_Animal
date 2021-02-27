@@ -5,6 +5,7 @@ import android.content.Context
 import android.net.Uri
 import android.os.Bundle
 import android.text.SpannableStringBuilder
+import android.text.method.PasswordTransformationMethod
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -31,6 +32,7 @@ import studio.seno.domain.Result
 class RegisterFragment : Fragment(), View.OnClickListener {
     private lateinit var binding: FragmentRegisterBinding
     private val viewModel : UserViewModel by viewModels()
+    private var key = false
 
 
     private lateinit var viewControlListener : ViewControlListener
@@ -68,6 +70,7 @@ class RegisterFragment : Fragment(), View.OnClickListener {
             binding.moveLoginBtn.text = ssb
         }
 
+        binding.keyBtn.setOnClickListener(this)
         binding.moveLoginBtn.setOnClickListener(this)
         binding.registerBtn.setOnClickListener(this)
     }
@@ -147,6 +150,14 @@ class RegisterFragment : Fragment(), View.OnClickListener {
                         }
                     }
                 })
+            }
+        } else if(v?.id == R.id.key_btn) {
+            if(key == true){
+                binding.passInput.transformationMethod = PasswordTransformationMethod.getInstance()
+                key = false
+            } else {
+                binding.passInput.transformationMethod = null
+                key = true
             }
         }
     }

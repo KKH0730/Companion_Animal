@@ -16,6 +16,7 @@ import studio.seno.companion_animal.databinding.ActivityMainBinding
 import studio.seno.companion_animal.ui.chat.ChatActivity
 import studio.seno.companion_animal.ui.feed.FeedDetailActivity
 import studio.seno.companion_animal.ui.main_ui.*
+import studio.seno.companion_animal.util.ViewControlListener
 import studio.seno.datamodule.LocalRepository
 import studio.seno.datamodule.RemoteRepository
 import studio.seno.domain.LongTaskCallback
@@ -25,7 +26,7 @@ import studio.seno.domain.model.Feed
 import studio.seno.domain.model.User
 import studio.seno.domain.util.PreferenceManager
 
-class MainActivity : BaseActivity() , DialogInterface.OnDismissListener{
+class MainActivity : BaseActivity() , DialogInterface.OnDismissListener, ViewControlListener {
     private lateinit var binding: ActivityMainBinding
     private lateinit var db :AppDatabase
     private val mainViewModel : MainViewModel by viewModels()
@@ -133,6 +134,10 @@ class MainActivity : BaseActivity() , DialogInterface.OnDismissListener{
         } else if(PreferenceManager.getString(applicationContext, "mode") == "unfollow") {
             homeFragment.onDismissed("unfollow")
         }
+    }
+
+    override fun finishCurrentActivity() {
+        finish()
     }
 
 

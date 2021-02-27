@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
 import androidx.databinding.DataBindingUtil
@@ -15,12 +14,10 @@ import studio.seno.commonmodule.CustomToast
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.FragmentFindPasswordBinding
 import studio.seno.companion_animal.module.CommonFunction
-import studio.seno.companion_animal.util.ProgressGenerator
 
 
-class FindPasswordFragment : Fragment(), ProgressGenerator.OnCompleteListener {
+class FindPasswordFragment : Fragment(){
     private lateinit var binding : FragmentFindPasswordBinding
-    private val progressGenerator by lazy{ProgressGenerator(this)}
     private val viewModel : UserViewModel by viewModels()
 
     override fun onCreateView(
@@ -44,6 +41,7 @@ class FindPasswordFragment : Fragment(), ProgressGenerator.OnCompleteListener {
         binding.sendEmail.setOnClickListener {
             CommonFunction.closeKeyboard(requireContext(), binding.emailInput)
             var emailAddress = binding.emailInput.text.toString().trim()
+            binding.progressBar.visibility = View.VISIBLE
 
             if(emailAddress.isEmpty()) {
                 CustomToast(requireContext(), getString(R.string.find_password_announcement1)).show()
@@ -51,9 +49,12 @@ class FindPasswordFragment : Fragment(), ProgressGenerator.OnCompleteListener {
                 viewModel.sendFindEmail(emailAddress)
                 viewModel.getFindPasswordListData().observe(requireActivity(), {
                     if (it) {
-                        progressGenerator.start(binding.sendEmail)
                         binding.emailInput.isEnabled = false
                         binding.sendEmail.isEnabled = false
+                        binding.progressBar.visibility = View.GONE
+                        CustomToast(requireContext(), getString(R.string.find_password_announcement2)).show()
+                        findNavController().navigate(R.id.action_findPasswordFragment_to_loginFragment)
+
                     } else
                         CustomToast(requireContext(), getString(R.string.find_password_announcement1)).show()
                 })
@@ -62,17 +63,9 @@ class FindPasswordFragment : Fragment(), ProgressGenerator.OnCompleteListener {
     }
 
     fun init(){
-        binding.header.findViewById<TextView>(R.id.title).text = getString(R.string.find_password_title)
+        binding.header.findViewById<TextView>(R.id.title2).text = getString(R.string.find_password_title)
         binding.header.findViewById<ImageButton>(R.id.back_btn).setOnClickListener {
             findNavController().navigate(R.id.action_findPasswordFragment_to_loginFragment)
         }
-    }
-
-
-
-
-    override fun onComplete() {
-        CustomToast(requireContext(), getString(R.string.find_password_announcement2)).show()
-        findNavController().navigate(R.id.action_findPasswordFragment_to_loginFragment)
     }
 }

@@ -13,7 +13,7 @@
     <color name="bookmark_yellow">#FFEB3B</color>
     <color name="heart_red">#F44336</color>
 
-    <color name="main_color">#f7a268</color>
+    <color name="main_color">#f3c8ab</color>
     <color name="edit_back">#e8e8f2</color>
     <color name="edit_stroke">#b4b4b4</color>
     <color name="blue_normal">#ff33b5e5</color>
@@ -24,4 +24,8 @@
     <color name="tab_1">#bfc2ee</color>
     <color name="tab_2">#6b73f0</color>
     <color name="tab_3">#101eef</color>
+
+    <color name="progress1">#f5d3bb</color>
+    <color name="progress2">#f4e5da</color>
+    <color name="progress3">#f5f1ee</color>
 </resources>
