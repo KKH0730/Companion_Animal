@@ -151,7 +151,7 @@ class ChatFragment : Fragment() {
             }
 
             override fun onImageClicked(chat: Chat, position: Int) {
-                setAddedChatListener(chat, position)
+                //setAddedChatListener(chat, position)
             }
         })
     }

@@ -157,12 +157,15 @@ class HomeFragment : Fragment(), View.OnClickListener{
         feedListViewModel.getFeedListLiveData().observe(requireActivity(), {
             feedAdapter.submitList(it)
 
+            /*
             if(context != null) {
                 if(PreferenceManager.getInt(requireContext(), "feed_position") != 0) {
                     binding.feedRecyclerView.smoothScrollToPosition(PreferenceManager.getInt(requireActivity().applicationContext, "feed_position"))
                     PreferenceManager.setInt(requireContext().applicationContext, "feed_position", 0)
                 }
             }
+
+             */
         })
     }
 

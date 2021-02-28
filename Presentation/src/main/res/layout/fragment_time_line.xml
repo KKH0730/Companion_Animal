@@ -58,8 +58,8 @@
 
                         <de.hdodenhof.circleimageview.CircleImageView
                             android:id="@+id/timeline_profileImageView"
-                            android:layout_width="80dp"
-                            android:layout_height="80dp"
+                            android:layout_width="100dp"
+                            android:layout_height="100dp"
                             android:layout_marginStart="20dp"
                             android:layout_marginTop="20dp"
                             android:layout_marginBottom="20dp"
@@ -97,15 +97,15 @@
                             android:id="@+id/follow_btn"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginEnd="20dp"
+                            android:layout_marginBottom="10dp"
                             android:backgroundTint="@color/white"
                             android:text="@string/follow"
                             android:textColor="@color/black"
                             android:textSize="12sp"
                             android:visibility="gone"
-                            app:layout_constraintBottom_toBottomOf="@+id/message_btn"
-                            app:layout_constraintEnd_toStartOf="@+id/message_btn"
-                            app:layout_constraintTop_toTopOf="@+id/message_btn" />
+                            app:layout_constraintBottom_toTopOf="@+id/message_btn"
+                            app:layout_constraintEnd_toEndOf="@+id/message_btn"
+                            app:layout_constraintStart_toStartOf="@+id/message_btn" />
 
                         <Button
                             android:id="@+id/message_btn"
@@ -119,9 +119,7 @@
                             android:textSize="12sp"
                             android:visibility="gone"
                             app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintTop_toTopOf="parent"
-                            app:layout_constraintVertical_bias="1.0" />
+                            app:layout_constraintEnd_toEndOf="parent" />
 
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
@@ -156,11 +154,7 @@
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintTop_toTopOf="parent" />
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:textColor="@color/black"
-                            android:text="|"/>
+
 
                         <TextView
                             android:id="@+id/following_btn"

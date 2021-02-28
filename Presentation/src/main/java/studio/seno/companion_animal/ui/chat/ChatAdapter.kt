@@ -76,7 +76,7 @@ class ChatAdapter(type: String) : ListAdapter<Chat, RecyclerView.ViewHolder>(
             val model = ChatViewModel()
             model.setChatLiveData(chat)
             holder.setModel(model)
-            holder.setItemEvent(chat)
+            holder.setItemEvent(chat, itemCount)
             holder.setVisibility(chat)
         }
     }
@@ -141,12 +141,13 @@ class ChatAdapter(type: String) : ListAdapter<Chat, RecyclerView.ViewHolder>(
             }
         }
 
-        fun setItemEvent(chat: Chat) {
+        fun setItemEvent(chat: Chat, itemCount : Int) {
             mBinding.chatLayout.setOnClickListener { mChatItemListener.onChatItemClicked(chat, mBinding.checkDot) }
             mBinding.exitBtn.setOnClickListener { mChatItemListener.onExitButtonClicked(chat) }
-            mBinding.profileImage.setOnClickListener { mChatItemListener.onImageClicked(chat, bindingAdapterPosition) }
+            mBinding.profileImage.setOnClickListener { mChatItemListener.onImageClicked(chat, absoluteAdapterPosition) }
 
             mBinding.profileImage.performClick()
+
         }
     }
 }

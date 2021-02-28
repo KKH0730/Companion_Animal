@@ -6,24 +6,44 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/logo2"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Companion_Animal">
-        <activity android:name=".ui.chat.ChatActivity"
-            android:windowSoftInputMode="adjustUnspecified|adjustPan"/>
-        <activity android:name=".ui.feed.ShowFeedActivity"
-            android:windowSoftInputMode="adjustUnspecified|adjustPan"/>
-        <activity android:name=".ui.follow.FollowActivity"
-            android:windowSoftInputMode="adjustUnspecified|adjustPan"/>
-        <activity android:name=".ui.feed.FeedImageActivity"
-            android:windowSoftInputMode="adjustUnspecified|adjustPan"/>
-        <activity android:name=".ErrorActivity" />
-        <activity android:name=".ui.search.SearchActivity"
-            android:windowSoftInputMode="adjustUnspecified|adjustPan"/>
-        <activity android:name=".ui.feed.FeedDetailActivity"
-            android:windowSoftInputMode="adjustUnspecified|adjustPan"/>
+        <activity
+            android:name=".ui.chat.ChatActivity"
+            android:windowSoftInputMode="adjustUnspecified|adjustPan"
+            android:screenOrientation="portrait"/>
+
+        <activity
+            android:name=".ui.feed.ShowFeedActivity"
+            android:windowSoftInputMode="adjustUnspecified|adjustPan"
+            android:screenOrientation="portrait"/>
+
+        <activity
+            android:name=".ui.follow.FollowActivity"
+            android:windowSoftInputMode="adjustUnspecified|adjustPan"
+            android:screenOrientation="portrait"/>
+
+        <activity
+            android:name=".ui.feed.FeedImageActivity"
+            android:windowSoftInputMode="adjustUnspecified|adjustPan"
+            android:screenOrientation="portrait"/>
+
+        <activity
+            android:name=".ErrorActivity"
+            android:screenOrientation="portrait"/>
+
+        <activity
+            android:name=".ui.search.SearchActivity"
+            android:windowSoftInputMode="adjustUnspecified|adjustPan"
+            android:screenOrientation="portrait"/>
+
+        <activity
+            android:name=".ui.feed.FeedDetailActivity"
+            android:windowSoftInputMode="adjustUnspecified|adjustPan"
+            android:screenOrientation="portrait"/>
 
         <meta-data
             android:name="com.google.firebase.messaging.default_display_name_string_id"
@@ -44,13 +64,28 @@
             </intent-filter>
         </service>
 
-        <activity android:name=".ui.comment.CommentActivity" />
-        <activity android:name=".ui.feed.MakeFeedActivity" />
-        <activity android:name="studio.seno.commonmodule.BaseActivity" />
+        <activity
+            android:name=".ui.comment.CommentActivity"
+            android:screenOrientation="portrait"/>
+
+        <activity
+            android:name=".ui.feed.MakeFeedActivity"
+            android:screenOrientation="portrait"/>
+
+        <activity
+            android:name="studio.seno.commonmodule.BaseActivity"
+            android:screenOrientation="portrait"/>
+
         <activity
             android:name=".MainActivity"
-            android:windowSoftInputMode="adjustUnspecified|adjustPan" />
-        <activity android:name=".ui.user_manage.UserManageActivity">
+            android:windowSoftInputMode="adjustUnspecified|adjustPan"
+            android:screenOrientation="portrait"/>
+
+        <activity
+            android:name=".ui.user_manage.UserManageActivity"
+            android:windowSoftInputMode="adjustUnspecified|adjustPan"
+            android:screenOrientation="portrait">
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

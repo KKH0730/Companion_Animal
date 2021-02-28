@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">companion_animal</string>
+    <string name="app_name">털뭉치들</string>
 
     <!-- Login UI -->
     <string name="email">이메일</string>
