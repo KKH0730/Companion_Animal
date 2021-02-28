@@ -87,6 +87,17 @@ class ChatListVIewModel : ViewModel() {
             })
     }
 
+    fun addChatList(chat : Chat){
+        val tempChatList = chatListLiveData.value?.toMutableList()
+        tempChatList?.add(chat)
+        chatListLiveData.value = tempChatList
+    }
+
+    fun setAddedChat(chat: Chat, position :Int) {
+        val tempChatList = chatListLiveData.value?.toMutableList()
+        tempChatList?.set(position, chat)
+        chatListLiveData.value = tempChatList
+    }
 
     fun requestLoadChatList(myEmail: String, callback: LongTaskCallback<Boolean>) {
         remoteRepository.requestLoadChatList(myEmail, object : LongTaskCallback<List<Chat>> {
@@ -131,57 +142,4 @@ class ChatListVIewModel : ViewModel() {
     fun requestUpdateCheckDot(myEmail : String, targetEmail : String){
         remoteRepository.requestUpdateCheckDot(myEmail, targetEmail)
     }
-
-    /*
-    fun setListener(chat: Chat){
-        var email : String ? = null
-        var realEmail : String? = null
-        var targetEmail : String? = null
-        var targetRealEmail : String?  = null
-
-        if(chat.email == FirebaseAuth.getInstance().currentUser?.email.toString()) {
-            email = chat.email
-            realEmail = chat.realEmail
-            targetEmail = chat.targetEmail
-            targetRealEmail = chat.targetRealEmail
-        } else {
-            email = chat.targetEmail
-            realEmail = chat.targetRealEmail
-            targetEmail = chat.email
-            targetRealEmail = chat.realEmail
-        }
-
-        FirebaseDatabase.getInstance().reference
-            .child(Constants.CHAT_ROOT)
-            .child(email!!)
-            .child(email + targetEmail)
-            .addChildEventListener(object : ChildEventListener {
-                override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
-                    Log.d("hi","2")
-                    val chat = snapshot.getValue(Chat::class.java)
-                    if (chat != null) {
-                        Log.d("hi","1")
-                        //chatListViewModel.updateChatLog(chat, binding.chatRecyclerview, lifecycleScope)
-                    }
-                }
-
-                override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
-
-                }
-
-                override fun onChildRemoved(snapshot: DataSnapshot) {
-
-                }
-
-                override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {
-
-                }
-
-                override fun onCancelled(error: DatabaseError) {
-
-                }
-            })
-    }
-
-     */
 }

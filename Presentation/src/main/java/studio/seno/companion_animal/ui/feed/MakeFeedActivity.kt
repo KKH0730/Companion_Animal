@@ -43,9 +43,6 @@ class MakeFeedActivity : AppCompatActivity(), View.OnClickListener,
     private val localRepository = LocalRepository(this)
     private var feed : Feed? = null
     private var mode = "write"
-    private var toRemoveUri = mutableListOf<Int>()
-    private var toRemoteUriArray : Array<String>? = null
-
     private var currentChecked: String? = null
     private var hashTags = mutableListOf<String>()
 
@@ -65,17 +62,6 @@ class MakeFeedActivity : AppCompatActivity(), View.OnClickListener,
             override fun onDeleted(position: Int) {
                 val deleteItem : String = selectedImageAdapter.getItem(position)
                     selectedImageAdapter.removeItem(deleteItem)
-                Log.d("hi", "deleteItem ${deleteItem}")
-                if(mode == "modify"){
-                    Log.d("hi", "modify ")
-                    for(i in 0 until toRemoteUriArray!!.size) {
-                        if (toRemoteUriArray!![i] == deleteItem) {
-                            Log.d("hi", "i -> $i")
-                            toRemoveUri.add(i)
-                        }
-                    }
-
-                }
                 selectedImageAdapter.notifyDataSetChanged()
             }
         })
@@ -106,11 +92,8 @@ class MakeFeedActivity : AppCompatActivity(), View.OnClickListener,
     }
 
     fun setModifyInfo(){
-        toRemoteUriArray = Array(feed!!.remoteUri.size, {""})
-        // 이미지 업로드
-        for(i in 0 until feed!!.remoteUri.size) {
-            toRemoteUriArray!![i] = feed!!.remoteUri[i]
-            selectedImageAdapter.addItem(feed!!.remoteUri[i])
+        for(element in feed!!.localUri) {
+            selectedImageAdapter.addItem(element)
         }
 
 
@@ -261,7 +244,7 @@ class MakeFeedActivity : AppCompatActivity(), View.OnClickListener,
                     feedListViewModel.requestUploadFeed(
                         result.data.email, result.data.nickname, currentChecked!!,
                         hashTags, selectedImageAdapter.getItems(), binding.content.text.toString(),
-                        timestamp, toRemoveUri, mode, object: LongTaskCallback<Feed> {
+                        timestamp, object: LongTaskCallback<Feed> {
                             override fun onResponse(result: Result<Feed>) {
                                 if(result is Result.Success) {
                                     feed = result.data

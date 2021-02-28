@@ -100,8 +100,8 @@ class RemoteRepository() {
 
 
     //피드 작성후 서버에 업로드
-    fun uploadFeed(feed: Feed,  toRemoveUri : List<Int>, mode : String, callback: LongTaskCallback<Feed>) {
-        feedUseCase.uploadFeed(feed, toRemoveUri, mode, mStorageRef, mDB, callback)
+    fun uploadFeed(feed: Feed, callback: LongTaskCallback<Feed>) {
+        feedUseCase.uploadFeed(feed, mStorageRef, mDB, callback)
     }
 
     //피드 리스트 로드
@@ -274,6 +274,7 @@ class RemoteRepository() {
     fun requestLoadChatList(myEmail : String, callback : LongTaskCallback<List<Chat>>){
         chatUseCase.loadChatList(myEmail, mRTDB, callback)
     }
+
 
     fun requestRemoveChatList(targetEmail : String, myEmail : String, chat : Chat){
         chatUseCase.removeChatList(targetEmail, myEmail, chat, mRTDB)

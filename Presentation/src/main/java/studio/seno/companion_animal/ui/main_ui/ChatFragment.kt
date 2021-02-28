@@ -88,6 +88,8 @@ class ChatFragment : Fragment() {
 
                     loadChatLog()
                     observe()
+
+                    setAddedChatListListener()
                 } else if(result is Result.Error) {
                     Log.e("error", "ChatActivity send_btn error : ${result.exception}")
                 }
@@ -99,11 +101,9 @@ class ChatFragment : Fragment() {
         chatListViewModel.requestLoadChatList(CommonFunction.makeChatPath(user!!.email), object : LongTaskCallback<Boolean>{
             override fun onResponse(result: Result<Boolean>) {
                 if(result is Result.Success) {
-                    if(result.data != null) {
+                    if(result.data != null)
                         binding.progressBar.visibility = View.GONE
-
-
-                    } else
+                    else
                         binding.progressBar.visibility = View.GONE
                 }
             }
@@ -149,13 +149,78 @@ class ChatFragment : Fragment() {
                         }
                     }.show()
             }
+
+            override fun onImageClicked(chat: Chat, position: Int) {
+                setAddedChatListener(chat, position)
+            }
         })
     }
-
 
     fun observe(){
         chatListViewModel.getChatListLiveData().observe(this, {
             chatAdapter.submitList(it)
         })
     }
+
+    fun setAddedChatListener(chat : Chat, position : Int){
+        var email : String? = null
+        var realEmail : String? = null
+        var targetEmail : String? = null
+        var targetRealEmail : String? = null
+
+        if (chat.email == FirebaseAuth.getInstance().currentUser?.email) {
+            email = chat.email
+            realEmail = chat.realEmail
+            targetEmail = chat.targetEmail
+            targetRealEmail = chat.targetRealEmail
+        } else {
+            email = chat.targetEmail
+            realEmail = chat.targetRealEmail
+            targetEmail = chat.email
+            targetRealEmail = chat.realEmail
+        }
+
+        FirebaseDatabase.getInstance().reference
+            .child(Constants.CHAT_ROOT)
+            .child(email!!)
+            .child(email + targetEmail)
+            .addChildEventListener(object : ChildEventListener{
+                override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
+                    val addedChat = snapshot.getValue(Chat::class.java)
+                    if (addedChat != null)
+                        chatListViewModel.setAddedChat(addedChat, position)
+                }
+
+                override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {}
+
+                override fun onChildRemoved(snapshot: DataSnapshot) {}
+
+                override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {}
+
+                override fun onCancelled(error: DatabaseError) {}
+            })
+    }
+
+    fun setAddedChatListListener(){
+        FirebaseDatabase.getInstance().reference
+            .child(Constants.CHAT_ROOT)
+            .child(CommonFunction.getInstance()!!.makeChatPath(user!!.email))
+            .addChildEventListener(object : ChildEventListener{
+                override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
+                    val chatList = snapshot.children.toList()
+                    val addedChat = chatList[chatList.size - 1].getValue(Chat::class.java)
+                    if (addedChat != null)
+                        chatListViewModel.addChatList(addedChat)
+                }
+
+                override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {}
+
+                override fun onChildRemoved(snapshot: DataSnapshot) {}
+
+                override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {}
+
+                override fun onCancelled(error: DatabaseError) {}
+            })
+    }
+
 }

@@ -144,6 +144,9 @@ class ChatAdapter(type: String) : ListAdapter<Chat, RecyclerView.ViewHolder>(
         fun setItemEvent(chat: Chat) {
             mBinding.chatLayout.setOnClickListener { mChatItemListener.onChatItemClicked(chat, mBinding.checkDot) }
             mBinding.exitBtn.setOnClickListener { mChatItemListener.onExitButtonClicked(chat) }
+            mBinding.profileImage.setOnClickListener { mChatItemListener.onImageClicked(chat, bindingAdapterPosition) }
+
+            mBinding.profileImage.performClick()
         }
     }
 }

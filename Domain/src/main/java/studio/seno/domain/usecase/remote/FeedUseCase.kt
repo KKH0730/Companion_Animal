@@ -22,7 +22,7 @@ class FeedUseCase {
 
     //피드 사진들, 게시자 프로필 사진, 게시자 팔로워를 업로드 후 Feed 객체에 저장한 후 db에 저장
     fun uploadFeed(
-        feed: Feed, toRemoveUri : List<Int>, mode : String, storageRef: StorageReference,
+        feed: Feed, storageRef: StorageReference,
         mDB: FirebaseFirestore, callback: LongTaskCallback<Feed>
     ) {
 
@@ -30,7 +30,7 @@ class FeedUseCase {
         var remoteImagePath = feed.email + "/feed/" + feed.timestamp + "/"
 
 
-        uploadUseCase.deleteRemoteFeedImage(feed.email!!, feed.timestamp, toRemoveUri, mode, storageRef, object : LongTaskCallback<Boolean>{
+        uploadUseCase.deleteRemoteFeedImage(feed.email!!, feed.timestamp, storageRef, object : LongTaskCallback<Boolean>{
             override fun onResponse(result: Result<Boolean>) {
                 if(result is Result.Success) {
 

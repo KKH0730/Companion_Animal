@@ -27,26 +27,6 @@ class UploadUseCase {
                 }
     }
 
-    /*
-    fun uploadRemoteFeedImage(feed : Feed, storageRef: StorageReference, path : String, callback: LongTaskCallback<Boolean>){
-        val tempList = mutableListOf<Uri>()
-        val size = feed.localUri.size
-
-        for (i in 0 until feed.localUri.size) {
-            storageRef.child(path + i).putFile(Uri.parse(feed.localUri[i]))
-                .addOnCompleteListener {
-                    it.result?.uploadSessionUri?.let { it1 -> tempList.add(it1) }
-
-                    if(tempList.size == size)
-                        callback.onResponse(Result.Success(true))
-
-                }.addOnFailureListener {
-                    Log.d("hi","upload Exception : ${it.message}")
-                }
-        }
-    }
-     */
-
     fun uploadRemoteFeedImage(localUri : List<String>, path : String, storageRef: StorageReference, callback: LongTaskCallback<Boolean>){
         var count = 0
         for (i in 0 until localUri.size) {
@@ -71,7 +51,7 @@ class UploadUseCase {
                     callback.onResponse(Result.Success(true))
 
             }.addOnFailureListener {
-                Log.d("hi","upload Exception : ${it.message}")
+                Log.d("error","upload Exception : ${it.message}")
             }
         }
     }
@@ -108,30 +88,25 @@ class UploadUseCase {
         }
     }
 
-    fun deleteRemoteFeedImage(email: String, timestamp : Long, toRemoveUri : List<Int>, mode : String, storageRef: StorageReference, callback: LongTaskCallback<Boolean>){
+    fun deleteRemoteFeedImage(email: String, timestamp : Long, storageRef: StorageReference, callback: LongTaskCallback<Boolean>){
         var remoteImagePath = email + "/feed/" + timestamp + "/"
 
+        storageRef.child(remoteImagePath).listAll().addOnCompleteListener {
+            if (it.result != null) {
+                val size = it.result!!.items.size
+                var count = 0
 
-        if(mode != "modify" || toRemoveUri.size == 0) {
-            callback.onResponse(Result.Success(true))
-            return
-        }
-        Log.d("hi", " size -> ${toRemoveUri.size}")
-        for(element in toRemoveUri){
-            Log.d("hi", " delete -> $element")
-        }
-
-        var size = toRemoveUri.size
-        var count = 0
-        for(element in toRemoveUri) {
-            storageRef.child(remoteImagePath + element).delete().addOnCompleteListener {
-                count++
-
-                Log.d("hi", " real -> $element")
-                Log.d("hi", " count -> $count")
-                if(count == size) {
-                    Log.d("hi", "exit")
+                if(size == 0){
                     callback.onResponse(Result.Success(true))
+                }
+
+                for (element in it.result!!.items) {
+                    count++
+                    element.delete().addOnCompleteListener {
+                        if(count == size) {
+                            callback.onResponse(Result.Success(true))
+                        }
+                    }
                 }
             }
         }

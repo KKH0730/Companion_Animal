@@ -42,8 +42,6 @@ class FeedListViewModel() : ViewModel() {
                     val list = result.data
 
                     if(list != null) {
-
-                        Log.d("hi","list size -> ${list.size}")
                         var tempList : MutableList<Feed>? = feedListLiveData.value?.toMutableList()
 
                         if(tempList != null)
@@ -86,12 +84,12 @@ class FeedListViewModel() : ViewModel() {
 
 
     fun requestUploadFeed(email : String, nickname: String, sort:String, hashTags : List<String>,
-                          localUri: List<String>, content: String, timestamp: Long, toRemoveUri : List<Int>, mode : String, callback : LongTaskCallback<Feed>) {
+                          localUri: List<String>, content: String, timestamp: Long, callback : LongTaskCallback<Feed>) {
         val feed = Mapper.getInstance()!!.mapperToFeed(
             0, email, nickname, sort, hashTags, localUri, content, timestamp
         )
 
-        repository.uploadFeed(feed, toRemoveUri, mode, object : LongTaskCallback<Feed> {
+        repository.uploadFeed(feed, object : LongTaskCallback<Feed> {
             override fun onResponse(result: Result<Feed>) {
                 if (result is Result.Success) {
                     feedSaveStatus.value = true

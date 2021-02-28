@@ -1,6 +1,9 @@
 package studio.seno.domain.usecase.remote
 
 import android.util.Log
+import com.google.firebase.database.ChildEventListener
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import studio.seno.domain.LongTaskCallback
 import studio.seno.domain.Result
@@ -73,6 +76,7 @@ class ChatUseCase {
                 }
             }
     }
+
 
     fun removeChatList(targetEmail: String, myEmail: String, chat: Chat, mRTDB: FirebaseDatabase) {
         mRTDB.reference.child(CHAT_ROOT).child(myEmail).child(myEmail + targetEmail).removeValue()
