@@ -60,7 +60,7 @@ object CommonFunction {
         val pastCalendar = Calendar.getInstance()
         pastCalendar.timeInMillis = millisecond
 
-        if(result in 0..1000L) {
+        if(result in 0L..1000L) {
             return "1초 전"
         } else if(result in 1000L..59999L) {
             val second = currentCalendar[Calendar.SECOND] - pastCalendar[Calendar.SECOND]

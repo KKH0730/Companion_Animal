@@ -28,6 +28,10 @@ class PagingModule {
         callback: LongTaskCallback<List<Feed>>
     ) {
         try {
+            lastVisible = null
+            isScrolling = false
+            isLastItemReached = false
+
             firstSearchQuery(sort, myEmail, db)
                 .get()
                 .addOnCompleteListener {it ->
@@ -57,6 +61,7 @@ class PagingModule {
                                         lastVisible = it.result!!.documents[find - 1]
                                         break@loop
                                     } else if(count == size || count >= 500) {
+                                        callback.onResponse(Result.Success(list))
                                         lastVisible = it.result!!.documents[count - 1]
                                         break@loop
                                     }
@@ -196,6 +201,7 @@ class PagingModule {
                                                     lastVisible = it.result!!.documents[find - 1]
                                                     break@loop
                                                 } else if(count == size || count >= 500) {
+                                                    callback.onResponse(Result.Success(list))
                                                     lastVisible = it.result!!.documents[count - 1]
                                                     break@loop
                                                 }

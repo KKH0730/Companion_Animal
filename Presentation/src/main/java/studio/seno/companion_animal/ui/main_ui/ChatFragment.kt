@@ -88,7 +88,6 @@ class ChatFragment : Fragment() {
 
                     loadChatLog()
                     observe()
-
                     setAddedChatListListener()
                 } else if(result is Result.Error) {
                     Log.e("error", "ChatActivity send_btn error : ${result.exception}")

@@ -24,191 +24,181 @@
             app:layout_constraintTop_toTopOf="parent" />
 
 
-        <androidx.core.widget.NestedScrollView
-            android:id="@+id/scrollView2"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="1.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/header"
-            app:layout_constraintVertical_bias="0.0">
+=
 
-            <LinearLayout
+
+        <LinearLayout
+            android:id="@+id/linearLayout5"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/profile_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:background="@color/white"
+                android:gravity="center"
+                android:orientation="horizontal">
 
 
-                <LinearLayout
-                    android:layout_width="match_parent"
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:id="@+id/timeline_profileImageView"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginBottom="20dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <EditText
+                    android:id="@+id/nickName_edit"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical">
+                    android:layout_marginStart="20dp"
+                    android:background="@null"
+                    android:textColor="@color/black"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toBottomOf="@+id/timeline_profileImageView"
+                    app:layout_constraintStart_toEndOf="@+id/timeline_profileImageView"
+                    app:layout_constraintTop_toTopOf="@+id/timeline_profileImageView" />
+
+                <Button
+                    android:id="@+id/info_modify_btn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="10dp"
+                    android:backgroundTint="@color/white"
+                    android:text="@string/info_modify"
+                    android:textColor="@color/black"
+                    android:textSize="12sp"
+                    app:layout_constraintBottom_toBottomOf="@+id/timeline_profileImageView"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/timeline_profileImageView" />
 
 
-                    <androidx.constraintlayout.widget.ConstraintLayout
-                        android:id="@+id/profile_layout"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@color/white"
-                        android:gravity="center"
-                        android:orientation="horizontal">
+                <Button
+                    android:id="@+id/follow_btn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    android:backgroundTint="@color/white"
+                    android:text="@string/follow"
+                    android:textColor="@color/black"
+                    android:textSize="12sp"
+                    android:visibility="gone"
+                    app:layout_constraintBottom_toTopOf="@+id/message_btn"
+                    app:layout_constraintEnd_toEndOf="@+id/message_btn"
+                    app:layout_constraintStart_toStartOf="@+id/message_btn" />
+
+                <Button
+                    android:id="@+id/message_btn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="10dp"
+                    android:layout_marginBottom="10dp"
+                    android:backgroundTint="@color/white"
+                    android:text="@string/timeLine_menu6"
+                    android:textColor="@color/black"
+                    android:textSize="12sp"
+                    android:visibility="gone"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent" />
 
 
-                        <de.hdodenhof.circleimageview.CircleImageView
-                            android:id="@+id/timeline_profileImageView"
-                            android:layout_width="100dp"
-                            android:layout_height="100dp"
-                            android:layout_marginStart="20dp"
-                            android:layout_marginTop="20dp"
-                            android:layout_marginBottom="20dp"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
-                        <EditText
-                            android:id="@+id/nickName_edit"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="20dp"
-                            android:background="@null"
-                            android:textColor="@color/black"
-                            android:textStyle="bold"
-                            app:layout_constraintBottom_toBottomOf="@+id/timeline_profileImageView"
-                            app:layout_constraintStart_toEndOf="@+id/timeline_profileImageView"
-                            app:layout_constraintTop_toTopOf="@+id/timeline_profileImageView" />
-
-                        <Button
-                            android:id="@+id/info_modify_btn"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginEnd="10dp"
-                            android:backgroundTint="@color/white"
-                            android:text="@string/info_modify"
-                            android:textColor="@color/black"
-                            android:textSize="12sp"
-                            app:layout_constraintBottom_toBottomOf="@+id/timeline_profileImageView"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintTop_toTopOf="@+id/timeline_profileImageView" />
-
-
-                        <Button
-                            android:id="@+id/follow_btn"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginBottom="10dp"
-                            android:backgroundTint="@color/white"
-                            android:text="@string/follow"
-                            android:textColor="@color/black"
-                            android:textSize="12sp"
-                            android:visibility="gone"
-                            app:layout_constraintBottom_toTopOf="@+id/message_btn"
-                            app:layout_constraintEnd_toEndOf="@+id/message_btn"
-                            app:layout_constraintStart_toStartOf="@+id/message_btn" />
-
-                        <Button
-                            android:id="@+id/message_btn"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginEnd="10dp"
-                            android:layout_marginBottom="10dp"
-                            android:backgroundTint="@color/white"
-                            android:text="@string/timeLine_menu6"
-                            android:textColor="@color/black"
-                            android:textSize="12sp"
-                            android:visibility="gone"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toEndOf="parent" />
-
-
-                    </androidx.constraintlayout.widget.ConstraintLayout>
-
-                    <LinearLayout
-                        android:id="@+id/linearLayout4"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="10dp"
-                        android:padding="10dp"
-                        android:background="@drawable/rect_stroke"
-                        android:orientation="horizontal"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintVertical_bias="0.0">
-
-
-
-                        <TextView
-                            android:id="@+id/follower_btn"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginRight="5dp"
-                            android:paddingEnd="10dp"
-                            android:layout_weight="1"
-                            android:gravity="center"
-                            android:backgroundTint="@color/white"
-                            android:text="@string/timeLine_menu2"
-                            android:textColor="@color/black"
-                            android:textSize="12sp"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintTop_toTopOf="parent" />
-
-
-
-                        <TextView
-                            android:id="@+id/following_btn"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginLeft="5dp"
-                            android:paddingStart="10dp"
-                            android:layout_weight="1"
-                            android:gravity="center"
-                            android:backgroundTint="@color/white"
-                            android:text="@string/timeLine_menu3"
-                            android:textColor="@color/black"
-                            android:textSize="12sp"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintTop_toTopOf="parent" />
-                    </LinearLayout>
-
-
-                    <TextView
-                        android:id="@+id/bookmark_btn"
-                        android:layout_width="match_parent"
-                        android:layout_height="35dp"
-                        android:layout_margin="10dp"
-                        android:background="@drawable/rect_stroke"
-                        android:gravity="center"
-                        android:text="@string/timeLine_menu4"
-                        android:textColor="@color/black"
-                        android:textSize="12sp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                </LinearLayout>
+            <LinearLayout
+                android:id="@+id/linearLayout4"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:background="@drawable/rect_stroke"
+                android:orientation="horizontal"
+                android:padding="10dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.0">
 
 
                 <TextView
-                    android:id="@+id/feed_count"
+                    android:id="@+id/follower_btn"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="15dp"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginBottom="5dp"
-                    android:textColor="@color/black" />
+                    android:layout_marginRight="5dp"
+                    android:layout_weight="1"
+                    android:backgroundTint="@color/white"
+                    android:gravity="center"
+                    android:paddingEnd="10dp"
+                    android:text="@string/timeLine_menu2"
+                    android:textColor="@color/black"
+                    android:textSize="12sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
-                <FrameLayout
-                    android:id="@+id/container"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginRight="10dp" />
 
+                <TextView
+                    android:id="@+id/following_btn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="5dp"
+                    android:layout_weight="1"
+                    android:backgroundTint="@color/white"
+                    android:gravity="center"
+                    android:paddingStart="10dp"
+                    android:text="@string/timeLine_menu3"
+                    android:textColor="@color/black"
+                    android:textSize="12sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
             </LinearLayout>
-        </androidx.core.widget.NestedScrollView>
+
+
+            <TextView
+                android:id="@+id/bookmark_btn"
+                android:layout_width="match_parent"
+                android:layout_height="35dp"
+                android:layout_margin="10dp"
+                android:background="@drawable/rect_stroke"
+                android:gravity="center"
+                android:text="@string/timeLine_menu4"
+                android:textColor="@color/black"
+                android:textSize="12sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </LinearLayout>
+
+
+        <TextView
+            android:id="@+id/feed_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="10dp"
+            android:textColor="@color/black"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/linearLayout5" />
+
+        <FrameLayout
+            android:id="@+id/container"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginTop="10dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/feed_count" />
+
+=
 
 
         <ProgressBar
@@ -216,10 +206,10 @@
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="@+id/scrollView2"
-            app:layout_constraintEnd_toEndOf="@+id/scrollView2"
+            app:layout_constraintBottom_toBottomOf="@+id/container"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@+id/linearLayout5" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </layout>

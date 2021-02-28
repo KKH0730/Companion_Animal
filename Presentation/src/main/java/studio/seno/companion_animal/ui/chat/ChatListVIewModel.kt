@@ -85,8 +85,7 @@ class ChatListVIewModel : ViewModel() {
 
                     } else if (result is Result.Error) {
                         Log.e(
-                            "error",
-                            "ChatListVIewModel requestLoadChatLog error : ${result.exception}"
+                            "error", "ChatListVIewModel requestLoadChatLog error : ${result.exception}"
                         )
                     }
                 }
@@ -120,10 +119,12 @@ class ChatListVIewModel : ViewModel() {
                         })
                         chatListLiveData.value = tempList
                         callback.onResponse(Result.Success(true))
-
+/*
                         for(i in 0 until result.data.size) {
                             setAddedChatListener(result.data[i], i)
                         }
+
+ */
 
                     } else {
                         callback.onResponse(Result.Success(false))
@@ -153,47 +154,5 @@ class ChatListVIewModel : ViewModel() {
 
     fun requestUpdateCheckDot(myEmail : String, targetEmail : String){
         remoteRepository.requestUpdateCheckDot(myEmail, targetEmail)
-    }
-
-    fun setAddedChatListener(chat : Chat, position : Int){
-        var email : String? = null
-        var realEmail : String? = null
-        var targetEmail : String? = null
-        var targetRealEmail : String? = null
-
-        if (chat.email == FirebaseAuth.getInstance().currentUser?.email) {
-            email = chat.email
-            realEmail = chat.realEmail
-            targetEmail = chat.targetEmail
-            targetRealEmail = chat.targetRealEmail
-        } else {
-            email = chat.targetEmail
-            realEmail = chat.targetRealEmail
-            targetEmail = chat.email
-            targetRealEmail = chat.realEmail
-        }
-
-        FirebaseDatabase.getInstance().reference
-            .child(Constants.CHAT_ROOT)
-            .child(email!!)
-            .child(email + targetEmail)
-            .addChildEventListener(object : ChildEventListener {
-                override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
-                    val addedChat = snapshot.getValue(Chat::class.java)
-                    if (addedChat != null) {
-                        val tempChatList = chatListLiveData.value?.toMutableList()
-                        tempChatList?.set(position, addedChat)
-                        chatListLiveData.value = tempChatList
-                    }
-                }
-
-                override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {}
-
-                override fun onChildRemoved(snapshot: DataSnapshot) {}
-
-                override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {}
-
-                override fun onCancelled(error: DatabaseError) {}
-            })
     }
 }
