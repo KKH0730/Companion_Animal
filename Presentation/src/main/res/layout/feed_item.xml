@@ -44,7 +44,7 @@
 
                 <TextView
                     android:id="@+id/nickNameTextView"
-                    setNickname="@{model.feedLiveData.nickname}"
+                    setText="@{model.feedLiveData.nickname}"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="@color/black"
@@ -290,7 +290,7 @@
 
             <com.aqoong.lib.expandabletextview.ExpandableTextView
                 android:id="@+id/content"
-                setContent="@{model.feedLiveData.content}"
+                setExpandableText="@{model.feedLiveData.content}"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"

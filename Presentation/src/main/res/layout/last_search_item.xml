@@ -31,7 +31,7 @@
             app:srcCompat="@drawable/search" />
 
         <TextView
-            setNickname="@{model.lastSearchLiveData.component1()}"
+            setText="@{model.lastSearchLiveData.component1()}"
             android:id="@+id/content"
             android:layout_width="0dp"
             android:layout_height="30dp"

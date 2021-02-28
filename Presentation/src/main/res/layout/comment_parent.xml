@@ -44,7 +44,7 @@
 
             <TextView
                 android:id="@+id/comment_nickName"
-                setNickname="@{model.parentCommentLiveData.component3()}"
+                setText="@{model.parentCommentLiveData.component3()}"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"

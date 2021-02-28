@@ -45,9 +45,9 @@ object BindingAdapter {
         }
     }
 
-    @BindingAdapter("setNickname")
+    @BindingAdapter("setText")
     @JvmStatic
-    fun setNickname(view: TextView, nickName: String?) {
+    fun setText(view: TextView, nickName: String?) {
         try {
             if (nickName != null) {
                 view.text = nickName
@@ -57,9 +57,9 @@ object BindingAdapter {
         }
     }
 
-    @BindingAdapter("setContent")
+    @BindingAdapter("setExpandableText")
     @JvmStatic
-    fun setContent(view: ExpandableTextView, content: String?) {
+    fun setExpandableText(view: ExpandableTextView, content: String?) {
         try {
             if (content != null) {
                 val context = view.context
@@ -349,7 +349,4 @@ object BindingAdapter {
                 .into(circleImageView)
         }
     }
-
-
-
 }
