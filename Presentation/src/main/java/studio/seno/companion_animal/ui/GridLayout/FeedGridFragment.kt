@@ -1,8 +1,6 @@
-package studio.seno.companion_animal.ui.feed
+package studio.seno.companion_animal.ui.GridLayout
 
-import android.content.DialogInterface
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -14,8 +12,11 @@ import com.google.firebase.auth.FirebaseAuth
 import org.jetbrains.anko.support.v4.startActivity
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.FragmentFeedGridBinding
+import studio.seno.companion_animal.ui.feed.FeedDetailActivity
+import studio.seno.companion_animal.ui.feed.FeedListViewModel
+import studio.seno.companion_animal.ui.feed.ShowFeedActivity
+import studio.seno.companion_animal.ui.search.GridImageAdapter
 import studio.seno.companion_animal.ui.search.OnSearchItemClickListener
-import studio.seno.companion_animal.ui.search.SearchResultAdapter
 import studio.seno.domain.LongTaskCallback
 import studio.seno.domain.Result
 import studio.seno.domain.model.Feed
@@ -23,7 +24,7 @@ import studio.seno.domain.model.Feed
 class FeedGridFragment : Fragment() {
     private val feedListViewModel: FeedListViewModel by viewModels()
     private lateinit var binding : FragmentFeedGridBinding
-    private val searchResultAdapter = SearchResultAdapter()
+    private val gridImageAdapter = GridImageAdapter()
     private var keyword : String? = null
     private var feedSort : String? = null
     private var timeLineEmail : String? = null
@@ -63,19 +64,24 @@ class FeedGridFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.lifecycleOwner = requireActivity()
+        binding.lifecycleOwner = viewLifecycleOwner
         binding.feedListViewModel = feedListViewModel
-        binding.gridRecyclerview.adapter = searchResultAdapter
-        binding.progressBar.visibility = View.VISIBLE
-        binding.gridRecyclerview.visibility = View.GONE
 
-        feedItemEvent()
+        init()
+
         setFeedList()
+        feedItemEvent()
         observe()
+    }
+
+    fun init(){
+        binding.gridRecyclerview.adapter = gridImageAdapter
+        binding.progressBar.visibility = View.VISIBLE
     }
 
     fun setFeedList() {
         feedListViewModel.clearFeedList()
+
 
         if(feedSort == "feed_timeline") {
             feedListViewModel.requestLoadFeedList(
@@ -104,7 +110,6 @@ class FeedGridFragment : Fragment() {
                         if(result.data == null) {
                             binding.noResultTextView.setText("\"" + keyword + "\"" + getString(R.string.no_result))
                             binding.noResultLayout.visibility = View.VISIBLE
-
                         }
                     }
                 }
@@ -124,7 +129,7 @@ class FeedGridFragment : Fragment() {
 
 
     fun feedItemEvent(){
-        searchResultAdapter.setOnItemClickListener(object : OnSearchItemClickListener {
+        gridImageAdapter.setOnItemClickListener(object : OnSearchItemClickListener {
             override fun onSearchItemClicked(feed: Feed, position : Int) {
                 if(feedSort == "feed_timeline")
                     startActivity<ShowFeedActivity>(
@@ -142,8 +147,7 @@ class FeedGridFragment : Fragment() {
 
     private fun observe() {
         feedListViewModel.getFeedListLiveData().observe(viewLifecycleOwner, {
-            binding.gridRecyclerview.scrollToPosition(0)
-            searchResultAdapter.submitList(it)
+            gridImageAdapter.submitList(it)
         })
     }
 

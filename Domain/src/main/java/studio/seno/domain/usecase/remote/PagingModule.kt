@@ -2,6 +2,8 @@ package studio.seno.domain.usecase.remote
 
 import android.util.Log
 import android.widget.AbsListView
+import androidx.core.widget.NestedScrollView
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
@@ -16,7 +18,7 @@ class PagingModule {
     private var lastVisible: DocumentSnapshot? = null
     private var isScrolling = false
     private var isLastItemReached = false
-    private val limit = 18
+    private val limit = 9
 
 
     fun pagingFeed(
@@ -116,15 +118,15 @@ class PagingModule {
                                 return@addOnCompleteListener
                             }
 
-                            recyclerView.setOnScrollListener(
-                                setScrollListener(
-                                    keyword,
-                                    sort,
-                                    myEmail,
-                                    db,
-                                    callback
+                                recyclerView.setOnScrollListener(
+                                    setScrollListener(
+                                        keyword,
+                                        sort,
+                                        myEmail,
+                                        db,
+                                        callback
+                                    )
                                 )
-                            )
                         }
                     }
                 }.addOnFailureListener {
@@ -163,7 +165,7 @@ class PagingModule {
                         layoutManager = recyclerView.layoutManager as LinearLayoutManager
                         firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
 
-                    } else if (recyclerView.layoutManager is StaggeredGridLayoutManager) {
+                    } else if (recyclerView.layoutManager is GridLayoutManager) {
                         layoutManager = recyclerView.layoutManager as StaggeredGridLayoutManager
                         firstVisibleItemPosition =
                             layoutManager.findFirstVisibleItemPositions(IntArray(3))[0]
@@ -321,6 +323,4 @@ class PagingModule {
         )
         return feed
     }
-
-
 }

@@ -2,7 +2,6 @@ package studio.seno.companion_animal.ui.main_ui
 
 import android.app.AlertDialog
 import android.content.Context
-import android.content.DialogInterface
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -12,11 +11,11 @@ import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.TextView
-import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.observe
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.google.firebase.auth.FirebaseAuth
@@ -24,22 +23,26 @@ import com.kroegerama.imgpicker.BottomSheetImagePicker
 import com.kroegerama.imgpicker.ButtonType
 import com.marcoscg.easylicensesdialog.EasyLicensesDialogCompat
 import org.jetbrains.anko.support.v4.startActivity
-import studio.seno.commonmodule.CustomToast
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.FragmentTimeLineBinding
 import studio.seno.companion_animal.module.CommonFunction
 import studio.seno.companion_animal.module.ProfileModule
 import studio.seno.companion_animal.ui.chat.ChatActivity
-import studio.seno.companion_animal.ui.feed.FeedGridFragment
+import studio.seno.companion_animal.ui.GridLayout.FeedGridFragment
+import studio.seno.companion_animal.ui.feed.FeedDetailActivity
+import studio.seno.companion_animal.ui.feed.FeedListViewModel
 import studio.seno.companion_animal.ui.feed.MakeFeedActivity
 import studio.seno.companion_animal.ui.feed.ShowFeedActivity
 import studio.seno.companion_animal.ui.follow.FollowActivity
+import studio.seno.companion_animal.ui.search.GridImageAdapter
+import studio.seno.companion_animal.ui.search.OnSearchItemClickListener
 import studio.seno.companion_animal.ui.user_manage.UserManageActivity
 import studio.seno.companion_animal.util.ViewControlListener
 import studio.seno.datamodule.LocalRepository
 import studio.seno.datamodule.RemoteRepository
 import studio.seno.domain.LongTaskCallback
 import studio.seno.domain.Result
+import studio.seno.domain.model.Feed
 import studio.seno.domain.model.User
 
 
@@ -49,6 +52,8 @@ class TimeLineFragment : Fragment(), View.OnClickListener,
     private lateinit var localRepository: LocalRepository
     private val remoteRepository: RemoteRepository = RemoteRepository.getInstance()!!
     private val mainViewModel: MainViewModel by viewModels()
+    private val feedListViewModel: FeedListViewModel by viewModels()
+    private val gridImageAdapter = GridImageAdapter()
     private lateinit var viewControlListener : ViewControlListener
     private var profileEmail : String? = null
     private var targetNickname : String? = null
@@ -63,8 +68,6 @@ class TimeLineFragment : Fragment(), View.OnClickListener,
         if(context is ViewControlListener)
             viewControlListener = context
     }
-
-
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -104,6 +107,8 @@ class TimeLineFragment : Fragment(), View.OnClickListener,
                 profileEmail
             )
         ).commit()
+
+
     }
 
     fun init() {

@@ -133,6 +133,8 @@ class MainActivity : BaseActivity() , DialogInterface.OnDismissListener, ViewCon
             homeFragment.onDismissed("follow")
         } else if(PreferenceManager.getString(applicationContext, "mode") == "unfollow") {
             homeFragment.onDismissed("unfollow")
+        } else if(PreferenceManager.getString(applicationContext, "mode") == "report") {
+            homeFragment.onDismissed("report")
         }
     }
 

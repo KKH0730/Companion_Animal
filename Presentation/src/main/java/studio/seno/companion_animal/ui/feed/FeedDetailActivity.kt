@@ -20,6 +20,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
 import org.jetbrains.anko.intentFor
 import org.jetbrains.anko.startActivity
+import studio.seno.commonmodule.CustomToast
+import studio.seno.companion_animal.ErrorActivity
 import studio.seno.companion_animal.MainActivity
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.ActivityFeedDetailBinding
@@ -333,12 +335,17 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
                     applicationContext
                 )!!, null, lifecycleScope
             )
+
+            CustomToast(applicationContext, getString(R.string.follow_toast)).show()
         } else if(PreferenceManager.getString(applicationContext, "mode") == "unfollow") {
             feedModule.onDismiss(
                 "unfollow", feed, this, LocalRepository.getInstance(
                     applicationContext
                 )!!, null, lifecycleScope
             )
+            CustomToast(applicationContext, getString(R.string.unfollow_toast)).show()
+        } else if(PreferenceManager.getString(applicationContext, "mode") == "report") {
+            startActivity<ErrorActivity>("feed" to feed)
         }
     }
 

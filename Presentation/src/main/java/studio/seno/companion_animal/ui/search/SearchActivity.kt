@@ -2,28 +2,20 @@ package studio.seno.companion_animal.ui.search
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.databinding.DataBindingUtil
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.StaggeredGridLayoutManager
-import com.google.firebase.auth.FirebaseAuth
 import org.jetbrains.anko.startActivity
-import studio.seno.commonmodule.CustomToast
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.ActivitySearchBinding
 import studio.seno.companion_animal.module.CommonFunction
 import studio.seno.companion_animal.ui.feed.FeedDetailActivity
-import studio.seno.companion_animal.ui.feed.FeedGridFragment
+import studio.seno.companion_animal.ui.GridLayout.FeedGridFragment
 import studio.seno.companion_animal.ui.feed.FeedListViewModel
-import studio.seno.domain.LongTaskCallback
-import studio.seno.domain.Result
 import studio.seno.domain.model.Feed
 import studio.seno.domain.model.LastSearch
 import java.sql.Timestamp
@@ -33,7 +25,7 @@ class SearchActivity : AppCompatActivity(), View.OnClickListener {
     private val listViewModel: LastSearchListViewModel by viewModels()
     private val feedListViewModel: FeedListViewModel by viewModels()
     private val lastSearchAdapter: LastSearchAdapter by lazy { LastSearchAdapter() }
-    private val searchAdapter: SearchResultAdapter by lazy { SearchResultAdapter() }
+    private val gridImageAdapter: GridImageAdapter by lazy { GridImageAdapter() }
     private var backKeyPressedTime = 0L
     private lateinit var feedGridFragment : FeedGridFragment
 
@@ -83,7 +75,7 @@ class SearchActivity : AppCompatActivity(), View.OnClickListener {
             }
         })
 
-        searchAdapter.setOnItemClickListener(object : OnSearchItemClickListener {
+        gridImageAdapter.setOnItemClickListener(object : OnSearchItemClickListener {
             override fun onSearchItemClicked(feed: Feed, position : Int) {
                 startActivity<FeedDetailActivity>("feed" to feed)
             }

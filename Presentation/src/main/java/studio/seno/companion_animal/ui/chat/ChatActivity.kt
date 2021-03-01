@@ -62,7 +62,6 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener {
         targetProfileUri = intent.getStringExtra("targetProfileUri")
         targetNickname = intent.getStringExtra("targetNickname")
         binding.content.addTextChangedListener(textWatcher)
-        binding.content.requestFocus()
         binding.sendBtn.setOnClickListener(this)
         binding.header.findViewById<ImageButton>(R.id.back_btn).setOnClickListener(this)
         binding.header.findViewById<TextView>(R.id.title2).text = targetNickname
@@ -81,8 +80,7 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener {
                         .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
                         .into(binding.profileImageVIew)
 
-                    loadChatLog()
-                    setListener()
+                    setChatListener()
                     observe()
                 } else if(result is Result.Error) {
                     Log.e("error", "ChatActivity send_btn error : ${result.exception}")
@@ -91,35 +89,19 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener {
         })
     }
 
-    fun loadChatLog() {
-        chatListViewModel.requestLoadChatLog(
-            commonFunction.makeChatPath(user!!.email),
-            commonFunction.makeChatPath(targetEmail),
-            binding.chatRecyclerview,
-            object : LongTaskCallback<Boolean> {
-                override fun onResponse(result: Result<Boolean>) {
-                    if(result is Result.Success){
-                        if(result.data)
-                            binding.progressBar.visibility = View.GONE
-                        else
-                            binding.progressBar.visibility = View.GONE
-                    }
-                }
-            }
-        )
-    }
 
-    fun setListener(){
+
+    fun setChatListener(){
         FirebaseDatabase.getInstance().reference
             .child(Constants.CHAT_ROOT)
             .child(commonFunction.makeChatPath(user!!.email))
             .child(commonFunction.makeChatPath(user!!.email) + commonFunction.makeChatPath(targetEmail))
             .addChildEventListener(object : ChildEventListener{
                 override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
+
                     val chat = snapshot.getValue(Chat::class.java)
                     if (chat != null)
                         chatListViewModel.updateChatLog(chat, binding.chatRecyclerview, lifecycleScope)
-
                 }
 
                 override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {

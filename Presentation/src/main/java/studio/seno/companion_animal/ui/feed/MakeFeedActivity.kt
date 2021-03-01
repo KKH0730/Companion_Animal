@@ -198,43 +198,22 @@ class MakeFeedActivity : AppCompatActivity(), View.OnClickListener,
                 }
             }
 
+            feedListViewModel.getFeedListSaveStatus().observe(this@MakeFeedActivity, {
+                if(it) {
+                    CommonFunction.getInstance()!!.unlockTouch(window!!)
+                    binding.progressBar.visibility = View.GONE
+
+
+                    var intent = Intent()
+                    intent.putExtra("feed", feed)
+                    setResult(Constants.RESULT_OK, intent)
+
+                    finish()
+                }
+            })
         }
     }
-/*
-    fun submitResult(timestamp: Long){
-        val submitFeed : Feed = Mapper.getInstance()!!.mapperToFeed(0, null, null, currentChecked!!, hashTags,  selectedImageAdapter.getItems(), binding.content.text.toString(), timestamp)
-        LocalRepository.getInstance(this)!!.getUserInfo(lifecycleScope, object : LongTaskCallback<User>{
-            override fun onResponse(result1: Result<User>) {
-                if(result1 is Result.Success) {
-                    submitFeed.email = result1.data.email
-                    submitFeed.nickname = result1.data.nickname
-                    submitFeed.remoteProfileUri = result1.data.profileUri
 
-                    feedListViewModel.requestDeleteRemoteFeedImage(
-                        result1.data.email,
-                        timestamp,
-                        object : LongTaskCallback<Boolean> {
-                        override fun onResponse(result2: Result<Boolean>) {
-                            if(result2 is Result.Success) {
-
-                                feedListViewModel.requestUploadFeedImage(
-                                    selectedImageAdapter.getItems(),
-                                    result1.data.email + "/feed/" + timestamp + "/",
-                                    object : LongTaskCallback<Boolean> {
-                                        override fun onResponse(result: Result<Boolean>) {
-
-                                            feedListViewModel.requestLoadFeedImage(
-                                                result1.data.email + "/feed/" + timestamp + "/",
-                                                object : LongTaskCallback<List<String>>{
-                                                    override fun onResponse(result3: Result<List<String>>) {
-                                                        if(result3 is Result.Success){
-                                                            submitFeed.remoteUri = result3.data
-
-                                                            feedListViewModel.requestUploadFeed(submitFeed)
-                                                            feed = submitFeed
-                                                        } } }) } }) } } }) } } })
-    }
- */
 
     fun submitResult(timestamp: Long){
         LocalRepository.getInstance(this)!!.getUserInfo(lifecycleScope, object : LongTaskCallback<User>{
@@ -248,20 +227,6 @@ class MakeFeedActivity : AppCompatActivity(), View.OnClickListener,
                             override fun onResponse(result: Result<Feed>) {
                                 if(result is Result.Success) {
                                     feed = result.data
-
-                                    feedListViewModel.getFeedListSaveStatus().observe(this@MakeFeedActivity, {
-                                        if(it) {
-                                            CommonFunction.getInstance()!!.unlockTouch(window!!)
-                                            binding.progressBar.visibility = View.GONE
-
-
-                                            var intent = Intent()
-                                            intent.putExtra("feed", feed)
-                                            setResult(Constants.RESULT_OK, intent)
-
-                                            finish()
-                                        }
-                                    })
                                 }
                             }
 

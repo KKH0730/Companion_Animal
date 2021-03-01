@@ -1,6 +1,5 @@
 package studio.seno.companion_animal.ui.search
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
@@ -8,11 +7,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import studio.seno.companion_animal.R
-import studio.seno.companion_animal.databinding.FeedItemBinding
 import studio.seno.companion_animal.databinding.LastSearchItemBinding
-import studio.seno.companion_animal.ui.feed.FeedListAdapter
-import studio.seno.companion_animal.ui.feed.FeedViewModel
-import studio.seno.companion_animal.ui.feed.OnItemClickListener
 import studio.seno.domain.model.LastSearch
 
 
@@ -32,7 +27,10 @@ class LastSearchAdapter : ListAdapter<LastSearch, RecyclerView.ViewHolder>(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val binding : LastSearchItemBinding = DataBindingUtil.inflate(LayoutInflater.from(parent.context), R.layout.last_search_item, parent, false)
-        return LastSearchViewHolder(binding, listener!!)
+        return LastSearchViewHolder(
+            binding,
+            listener!!
+        )
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {

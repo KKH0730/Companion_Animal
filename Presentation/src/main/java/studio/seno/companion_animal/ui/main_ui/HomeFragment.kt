@@ -16,6 +16,8 @@ import androidx.lifecycle.observe
 import androidx.recyclerview.widget.RecyclerView
 import org.jetbrains.anko.support.v4.intentFor
 import org.jetbrains.anko.support.v4.startActivity
+import studio.seno.commonmodule.CustomToast
+import studio.seno.companion_animal.ErrorActivity
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.FragmentHomeBinding
 import studio.seno.companion_animal.module.FeedModule
@@ -157,15 +159,11 @@ class HomeFragment : Fragment(), View.OnClickListener{
         feedListViewModel.getFeedListLiveData().observe(requireActivity(), {
             feedAdapter.submitList(it)
 
-            /*
-            if(context != null) {
-                if(PreferenceManager.getInt(requireContext(), "feed_position") != 0) {
-                    binding.feedRecyclerView.smoothScrollToPosition(PreferenceManager.getInt(requireActivity().applicationContext, "feed_position"))
-                    PreferenceManager.setInt(requireContext().applicationContext, "feed_position", 0)
-                }
-            }
 
-             */
+            //binding.feedRecyclerView.smoothScrollToPosition(PreferenceManager.getInt(requireActivity().applicationContext, "feed_position"))
+           // PreferenceManager.setInt(requireContext().applicationContext, "feed_position", 0)
+
+
         })
     }
 
@@ -262,9 +260,12 @@ class HomeFragment : Fragment(), View.OnClickListener{
                 )
             } else if(type == "follow") {
                 feedModule.onDismiss("follow", targetFeed, requireActivity(), LocalRepository.getInstance(requireActivity().applicationContext)!!, feedAdapter, lifecycleScope)
-
+                CustomToast(requireContext(), getString(R.string.follow_toast)).show()
             } else if(type == "unfollow") {
                 feedModule.onDismiss("unfollow", targetFeed, requireActivity(), LocalRepository.getInstance(requireActivity().applicationContext)!!, feedAdapter, lifecycleScope)
+                CustomToast(requireContext(), getString(R.string.unfollow_toast)).show()
+            } else if(type == "report") {
+                startActivity<ErrorActivity>("feed" to targetFeed)
             }
         }
     }

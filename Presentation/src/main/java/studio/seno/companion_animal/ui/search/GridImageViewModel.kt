@@ -4,7 +4,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import studio.seno.domain.model.Feed
 
-class SearchResultViewModel : ViewModel() {
+class GridImageViewModel : ViewModel() {
     private var feedLiveData: MutableLiveData<Feed> = MutableLiveData()
 
     fun setFeedLiveData(feed: Feed) {

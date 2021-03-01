@@ -66,6 +66,7 @@ class MenuDialog : BottomSheetDialogFragment(), View.OnClickListener {
         binding.reportBtn.setOnClickListener(this)
         binding.followBtn.setOnClickListener(this)
         binding.unfollowBtn.setOnClickListener(this)
+        binding.reportBtn.setOnClickListener(this)
 
 
             binding.menuTitle.text = getString(R.string.menu_setting)
@@ -104,8 +105,8 @@ class MenuDialog : BottomSheetDialogFragment(), View.OnClickListener {
             PreferenceManager.setString(requireContext(), "mode", "follow")
         } else if(v?.id == R.id.unfollow_btn) {
             PreferenceManager.setString(requireContext(), "mode", "unfollow")
-        } else {
-
+        } else if(v?.id == R.id.report_btn){
+            PreferenceManager.setString(requireContext(), "mode", "report")
         }
         dismiss()
     }

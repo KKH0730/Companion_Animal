@@ -70,7 +70,7 @@ class RemoteUserUseCase {
             }
     }
 
-    fun updateRemoteUserInfo(email : String, db : FirebaseFirestore) {
+    fun updateRemoteUserInfo(email : String, db : FirebaseFirestore, flag : Boolean) {
         db.collection("user")
             .document(email)
             .get()
@@ -78,9 +78,17 @@ class RemoteUserUseCase {
                 var count : Long? = it.getLong("feedCount")
 
                 if (count != null) {
-                    db.collection("user")
-                        .document(email)
-                        .update("feedCount", (count + 1))
+
+                    if(flag){
+                        db.collection("user")
+                            .document(email)
+                            .update("feedCount", (count + 1))
+                    } else {
+                        db.collection("user")
+                            .document(email)
+                            .update("feedCount", (count - 1))
+                    }
+
                 }
             }
     }

@@ -130,6 +130,9 @@
 
     <!-- ErrorActivity -->
     <string name="no_exist_feed">해당 피드는 삭제되었습니다.</string>
+    <string name="report1">스팸/광고 게시물입니다.</string>
+    <string name="report2">욕설/폭언이 포함된 게시물입니다.</string>
+    <string name="report3">부적절한 게시물입니다(불법, 음란, 재산권침해 등)</string>
 
     <!-- ShowFeedActivity -->
     <string name="showFeed_title1">내 글</string>
@@ -163,6 +166,9 @@
 
     <!-- Toast -->
     <string name="toast1">한 번 더 터치하면 종료됩니다.</string>
+    <string name="follow_toast">팔로우 되었습니다.</string>
+    <string name="unfollow_toast">언팔로우 되었습니다.</string>
+    <string name="report_toast">신고가 접수됐습니다.</string>
 
 
 </resources>

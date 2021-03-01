@@ -86,9 +86,10 @@ class ChatFragment : Fragment() {
                 if(result is Result.Success) {
                     user = result.data
 
-                    loadChatLog()
+                    //loadChatLog()
+                    setChatListListener()
                     observe()
-                    setAddedChatListListener()
+
                 } else if(result is Result.Error) {
                     Log.e("error", "ChatActivity send_btn error : ${result.exception}")
                 }
@@ -150,7 +151,7 @@ class ChatFragment : Fragment() {
             }
 
             override fun onImageClicked(chat: Chat, position: Int) {
-                //setAddedChatListener(chat, position)
+                setAddedChatListener(chat, position)
             }
         })
     }
@@ -200,7 +201,9 @@ class ChatFragment : Fragment() {
             })
     }
 
-    fun setAddedChatListListener(){
+    fun setChatListListener(){
+        chatListViewModel.clearChatList()
+
         FirebaseDatabase.getInstance().reference
             .child(Constants.CHAT_ROOT)
             .child(CommonFunction.getInstance()!!.makeChatPath(user!!.email))
@@ -208,8 +211,10 @@ class ChatFragment : Fragment() {
                 override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
                     val chatList = snapshot.children.toList()
                     val addedChat = chatList[chatList.size - 1].getValue(Chat::class.java)
-                    if (addedChat != null)
-                        chatListViewModel.addChatList(addedChat)
+                    if (addedChat != null) {
+                        binding.progressBar.visibility = View.GONE
+                        chatListViewModel.updateChatLog(addedChat, binding.chatRecyclerView, lifecycleScope)
+                    }
                 }
 
                 override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {}

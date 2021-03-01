@@ -81,7 +81,7 @@ class ChatAdapter(type: String) : ListAdapter<Chat, RecyclerView.ViewHolder>(
         }
     }
 
-    fun setItem(items : List<Chat>){
+    fun setItem(items: List<Chat>) {
         this.items = items
     }
 
@@ -94,10 +94,11 @@ class ChatAdapter(type: String) : ListAdapter<Chat, RecyclerView.ViewHolder>(
         private val mBinding = binding
 
         fun setVisibility(chat: Chat) {
-
-            if(chat.isExit == false) {
+            mBinding.exitTextView.visibility = View.GONE
+            if (chat.isExit == false) {
                 if (chat.email == CommonFunction.getInstance()!!
-                        .makeChatPath(FirebaseAuth.getInstance().currentUser?.email.toString())) {
+                        .makeChatPath(FirebaseAuth.getInstance().currentUser?.email.toString())
+                ) {
                     mBinding.chatObject.visibility = View.GONE
                     mBinding.chatMe.visibility = View.VISIBLE
                 } else {
@@ -105,9 +106,9 @@ class ChatAdapter(type: String) : ListAdapter<Chat, RecyclerView.ViewHolder>(
                     mBinding.chatMe.visibility = View.GONE
                 }
             } else {
-                 mBinding.exitTextView.visibility = View.VISIBLE
-                 mBinding.chatObject.visibility = View.GONE
-                 mBinding.chatMe.visibility = View.GONE
+                mBinding.exitTextView.visibility = View.VISIBLE
+                mBinding.chatObject.visibility = View.GONE
+                mBinding.chatMe.visibility = View.GONE
             }
         }
 
@@ -131,20 +132,30 @@ class ChatAdapter(type: String) : ListAdapter<Chat, RecyclerView.ViewHolder>(
         }
 
         fun setVisibility(chat: Chat) {
-            if(chat.isRead == true)
+            if (chat.isRead == true)
                 mBinding.checkDot.visibility = View.GONE
             else {
-                if(chat.realEmail == FirebaseAuth.getInstance().currentUser?.email.toString())
+                if (chat.realEmail == FirebaseAuth.getInstance().currentUser?.email.toString())
                     mBinding.checkDot.visibility = View.GONE
                 else
                     mBinding.checkDot.visibility = View.VISIBLE
             }
         }
 
-        fun setItemEvent(chat: Chat, itemCount : Int) {
-            mBinding.chatLayout.setOnClickListener { mChatItemListener.onChatItemClicked(chat, mBinding.checkDot) }
+        fun setItemEvent(chat: Chat, itemCount: Int) {
+            mBinding.chatLayout.setOnClickListener {
+                mChatItemListener.onChatItemClicked(
+                    chat,
+                    mBinding.checkDot
+                )
+            }
             mBinding.exitBtn.setOnClickListener { mChatItemListener.onExitButtonClicked(chat) }
-            mBinding.profileImage.setOnClickListener { mChatItemListener.onImageClicked(chat, absoluteAdapterPosition) }
+            mBinding.profileImage.setOnClickListener {
+                mChatItemListener.onImageClicked(
+                    chat,
+                    absoluteAdapterPosition
+                )
+            }
 
             mBinding.profileImage.performClick()
 

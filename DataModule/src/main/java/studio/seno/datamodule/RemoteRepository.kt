@@ -3,7 +3,10 @@ package studio.seno.datamodule
 import android.content.Context
 import android.net.Uri
 import android.util.Log
+import androidx.core.widget.NestedScrollView
 import androidx.lifecycle.LifecycleCoroutineScope
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
@@ -255,7 +258,7 @@ class RemoteRepository() {
         searchUseCase.deleteLastSearch(mAuth.currentUser?.email.toString(), lastSearch, mDB)
     }
 
-    fun requestLoadFeedList(keyword: String?, sort: String, myEmail: String?,recyclerView: RecyclerView, callback: LongTaskCallback<List<Feed>>){
+    fun requestLoadFeedList(keyword: String?, sort: String, myEmail: String?, recyclerView: RecyclerView, callback: LongTaskCallback<List<Feed>>){
         pagingModule.pagingFeed(keyword, sort, myEmail, recyclerView, mDB, callback)
     }
 
@@ -281,6 +284,20 @@ class RemoteRepository() {
     }
     fun requestUpdateCheckDot(myEmail : String, targetEmail : String){
         chatUseCase.updateCheckDot(myEmail, targetEmail, mRTDB)
+    }
+
+    /**
+     * 신고하기
+     */
+
+    fun reportFeed(feed : Feed, number : Int) {
+        val map = mutableMapOf<String, Any>()
+        map["path"] = feed.email + feed.timestamp
+        map["report"] = number
+
+        mDB.collection("report")
+            .add(map)
+
     }
 
 }

@@ -4,15 +4,12 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
-import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.ListAdapter
-import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.StaggeredGridLayoutManager
+import androidx.recyclerview.widget.*
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.SearchItemBinding
 import studio.seno.domain.model.Feed
 
-class SearchResultAdapter : ListAdapter<Feed, RecyclerView.ViewHolder>(
+class GridImageAdapter : ListAdapter<Feed, RecyclerView.ViewHolder>(
     object : DiffUtil.ItemCallback<Feed>() {
         override fun areItemsTheSame(oldItem: Feed, newItem: Feed): Boolean {
             return oldItem == newItem
@@ -27,19 +24,23 @@ class SearchResultAdapter : ListAdapter<Feed, RecyclerView.ViewHolder>(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val binding : SearchItemBinding = DataBindingUtil.inflate(LayoutInflater.from(parent.context), R.layout.search_item, parent, false)
-        var params = binding.root.layoutParams as StaggeredGridLayoutManager.LayoutParams
+        var params = binding.root.layoutParams as GridLayoutManager.LayoutParams
         params.leftMargin = 5
         params.rightMargin = 5
         binding.root.layoutParams = params
-        return SearchViewHolder(binding, listener!!)
+        return SearchViewHolder(
+            binding,
+            listener!!
+        )
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         var holder = holder as SearchViewHolder
         var item = getItem(position)
-        val model = SearchResultViewModel()
+        val model = GridImageViewModel()
         model.setFeedLiveData(item)
         holder.setViewModel(model, item)
+
     }
 
     fun setOnItemClickListener(listener: OnSearchItemClickListener) {
@@ -51,7 +52,7 @@ class SearchResultAdapter : ListAdapter<Feed, RecyclerView.ViewHolder>(
         private var mListener = listener
 
 
-        fun setViewModel(model : SearchResultViewModel, item : Feed){
+        fun setViewModel(model : GridImageViewModel, item : Feed){
             mBinding.model = model
             mBinding.executePendingBindings()
 

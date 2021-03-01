@@ -7,7 +7,7 @@
     <data>
         <variable
             name="model"
-            type="studio.seno.companion_animal.ui.search.SearchResultViewModel" />
+            type="studio.seno.companion_animal.ui.search.GridImageViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

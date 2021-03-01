@@ -2,9 +2,11 @@ package studio.seno.companion_animal.ui.feed
 
 import android.content.Context
 import android.util.Log
+import androidx.core.widget.NestedScrollView
 import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
@@ -36,6 +38,7 @@ class FeedListViewModel() : ViewModel() {
     //피드를 페이징하여 로드
     fun requestLoadFeedList(keyword: String?, sort: String, myEmail: String?,
                             recyclerView: RecyclerView, callback: LongTaskCallback<List<Feed>>?){
+
         repository.requestLoadFeedList(keyword, sort, myEmail, recyclerView, object : LongTaskCallback<List<Feed>>{
             override fun onResponse(result: Result<List<Feed>>) {
                 if(result is Result.Success) {

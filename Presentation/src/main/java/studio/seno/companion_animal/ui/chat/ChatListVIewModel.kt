@@ -60,8 +60,11 @@ class ChatListVIewModel : ViewModel() {
             tempList = mutableListOf()
         }
 
+
+
         tempList.add(chat)
-        chatListLiveData.value = tempList
+        tempList.toSet()
+        chatListLiveData.value = tempList.toList()
 
         lifecycleCoroutineScope.launch(Dispatchers.Main){
             recyclerView.smoothScrollToPosition(tempList.size - 1)
@@ -75,11 +78,7 @@ class ChatListVIewModel : ViewModel() {
             object : LongTaskCallback<List<Chat>> {
                 override fun onResponse(result: Result<List<Chat>>) {
                     if (result is Result.Success) {
-                        if(result.data != null){
-                            chatListLiveData.value = result.data
-                            callback.onResponse(Result.Success(true))
-                            recyclerView.scrollToPosition(result.data.size - 1)
-                        } else {
+                        if(result.data == null) {
                             callback.onResponse(Result.Success(false))
                         }
 
@@ -92,10 +91,8 @@ class ChatListVIewModel : ViewModel() {
             })
     }
 
-    fun addChatList(chat : Chat){
-        val tempChatList = chatListLiveData.value?.toMutableList()
-        tempChatList?.add(chat)
-        chatListLiveData.value = tempChatList
+    fun clearChatList(){
+        chatListLiveData.value = null
     }
 
     fun setAddedChat(chat: Chat, position :Int) {
