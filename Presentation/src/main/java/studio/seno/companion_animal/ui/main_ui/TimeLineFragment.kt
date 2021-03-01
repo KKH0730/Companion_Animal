@@ -137,6 +137,7 @@ class TimeLineFragment : Fragment(), View.OnClickListener,
         binding.header.findViewById<ImageButton>(R.id.search).visibility = View.GONE
         binding.header.findViewById<ImageButton>(R.id.refresh).visibility = View.GONE
         binding.header.findViewById<ImageButton>(R.id.scroll_up).visibility = View.GONE
+        binding.header.findViewById<ImageButton>(R.id.filter).visibility = View.GONE
         binding.followerBtn.setOnClickListener(this)
         binding.followingBtn.setOnClickListener(this)
         binding.nickNameEdit.isEnabled = false

@@ -36,13 +36,14 @@ class FeedListViewModel() : ViewModel() {
     }
 
     //피드를 페이징하여 로드
-    fun requestLoadFeedList(keyword: String?, sort: String, myEmail: String?,
+    fun requestLoadFeedList(f1 : Boolean?, f2 : Boolean?, f3: Boolean?, keyword: String?, sort: String, myEmail: String?,
                             recyclerView: RecyclerView, callback: LongTaskCallback<List<Feed>>?){
 
-        repository.requestLoadFeedList(keyword, sort, myEmail, recyclerView, object : LongTaskCallback<List<Feed>>{
+        repository.requestLoadFeedList(f1, f2, f3, keyword, sort, myEmail, recyclerView, object : LongTaskCallback<List<Feed>>{
             override fun onResponse(result: Result<List<Feed>>) {
                 if(result is Result.Success) {
                     val list = result.data
+
 
                     if(list != null) {
                         var tempList : MutableList<Feed>? = feedListLiveData.value?.toMutableList()

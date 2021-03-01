@@ -1,5 +1,7 @@
 package studio.seno.companion_animal.ui.main_ui
 
+import android.app.AlertDialog
+import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -41,6 +43,9 @@ class HomeFragment : Fragment(), View.OnClickListener{
     private lateinit var binding: FragmentHomeBinding
     private val feedListViewModel: FeedListViewModel by viewModels()
     private val commentViewModel : CommentListViewModel by viewModels()
+    private var filter1  = true
+    private var filter2  = true
+    private var filter3  = true
     private var feedSort : String? = null
     private var feedPosition : Int? = null
     private var timeLineEmail : String? = null
@@ -119,6 +124,7 @@ class HomeFragment : Fragment(), View.OnClickListener{
         binding.header.findViewById<ImageButton>(R.id.search).setOnClickListener(this)
         binding.header.findViewById<ImageButton>(R.id.refresh).setOnClickListener(this)
         binding.header.findViewById<ImageButton>(R.id.scroll_up).setOnClickListener(this)
+        binding.header.findViewById<ImageButton>(R.id.filter).setOnClickListener(this)
     }
 
     private fun refreshFeedList(){
@@ -131,7 +137,7 @@ class HomeFragment : Fragment(), View.OnClickListener{
         //게시판 데이터 서버로부터 불러와서 viewmode의 livedata 업데이트
         feedListViewModel.clearFeedList()
         if(feedSort != null && feedSort == "feed_list")
-            feedListViewModel.requestLoadFeedList(null, "feed_list",
+            feedListViewModel.requestLoadFeedList(filter1, filter2, filter3, null, "feed_list",
                 null, binding.feedRecyclerView, object : LongTaskCallback<List<Feed>>{
                     override fun onResponse(result: Result<List<Feed>>) {
                         if (result is Result.Success) {
@@ -143,7 +149,9 @@ class HomeFragment : Fragment(), View.OnClickListener{
                 })
 
         else if(feedSort != null && feedSort == "feed_timeline") {
-            feedListViewModel.requestLoadFeedList(null,
+            feedListViewModel.requestLoadFeedList(
+                null, null, null,
+                null,
                 "feed_timeline",
                 timeLineEmail,
                 binding.feedRecyclerView,
@@ -158,12 +166,6 @@ class HomeFragment : Fragment(), View.OnClickListener{
     private fun observe() {
         feedListViewModel.getFeedListLiveData().observe(requireActivity(), {
             feedAdapter.submitList(it)
-
-
-            //binding.feedRecyclerView.smoothScrollToPosition(PreferenceManager.getInt(requireActivity().applicationContext, "feed_position"))
-           // PreferenceManager.setInt(requireContext().applicationContext, "feed_position", 0)
-
-
         })
     }
 
@@ -238,6 +240,8 @@ class HomeFragment : Fragment(), View.OnClickListener{
             loadFeedList()
         } else if(v?.id == R.id.scroll_up) {
             binding.feedRecyclerView.smoothScrollToPosition(0)
+        } else if(v?.id == R.id.filter) {
+            showFilterDialog()
         }
     }
 
@@ -300,6 +304,36 @@ class HomeFragment : Fragment(), View.OnClickListener{
             }
 
         }
+    }
+
+    fun showFilterDialog(){
+        val versionArray = arrayOf(
+            getString(R.string.check_box1),
+            getString(R.string.check_box2),
+            getString(R.string.check_box3)
+        )
+        val checkArray = booleanArrayOf(filter1, filter2, filter3)
+
+        val builder = AlertDialog.Builder(requireContext())
+
+        builder.setTitle(getString(R.string.filter_title))
+            .setMultiChoiceItems(versionArray, checkArray ,object : DialogInterface.OnMultiChoiceClickListener{
+                override fun onClick(dialog: DialogInterface?, which: Int, isChecked: Boolean) {
+                    when(which){
+                        0 -> filter1 = isChecked
+                        1 -> filter2 = isChecked
+                        2 -> filter3 = isChecked
+                    }
+                }
+            })
+
+        builder.setPositiveButton(getString(R.string.submit), object : DialogInterface.OnClickListener{
+            override fun onClick(dialog: DialogInterface?, which: Int) {
+                loadFeedList()
+            }
+        })
+
+        builder.show()
     }
 }
 

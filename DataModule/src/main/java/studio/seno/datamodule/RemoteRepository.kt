@@ -258,8 +258,8 @@ class RemoteRepository() {
         searchUseCase.deleteLastSearch(mAuth.currentUser?.email.toString(), lastSearch, mDB)
     }
 
-    fun requestLoadFeedList(keyword: String?, sort: String, myEmail: String?, recyclerView: RecyclerView, callback: LongTaskCallback<List<Feed>>){
-        pagingModule.pagingFeed(keyword, sort, myEmail, recyclerView, mDB, callback)
+    fun requestLoadFeedList(f1 : Boolean?, f2 : Boolean?, f3: Boolean?, keyword: String?, sort: String, myEmail: String?, recyclerView: RecyclerView, callback: LongTaskCallback<List<Feed>>){
+        pagingModule.pagingFeed(f1, f2, f3, keyword, sort, myEmail, recyclerView, mDB, callback)
     }
 
     /**

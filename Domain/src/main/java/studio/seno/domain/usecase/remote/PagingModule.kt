@@ -22,6 +22,7 @@ class PagingModule {
 
 
     fun pagingFeed(
+        f1 : Boolean?, f2 : Boolean?, f3: Boolean?,
         keyword: String?,
         sort: String,
         myEmail: String?,
@@ -69,7 +70,7 @@ class PagingModule {
                                     }
 
 
-                                } else if (sort == "feed_timeline" || sort == "feed_list") {
+                                } else if (sort == "feed_timeline") {
                                     count++
                                     val feed = mapperFeed(element)
                                     list.add(feed)
@@ -80,6 +81,29 @@ class PagingModule {
                                         break@loop
                                     }
 
+                                } else if(sort == "feed_list"){
+                                    count++
+                                    val feed = mapperFeed(element)
+                                    if(f1 == true && feed.sort == "dog") {
+                                        list.add(feed)
+                                        find++
+                                    } else if(f2 == true &&feed.sort == "cat") {
+                                        list.add(feed)
+                                        find++
+                                    } else if(f3 == true && feed.sort != "dog" && feed.sort != "cat") {
+                                        list.add(feed)
+                                        find++
+                                    }
+
+                                    if (find == limit || find == size) {
+                                        callback.onResponse(Result.Success(list))
+                                        lastVisible = it.result!!.documents[find - 1]
+                                        break@loop
+                                    } else if (count == size || count >= 500) {
+                                        callback.onResponse(Result.Success(list))
+                                        lastVisible = it.result!!.documents[count - 1]
+                                        break@loop
+                                    }
                                 } else if (sort == "feed_bookmark") {
                                     db.collection("feed")
                                         .document(element.getString("feed")!!)
@@ -120,6 +144,7 @@ class PagingModule {
 
                                 recyclerView.setOnScrollListener(
                                     setScrollListener(
+                                        f1, f2 , f3,
                                         keyword,
                                         sort,
                                         myEmail,
@@ -139,6 +164,7 @@ class PagingModule {
 
 
     fun setScrollListener(
+        f1 : Boolean?, f2 : Boolean?, f3: Boolean?,
         keyword: String?,
         sort: String,
         myEmail: String?,
@@ -209,7 +235,7 @@ class PagingModule {
                                                 }
 
 
-                                            } else if (sort == "feed_timeline" || sort == "feed_list") {
+                                            } else if (sort == "feed_timeline") {
                                                 count++
                                                 val feed = mapperFeed(element)
                                                 list.add(feed)
@@ -220,6 +246,29 @@ class PagingModule {
                                                     break@loop
                                                 }
 
+                                            } else if(sort == "feed_list"){
+                                                count++
+                                                val feed = mapperFeed(element)
+                                                if(f1 == true && feed.sort == "dog") {
+                                                    list.add(feed)
+                                                    find++
+                                                } else if(f2 == true &&feed.sort == "cat") {
+                                                    list.add(feed)
+                                                    find++
+                                                } else if(f3 == true && feed.sort != "dog" && feed.sort != "cat") {
+                                                    list.add(feed)
+                                                    find++
+                                                }
+
+                                                if (find == limit || find == size) {
+                                                    callback.onResponse(Result.Success(list))
+                                                    lastVisible = it.result!!.documents[find - 1]
+                                                    break@loop
+                                                } else if (count == size || count >= 500) {
+                                                    callback.onResponse(Result.Success(list))
+                                                    lastVisible = it.result!!.documents[count - 1]
+                                                    break@loop
+                                                }
                                             } else if (sort == "feed_bookmark") {
                                                 db.collection("feed")
                                                     .document(element.getString("feed")!!)
