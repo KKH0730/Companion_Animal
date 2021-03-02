@@ -21,6 +21,7 @@ class PagingModule {
     private val limit = 18
 
 
+
     fun pagingFeed(
         f1 : Boolean?, f2 : Boolean?, f3: Boolean?,
         keyword: String?,
@@ -314,6 +315,24 @@ class PagingModule {
                 }
             }
         return onScrollListener
+    }
+
+    fun setFeedListListener(db: FirebaseFirestore, callback : LongTaskCallback<List<Feed>>){
+        db.collection("feed")
+            .orderBy("timestamp")
+            .addSnapshotListener { value, error ->
+            if(error != null)
+                return@addSnapshotListener
+
+            val list = mutableListOf<Feed>()
+            val document = value?.documentChanges
+
+            if (document != null) {
+                for(element in document)
+                    list.add(mapperFeed(element.document))
+            }
+            callback.onResponse(Result.Success(list))
+        }
     }
 
 

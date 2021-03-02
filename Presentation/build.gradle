@@ -70,35 +70,17 @@ dependencies {
     implementation "androidx.navigation:navigation-fragment-ktx:$nav_version"
     implementation "androidx.navigation:navigation-ui-ktx:$nav_version"
 
-    //anko
     implementation "org.jetbrains.anko:anko:$anko_version"
-
-    //로그인화면 버튼
     implementation 'com.royrodriguez:transitionbutton:0.2.0'
-
-    //SmoothBottomBar
     implementation 'com.github.ibrahimsn98:SmoothBottomBar:1.7.6'
-
-    //Home Indicator
     implementation 'me.relex:circleindicator:2.1.4'
-
-    //CircleImageView
     implementation 'de.hdodenhof:circleimageview:3.1.0'
-
-    //bottomsheet-imagepicker(https://github.com/kroegerama/bottomsheet-imagepicker)
     implementation 'com.kroegerama:bottomsheet-imagepicker:1.1.2'
     implementation 'com.github.bumptech.glide:glide:4.11.0'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.11.0'
-
-    //MaterialChipsInput(https://github.com/pchmn/MaterialChipsInput)
     implementation 'com.github.pchmn:MaterialChipsInput:1.0.8'
-
     implementation 'com.google.firebase:firebase-auth:20.0.2'
-
-    //ExpandedTextView(https://github.com/aqoong/ExpandableTextView)
     implementation 'com.github.aqoong:ExpandableTextView:1.0.1'
-
-    //라운딩 이미지 뷰(https://github.com/vinc3m1/RoundedImageView)
     implementation 'com.makeramen:roundedimageview:2.3.0'
 
 
@@ -109,7 +91,9 @@ dependencies {
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.1'
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.3.0'
 
-    implementation "androidx.recyclerview:recyclerview:1.2.0-beta01"
+    implementation "androidx.recyclerview:recyclerview:1.2.0-beta02"
     implementation 'com.github.marcoscgdev:EasyLicensesDialog:2.0.0'
+
+    implementation 'com.google.firebase:firebase-firestore-ktx:22.1.0'
 
 }

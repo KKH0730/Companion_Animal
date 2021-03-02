@@ -22,7 +22,7 @@ class RemoteRepository() {
     private val mDB = FirebaseFirestore.getInstance()
     private val mStorageRef: StorageReference = FirebaseStorage.getInstance()
         .getReferenceFromUrl("gs://companion-animal-f0bfa.appspot.com/")
-    private val mRTDB = FirebaseDatabase.getInstance()
+    private val realTimeDB = FirebaseDatabase.getInstance()
     private val userUseCase = UserUseCase()
     private val feedUseCase = FeedUseCase()
     private val pagingModule = PagingModule()
@@ -131,6 +131,10 @@ class RemoteRepository() {
     //북마크 상태 업데이트
     fun requestUpdateBookmark(feed : Feed, flag: Boolean) {
         feedUseCase.updateBookmark(feed, mAuth.currentUser?.email.toString(), flag, mDB)
+    }
+
+    fun requestSetFeedListListener(callback: LongTaskCallback<List<Feed>>) {
+        pagingModule.setFeedListListener(mDB, callback)
     }
 
     /**
@@ -267,23 +271,27 @@ class RemoteRepository() {
      */
 
     fun requestLoadChatLog(myEmail: String, targetEmail: String, callback: LongTaskCallback<List<Chat>>){
-        chatUseCase.loadChatLog(myEmail, targetEmail, mRTDB, callback)
+        chatUseCase.loadChatLog(myEmail, targetEmail, realTimeDB, callback)
     }
 
     fun requestAddChat(myEmail : String, targetEmail : String, chat : Chat){
-        chatUseCase.addChat(myEmail, targetEmail, chat, mRTDB)
+        chatUseCase.addChat(myEmail, targetEmail, chat, realTimeDB)
     }
 
-    fun requestLoadChatList(myEmail : String, callback : LongTaskCallback<List<Chat>>){
-        chatUseCase.loadChatList(myEmail, mRTDB, callback)
+
+    fun requestSetAddedChatListener(email: String, targetEmail: String, callback: LongTaskCallback<Chat>){
+        chatUseCase.setAddedChatListener(email, targetEmail, realTimeDB, callback)
     }
 
+    fun requestSetChatListListener(email: String, callback : LongTaskCallback<Chat>){
+        chatUseCase.setChatListListener(realTimeDB, email, callback)
+    }
 
     fun requestRemoveChatList(targetEmail : String, myEmail : String, chat : Chat){
-        chatUseCase.removeChatList(targetEmail, myEmail, chat, mRTDB)
+        chatUseCase.removeChatList(targetEmail, myEmail, chat, realTimeDB)
     }
     fun requestUpdateCheckDot(myEmail : String, targetEmail : String){
-        chatUseCase.updateCheckDot(myEmail, targetEmail, mRTDB)
+        chatUseCase.updateCheckDot(myEmail, targetEmail, realTimeDB)
     }
 
     /**

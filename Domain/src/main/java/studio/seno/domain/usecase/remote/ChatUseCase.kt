@@ -1,6 +1,9 @@
 package studio.seno.domain.usecase.remote
 
 import android.util.Log
+import android.view.View
+import androidx.lifecycle.lifecycleScope
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -15,10 +18,10 @@ class ChatUseCase {
     fun loadChatLog(
         myEmail: String,
         targetEmail: String,
-        mRTDB: FirebaseDatabase,
+        realTimeDB: FirebaseDatabase,
         callback: LongTaskCallback<List<Chat>>
     ) {
-        mRTDB.reference.child(CHAT_ROOT).child(myEmail).child(myEmail + targetEmail).get()
+        realTimeDB.reference.child(CHAT_ROOT).child(myEmail).child(myEmail + targetEmail).get()
             .addOnCompleteListener {
 
                 val list = mutableListOf<Chat>()
@@ -43,47 +46,68 @@ class ChatUseCase {
             }
     }
 
-    fun addChat(myEmail: String, targetEmail: String, chat: Chat, mRTDB: FirebaseDatabase) {
-        mRTDB.reference.child(CHAT_ROOT).child(myEmail).child(myEmail + targetEmail).push()
+    fun addChat(myEmail: String, targetEmail: String, chat: Chat, realTimeDB: FirebaseDatabase) {
+        realTimeDB.reference.child(CHAT_ROOT).child(myEmail).child(myEmail + targetEmail).push()
             .setValue(chat)
-        mRTDB.reference.child(CHAT_ROOT).child(targetEmail).child(targetEmail + myEmail).push()
+        realTimeDB.reference.child(CHAT_ROOT).child(targetEmail).child(targetEmail + myEmail).push()
             .setValue(chat)
     }
 
-    fun loadChatList(
-        myEmail: String,
-        mRTDB: FirebaseDatabase,
-        callback: LongTaskCallback<List<Chat>>
-    ) {
-        mRTDB.reference.child(CHAT_ROOT).child(myEmail).get()
-            .addOnCompleteListener {
-                val list = mutableListOf<Chat>()
-                val size = it.result?.childrenCount
-
-                if (size == 0L) {
-                    callback.onResponse(Result.Success(null))
-                    return@addOnCompleteListener
-                }
-
-                for (element in it.result?.children!!) {
-                    val chatList = element.children.toList()
-                    chatList[chatList.size - 1].getValue(Chat::class.java)
-                        ?.let { it1 -> list.add(it1) }
-
-                    if (list.size.toLong() == size) {
-                        callback.onResponse(Result.Success(list))
+    fun setAddedChatListener(email: String, targetEmail: String, realTimeDB: FirebaseDatabase, callback: LongTaskCallback<Chat>){
+        realTimeDB.reference
+            .child(CHAT_ROOT)
+            .child(email)
+            .child(email + targetEmail)
+            .addChildEventListener(object : ChildEventListener{
+                override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
+                    val addedChat = snapshot.getValue(Chat::class.java)
+                    if (addedChat != null) {
+                        callback.onResponse(Result.Success(addedChat))
                     }
                 }
-            }
+
+                override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {}
+
+                override fun onChildRemoved(snapshot: DataSnapshot) {}
+
+                override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {}
+
+                override fun onCancelled(error: DatabaseError) {}
+            })
     }
 
 
-    fun removeChatList(targetEmail: String, myEmail: String, chat: Chat, mRTDB: FirebaseDatabase) {
-        mRTDB.reference.child(CHAT_ROOT).child(myEmail).child(myEmail + targetEmail).removeValue()
-        mRTDB.reference.child(CHAT_ROOT).child(targetEmail).child(targetEmail + myEmail).get()
+    fun setChatListListener(realTimeDB: FirebaseDatabase, email: String, callback : LongTaskCallback<Chat>){
+        realTimeDB.reference
+            .child(CHAT_ROOT)
+            .child(email)
+            .addChildEventListener(object : ChildEventListener{
+                override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
+                    val chatList = snapshot.children.toList()
+                    val addedChat = chatList[chatList.size - 1].getValue(Chat::class.java)
+                    if (addedChat != null) {
+
+                        callback.onResponse(Result.Success(addedChat))
+                    }
+                }
+
+                override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {}
+
+                override fun onChildRemoved(snapshot: DataSnapshot) {}
+
+                override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {}
+
+                override fun onCancelled(error: DatabaseError) {}
+            })
+    }
+
+
+    fun removeChatList(targetEmail: String, myEmail: String, chat: Chat, realTimeDB: FirebaseDatabase) {
+        realTimeDB.reference.child(CHAT_ROOT).child(myEmail).child(myEmail + targetEmail).removeValue()
+        realTimeDB.reference.child(CHAT_ROOT).child(targetEmail).child(targetEmail + myEmail).get()
             .addOnCompleteListener {
                 if (it.result?.exists() == true) {
-                    mRTDB.reference.child(CHAT_ROOT).child(targetEmail).child(targetEmail + myEmail)
+                    realTimeDB.reference.child(CHAT_ROOT).child(targetEmail).child(targetEmail + myEmail)
                         .push().setValue(chat)
                 } else
                     return@addOnCompleteListener
@@ -91,8 +115,8 @@ class ChatUseCase {
     }
 
 
-    fun updateCheckDot(myEmail: String, targetEmail: String, mRTDB: FirebaseDatabase) {
-        mRTDB.reference.child(CHAT_ROOT).child(myEmail).child(myEmail + targetEmail).get()
+    fun updateCheckDot(myEmail: String, targetEmail: String, realTimeDB: FirebaseDatabase) {
+        realTimeDB.reference.child(CHAT_ROOT).child(myEmail).child(myEmail + targetEmail).get()
             .addOnCompleteListener {
                 val childCount = it.result?.childrenCount
                 var count = 0
@@ -100,7 +124,7 @@ class ChatUseCase {
                     val chatList = it.result?.children!!.toList()
                     val map = mutableMapOf<String, Any>()
                     map["read"] = true
-                    mRTDB.reference.child(CHAT_ROOT).child(myEmail).child(myEmail + targetEmail)
+                    realTimeDB.reference.child(CHAT_ROOT).child(myEmail).child(myEmail + targetEmail)
                         .child(chatList[chatList.size - 1].key!!).updateChildren(map)
 
                 }

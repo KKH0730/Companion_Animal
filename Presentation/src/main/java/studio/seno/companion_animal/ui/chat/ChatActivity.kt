@@ -80,46 +80,13 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener {
                         .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
                         .into(binding.profileImageVIew)
 
-                    setChatListener()
+                    chatListViewModel.requestSetAddedChatListener(commonFunction.makeChatPath(user!!.email), commonFunction.makeChatPath(targetEmail), 0, "chat_log", binding.chatRecyclerview, lifecycleScope)
                     observe()
                 } else if(result is Result.Error) {
                     Log.e("error", "ChatActivity send_btn error : ${result.exception}")
                 }
             }
         })
-    }
-
-
-
-    fun setChatListener(){
-        FirebaseDatabase.getInstance().reference
-            .child(Constants.CHAT_ROOT)
-            .child(commonFunction.makeChatPath(user!!.email))
-            .child(commonFunction.makeChatPath(user!!.email) + commonFunction.makeChatPath(targetEmail))
-            .addChildEventListener(object : ChildEventListener{
-                override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
-
-                    val chat = snapshot.getValue(Chat::class.java)
-                    if (chat != null)
-                        chatListViewModel.updateChatLog(chat, binding.chatRecyclerview, lifecycleScope)
-                }
-
-                override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
-
-                }
-
-                override fun onChildRemoved(snapshot: DataSnapshot) {
-
-                }
-
-                override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {
-
-                }
-
-                override fun onCancelled(error: DatabaseError) {
-
-                }
-            })
     }
 
     fun observe(){

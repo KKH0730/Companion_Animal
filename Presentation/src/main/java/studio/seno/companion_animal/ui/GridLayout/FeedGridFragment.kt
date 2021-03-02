@@ -85,6 +85,7 @@ class FeedGridFragment : Fragment() {
 
         if(feedSort == "feed_timeline") {
             feedListViewModel.requestLoadFeedList(
+                null, null, null,
                 null,
                 "feed_timeline",
                 timeLineEmail,
@@ -97,7 +98,9 @@ class FeedGridFragment : Fragment() {
                 }
             )
         } else if(feedSort == "feed_search"){
-            feedListViewModel.requestLoadFeedList(keyword,
+            feedListViewModel.requestLoadFeedList(
+                null, null, null,
+                keyword,
                 "feed_search",
                 null,
                 binding.gridRecyclerview,
@@ -116,7 +119,7 @@ class FeedGridFragment : Fragment() {
             })
         } else if(feedSort == "feed_bookmark") {
             feedListViewModel.requestLoadFeedList(
-                null, "feed_bookmark", FirebaseAuth.getInstance().currentUser?.email.toString(),
+                null, null, null, null,"feed_bookmark", FirebaseAuth.getInstance().currentUser?.email.toString(),
                 binding.gridRecyclerview, object : LongTaskCallback<List<Feed>> {
                     override fun onResponse(result: Result<List<Feed>>) {
                         binding.progressBar.visibility = View.GONE

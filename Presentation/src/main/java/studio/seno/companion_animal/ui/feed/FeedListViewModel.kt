@@ -11,11 +11,14 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import studio.seno.companion_animal.module.FeedModule
 import studio.seno.datamodule.RemoteRepository
 import studio.seno.datamodule.mapper.Mapper
 import studio.seno.domain.LongTaskCallback
 import studio.seno.domain.model.Feed
 import studio.seno.domain.Result
+import studio.seno.domain.usecase.remote.PagingModule
 
 class FeedListViewModel() : ViewModel() {
     private var feedListLiveData = MutableLiveData<List<Feed>>()
@@ -33,6 +36,24 @@ class FeedListViewModel() : ViewModel() {
 
     fun getFeedListSaveStatus() : MutableLiveData<Boolean>{
         return feedSaveStatus
+    }
+
+    fun setFeedListListener(){
+        repository.requestSetFeedListListener(object : LongTaskCallback<List<Feed>>{
+            override fun onResponse(result: Result<List<Feed>>) {
+                if(result is Result.Success) {
+                    var tempList = feedListLiveData.value?.toMutableList()
+                    if(tempList == null){
+                        tempList = mutableListOf()
+                    }
+
+                    for(element in result.data)
+                        tempList.add(0, element)
+
+                    feedListLiveData.value = tempList
+                }
+            }
+        })
     }
 
     //피드를 페이징하여 로드

@@ -16,6 +16,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
 import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.firestore.FirebaseFirestore
 import org.jetbrains.anko.support.v4.intentFor
 import org.jetbrains.anko.support.v4.startActivity
 import studio.seno.commonmodule.CustomToast
@@ -142,6 +143,8 @@ class HomeFragment : Fragment(), View.OnClickListener{
                     override fun onResponse(result: Result<List<Feed>>) {
                         if (result is Result.Success) {
                             binding.refreshLayout.isRefreshing = false
+                            //feedListViewModel.setFeedListListener()
+
                         } else if (result is Result.Error) {
                             Log.e("error", "feed refresh error : ${result.exception}")
                         }

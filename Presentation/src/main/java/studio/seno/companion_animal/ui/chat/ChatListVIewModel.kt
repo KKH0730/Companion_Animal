@@ -14,6 +14,7 @@ import com.google.firebase.database.FirebaseDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import studio.seno.companion_animal.R
+import studio.seno.companion_animal.module.CommonFunction
 import studio.seno.companion_animal.util.Constants
 import studio.seno.datamodule.RemoteRepository
 import studio.seno.datamodule.mapper.Mapper
@@ -32,6 +33,10 @@ class ChatListVIewModel : ViewModel() {
 
     fun setChatListLiveData(list: List<Chat>) {
         chatListLiveData.value = list
+    }
+
+    fun clearChatList(){
+        chatListLiveData.value = null
     }
 
     fun requestAddChat(
@@ -54,16 +59,16 @@ class ChatListVIewModel : ViewModel() {
         remoteRepository.requestAddChat(myEmail, targetEmail, chat)
     }
 
-    fun updateChatLog(chat: Chat, recyclerView: RecyclerView, lifecycleCoroutineScope: LifecycleCoroutineScope) {
+    fun addChatLog(chat: Chat, recyclerView: RecyclerView, lifecycleCoroutineScope: LifecycleCoroutineScope) {
         var tempList = chatListLiveData.value?.toMutableList()
         if (tempList == null) {
             tempList = mutableListOf()
         }
 
+        if(!tempList.contains(chat)) {
+            tempList.add(chat)
+        }
 
-
-        tempList.add(chat)
-        tempList.toSet()
         chatListLiveData.value = tempList.toList()
 
         lifecycleCoroutineScope.launch(Dispatchers.Main){
@@ -71,67 +76,51 @@ class ChatListVIewModel : ViewModel() {
         }
     }
 
-    fun requestLoadChatLog(myEmail: String, targetEmail: String, recyclerView: RecyclerView, callback: LongTaskCallback<Boolean>) {
-        remoteRepository.requestLoadChatLog(
-            myEmail,
-            targetEmail,
-            object : LongTaskCallback<List<Chat>> {
-                override fun onResponse(result: Result<List<Chat>>) {
-                    if (result is Result.Success) {
-                        if(result.data == null) {
-                            callback.onResponse(Result.Success(false))
-                        }
 
-                    } else if (result is Result.Error) {
-                        Log.e(
-                            "error", "ChatListVIewModel requestLoadChatLog error : ${result.exception}"
-                        )
-                    }
-                }
-            })
-    }
-
-    fun clearChatList(){
-        chatListLiveData.value = null
-    }
 
     fun setAddedChat(chat: Chat, position :Int) {
-        val tempChatList = chatListLiveData.value?.toMutableList()
-        tempChatList?.set(position, chat)
+        var tempChatList = chatListLiveData.value?.toMutableList()
+        if(tempChatList == null) {
+            tempChatList = mutableListOf()
+        }
 
-        chatListLiveData.value = tempChatList
+        if(position >= tempChatList.size)
+            tempChatList.add(chat)
+        else {
+
+            var targetEmail : String? = null
+            var targetEmail2 : String? = null
+
+            targetEmail = if (chat.realEmail == FirebaseAuth.getInstance().currentUser?.email.toString()) chat.targetEmail else chat.email
+            targetEmail2 = if(tempChatList[position].realEmail == FirebaseAuth.getInstance().currentUser?.email.toString()) chat.targetEmail else chat.email
+
+            if(targetEmail == targetEmail2)
+                tempChatList[position] = chat
+        }
+
+        chatListLiveData.value = tempChatList.toList()
     }
 
-    fun requestLoadChatList(myEmail: String, callback: LongTaskCallback<Boolean>) {
-        remoteRepository.requestLoadChatList(myEmail, object : LongTaskCallback<List<Chat>> {
-            override fun onResponse(result: Result<List<Chat>>) {
-                if (result is Result.Success) {
-                    if(result.data != null) {
-                        val tempList = result.data
 
-                        Collections.sort(tempList, object : Comparator<Chat> {
-                            override fun compare(o1: Chat?, o2: Chat?): Int {
-                                return if (o1?.timestamp!! > o2?.timestamp!!) -1 else 1
-                            }
-                        })
-                        chatListLiveData.value = tempList
-                        callback.onResponse(Result.Success(true))
-/*
-                        for(i in 0 until result.data.size) {
-                            setAddedChatListener(result.data[i], i)
-                        }
+    fun requestSetAddedChatListener(email: String, targetEmail: String, position: Int, sort : String, recyclerView: RecyclerView?, lifecycleScope: LifecycleCoroutineScope?){
+        remoteRepository.requestSetAddedChatListener(email, targetEmail, object : LongTaskCallback<Chat>{
+            override fun onResponse(result: Result<Chat>) {
+                if(result is Result.Success) {
+                    if(sort == "chat_list")
+                        setAddedChat(result.data, position)
+                    else
+                        addChatLog(result.data, recyclerView!!, lifecycleScope!!)
+                }
+            }
+        })
+    }
 
- */
-
-                    } else {
-                        callback.onResponse(Result.Success(false))
-                    }
-
-                } else if (result is Result.Error) {
-                    Log.e(
-                        "error",
-                        "ChatListVIewModel requestLoadChatList error : ${result.exception}"
-                    )
+    fun requestSetChatListListener(email: String, chatRecyclerView: RecyclerView, lifecycleScope : LifecycleCoroutineScope, callback : LongTaskCallback<Boolean>){
+        remoteRepository.requestSetChatListListener(email, object  : LongTaskCallback<Chat>{
+            override fun onResponse(result: Result<Chat>) {
+                if(result is Result.Success) {
+                    addChatLog(result.data, chatRecyclerView, lifecycleScope)
+                    callback.onResponse(Result.Success(true))
                 }
             }
         })
