@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import org.jetbrains.anko.sdk27.coroutines.textChangedListener
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.FeedItemBinding
@@ -24,7 +25,7 @@ import studio.seno.domain.model.Feed
 class FeedListAdapter(
     fm: FragmentManager,
     lifecycle: Lifecycle,
-    lifecycleCoroutineScope: LifecycleCoroutineScope
+    lifecycleCoroutineScope: LifecycleCoroutineScope,
 ) : ListAdapter<Feed, RecyclerView.ViewHolder>(
 
     object : DiffUtil.ItemCallback<Feed>() {
@@ -55,6 +56,7 @@ class FeedListAdapter(
         return FeedViewHolder(binding, listener!!)
     }
 
+
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         var holder = holder as FeedViewHolder
         var item = getItem(position)
@@ -64,6 +66,7 @@ class FeedListAdapter(
             holder.itemView.findViewById(R.id.indicator),
             lifecycleScope
         )
+
         model.setFeedLiveData(item)
         holder.setViewModel(model, item)
     }
@@ -88,14 +91,12 @@ class FeedListAdapter(
 
         fun setEvent(feed: Feed) {
             binding.commentBtn.setOnClickListener {
-                if (binding.content.text.isNotEmpty()) {
-                    mListener.onCommentBtnClicked(
-                        feed,
-                        binding.comment,
-                        binding.commentCount,
-                        binding.commentContainer
-                    )
-                }
+                mListener.onCommentBtnClicked(
+                    feed,
+                    binding.comment,
+                    binding.commentCount,
+                    binding.commentContainer
+                )
             }
 
             binding.comment.addTextChangedListener(textWatcher)

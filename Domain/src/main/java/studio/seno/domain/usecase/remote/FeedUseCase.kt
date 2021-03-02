@@ -27,30 +27,30 @@ class FeedUseCase {
     ) {
 
         //var remoteProfilePath = feed.email + "/profile/profileImage"
-        var remoteImagePath = feed.email + "/feed/" + feed.timestamp + "/"
+        var remoteImagePath = feed.getEmail() + "/feed/" + feed.getTimestamp() + "/"
 
 
-        uploadUseCase.deleteRemoteFeedImage(feed.email!!, feed.timestamp, storageRef, object : LongTaskCallback<Boolean>{
+        uploadUseCase.deleteRemoteFeedImage(feed.getEmail()!!, feed.getTimestamp(), storageRef, object : LongTaskCallback<Boolean>{
             override fun onResponse(result: Result<Boolean>) {
                 if(result is Result.Success) {
 
-                    uploadUseCase.loadRemoteProfileImage(feed.email!!, storageRef, object : LongTaskCallback<String> {
+                    uploadUseCase.loadRemoteProfileImage(feed.getEmail()!!, storageRef, object : LongTaskCallback<String> {
                         override fun onResponse(result: Result<String>) {
                             if(result is Result.Success) {
-                                feed.remoteProfileUri = result.data
+                                feed.setRemoteProfileUri(result.data)
 
-                                uploadUseCase.uploadRemoteFeedImage(feed.localUri, remoteImagePath, storageRef, object : LongTaskCallback<Boolean> {
+                                uploadUseCase.uploadRemoteFeedImage(feed.getLocalUri(), remoteImagePath, storageRef, object : LongTaskCallback<Boolean> {
                                     override fun onResponse(result: Result<Boolean>) {
                                         if(result is Result.Success) {
 
-                                            uploadUseCase.loadRemoteFeedImage(remoteImagePath, feed.localUri.size, storageRef, object : LongTaskCallback<List<String>>{
+                                            uploadUseCase.loadRemoteFeedImage(remoteImagePath, feed.getLocalUri().size, storageRef, object : LongTaskCallback<List<String>>{
                                                 override fun onResponse(result: Result<List<String>>) {
                                                     if(result is Result.Success) {
-                                                        feed.remoteUri = result.data
+                                                        feed.setRemoteUri(result.data)
 
                                                         //db에 객체 데이터 저장
                                                         db.collection("feed")
-                                                            .document(feed.email + feed.timestamp)
+                                                            .document(feed.getEmail() + feed.getTimestamp())
                                                             .set(feed)
                                                             .addOnCompleteListener {
                                                                 callback.onResponse(Result.Success(feed))
@@ -61,9 +61,9 @@ class FeedUseCase {
 
                                                         //db에 내가 올린 글 업로드
                                                         db.collection("user")
-                                                            .document(feed.email!!)
+                                                            .document(feed.getEmail()!!)
                                                             .collection("myFeed")
-                                                            .document(feed.email + feed.timestamp)
+                                                            .document(feed.getEmail() + feed.getTimestamp())
                                                             .set(feed)
                                                     }
                                                 }
@@ -80,7 +80,7 @@ class FeedUseCase {
                 }
             }
         })
-        userMangerUseCase.updateRemoteUserInfo(feed.email!!, db, true)
+        userMangerUseCase.updateRemoteUserInfo(feed.getEmail()!!, db, true)
     }
 
 
@@ -163,10 +163,10 @@ class FeedUseCase {
         feed: Feed, db: FirebaseFirestore,
         storageRef: StorageReference, callback: LongTaskCallback<Boolean>
     ) {
-        var remoteImagePath = feed.email + "/feed/" + feed.timestamp + "/"
+        var remoteImagePath = feed.getEmail() + "/feed/" + feed.getTimestamp() + "/"
 
         db.collection("feed")
-            .document(feed.email + feed.timestamp)
+            .document(feed.getEmail() + feed.getTimestamp())
             .delete()
             .addOnCompleteListener {
                 if (it.isSuccessful) {
@@ -179,12 +179,12 @@ class FeedUseCase {
             }
 
         db.collection("user")
-            .document(feed.email!!)
+            .document(feed.getEmail()!!)
             .collection("myFeed")
-            .document(feed.email + feed.timestamp)
+            .document(feed.getEmail() + feed.getTimestamp())
             .delete()
 
-        userMangerUseCase.updateRemoteUserInfo(feed.email!!, db, false)
+        userMangerUseCase.updateRemoteUserInfo(feed.getEmail()!!, db, false)
 
 
 
@@ -206,7 +206,7 @@ class FeedUseCase {
         db: FirebaseFirestore
     ) {
         var map = hashMapOf<String, Any>()
-        var heartList = feed.heartList.toMutableMap()
+        var heartList = feed.getHeartList().toMutableMap()
 
         if (flag)
             heartList[myEmail] = myEmail
@@ -218,20 +218,20 @@ class FeedUseCase {
         map["heart"] = count
 
         db.collection("feed")
-            .document(feed.email + feed.timestamp)
+            .document(feed.getEmail() + feed.getTimestamp())
             .update(map)
 
         db.collection("user")
             .document(myEmail)
             .collection("myFeed")
-            .document(feed.email + feed.timestamp)
+            .document(feed.getEmail() + feed.getTimestamp())
             .update(map)
     }
 
     //북마크의 상태를 업데이트한다.
     fun updateBookmark(feed: Feed, myEmail: String, flag: Boolean, db: FirebaseFirestore) {
         var map = hashMapOf<String, Any>()
-        var bookmarkList = feed.bookmarkList!!.toMutableMap()
+        var bookmarkList = feed.getBookmarkList().toMutableMap()
 
         if (flag) {
             bookmarkList[myEmail] = myEmail
@@ -241,7 +241,7 @@ class FeedUseCase {
             db.collection("user")
                 .document(myEmail)
                 .collection("bookmark")
-                .document(feed.email + feed.timestamp)
+                .document(feed.getEmail() + feed.getTimestamp())
                 .delete()
                 .addOnFailureListener {
 
@@ -251,23 +251,23 @@ class FeedUseCase {
 
         map["bookmarkList"] = bookmarkList
         db.collection("feed")
-            .document(feed.email + feed.timestamp)
+            .document(feed.getEmail() + feed.getTimestamp())
             .update(map)
 
         db.collection("user")
             .document(myEmail)
             .collection("myFeed")
-            .document(feed.email + feed.timestamp)
+            .document(feed.getEmail() + feed.getTimestamp())
             .update(map)
 
         if (flag) {
             map = hashMapOf<String, Any>()
-            map["feed"] = feed.email + feed.timestamp
-            map["timestamp"] = feed.timestamp
+            map["feed"] = feed.getEmail() + feed.getTimestamp()
+            map["timestamp"] = feed.getTimestamp()
             db.collection("user")
                 .document(myEmail)
                 .collection("bookmark")
-                .document(feed.email + feed.timestamp)
+                .document(feed.getEmail() + feed.getTimestamp())
                 .set(map)
         }
     }

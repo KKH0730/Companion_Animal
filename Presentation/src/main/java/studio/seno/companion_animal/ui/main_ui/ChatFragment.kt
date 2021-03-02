@@ -156,6 +156,7 @@ class ChatFragment : Fragment() {
         chatListViewModel.clearChatList()
         chatListViewModel.requestSetChatListListener(
             CommonFunction.getInstance()!!.makeChatPath(user!!.email),
+            "chat_list",
             binding.chatRecyclerView,
             lifecycleScope,
             object : LongTaskCallback<Boolean> {

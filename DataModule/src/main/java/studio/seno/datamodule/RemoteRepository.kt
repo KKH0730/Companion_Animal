@@ -300,7 +300,7 @@ class RemoteRepository() {
 
     fun reportFeed(feed : Feed, number : Int) {
         val map = mutableMapOf<String, Any>()
-        map["path"] = feed.email + feed.timestamp
+        map["path"] = feed.getEmail() + feed.getTimestamp()
         map["report"] = number
 
         mDB.collection("report")

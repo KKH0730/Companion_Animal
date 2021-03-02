@@ -30,8 +30,8 @@ class FeedListViewModel() : ViewModel() {
     }
 
     fun setFeedListLiveData(list : List<Feed>) {
-        feedListLiveData.value = null
         feedListLiveData.value = list
+
     }
 
     fun getFeedListSaveStatus() : MutableLiveData<Boolean>{
@@ -93,19 +93,6 @@ class FeedListViewModel() : ViewModel() {
     fun clearFeedList(){
         feedListLiveData.value = null
     }
-
-    fun updateFeedList(feed: Feed, position : Int){
-        val tempList = feedListLiveData.value?.toMutableList()
-        tempList?.set(position, feed)
-        feedListLiveData.value = tempList
-    }
-
-    fun deleteFeedList(position: Int) {
-        val tempList = feedListLiveData.value?.toMutableList()
-        tempList?.removeAt(position)
-        feedListLiveData.value = tempList
-    }
-
 
 
     fun requestUploadFeed(email : String, nickname: String, sort:String, hashTags : List<String>,

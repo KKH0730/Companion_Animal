@@ -55,7 +55,7 @@ class PagingModule {
                                 if (sort == "feed_search" && keyword != null) {
                                     count++
                                     val feed = mapperFeed(element)
-                                    if (keyword != "" && (feed.content.contains(keyword) || feed.hashTags.contains("#$keyword"))) {
+                                    if (keyword != "" && (feed.getContent().contains(keyword) || feed.getHashTags().contains("#$keyword"))) {
                                         list.add(feed)
                                         find++
                                     }
@@ -85,13 +85,13 @@ class PagingModule {
                                 } else if(sort == "feed_list"){
                                     count++
                                     val feed = mapperFeed(element)
-                                    if(f1 == true && feed.sort == "dog") {
+                                    if(f1 == true && feed.getSort() == "dog") {
                                         list.add(feed)
                                         find++
-                                    } else if(f2 == true &&feed.sort == "cat") {
+                                    } else if(f2 == true &&feed.getSort() == "cat") {
                                         list.add(feed)
                                         find++
-                                    } else if(f3 == true && feed.sort != "dog" && feed.sort != "cat") {
+                                    } else if(f3 == true && feed.getSort() != "dog" && feed.getSort() != "cat") {
                                         list.add(feed)
                                         find++
                                     }
@@ -220,7 +220,7 @@ class PagingModule {
                                             if (sort == "feed_search" && keyword != null) {
                                                 count++
                                                 val feed = mapperFeed(element)
-                                                if (keyword != "" && (feed.content.contains(keyword) || feed.hashTags.contains("#$keyword"))) {
+                                                if (keyword != "" && (feed.getContent().contains(keyword) || feed.getContent().contains("#$keyword"))) {
                                                     list.add(feed)
                                                     find++
                                                 }
@@ -250,13 +250,13 @@ class PagingModule {
                                             } else if(sort == "feed_list"){
                                                 count++
                                                 val feed = mapperFeed(element)
-                                                if(f1 == true && feed.sort == "dog") {
+                                                if(f1 == true && feed.getSort() == "dog") {
                                                     list.add(feed)
                                                     find++
-                                                } else if(f2 == true &&feed.sort == "cat") {
+                                                } else if(f2 == true &&feed.getSort() == "cat") {
                                                     list.add(feed)
                                                     find++
-                                                } else if(f3 == true && feed.sort != "dog" && feed.sort != "cat") {
+                                                } else if(f3 == true && feed.getSort() != "dog" && feed.getSort() != "cat") {
                                                     list.add(feed)
                                                     find++
                                                 }

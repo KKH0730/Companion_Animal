@@ -4,10 +4,7 @@ import android.util.Log
 import android.view.View
 import androidx.lifecycle.lifecycleScope
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.ChildEventListener
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.*
 import studio.seno.domain.LongTaskCallback
 import studio.seno.domain.Result
 import studio.seno.domain.model.Chat
@@ -81,12 +78,12 @@ class ChatUseCase {
         realTimeDB.reference
             .child(CHAT_ROOT)
             .child(email)
+            .orderByChild("timestamp")
             .addChildEventListener(object : ChildEventListener{
                 override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
                     val chatList = snapshot.children.toList()
                     val addedChat = chatList[chatList.size - 1].getValue(Chat::class.java)
                     if (addedChat != null) {
-
                         callback.onResponse(Result.Success(addedChat))
                     }
                 }

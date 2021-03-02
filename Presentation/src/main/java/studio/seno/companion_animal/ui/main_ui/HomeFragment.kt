@@ -16,6 +16,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
 import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.FirebaseFirestore
 import org.jetbrains.anko.support.v4.intentFor
 import org.jetbrains.anko.support.v4.startActivity
@@ -30,6 +31,7 @@ import studio.seno.companion_animal.ui.feed.*
 import studio.seno.companion_animal.ui.search.SearchActivity
 import studio.seno.companion_animal.util.Constants
 import studio.seno.datamodule.LocalRepository
+import studio.seno.datamodule.mapper.Mapper
 import studio.seno.domain.LongTaskCallback
 import studio.seno.domain.Result
 import studio.seno.domain.model.Feed
@@ -51,7 +53,6 @@ class HomeFragment : Fragment(), View.OnClickListener{
     private var feedPosition : Int? = null
     private var timeLineEmail : String? = null
     private val feedModule : FeedModule by lazy {
-
         FeedModule(feedListViewModel, commentViewModel)
     }
     private var targetFeed : Feed? = null
@@ -103,11 +104,11 @@ class HomeFragment : Fragment(), View.OnClickListener{
         }
         loadFeedList()
         observe()
+
+        setListener()
     }
 
     private fun init(){
-        PreferenceManager.setInt(requireActivity().applicationContext, "feed_position", 0)
-
         if(feedSort == "feed_list") {
             binding.header.findViewById<ImageButton>(R.id.back_btn).visibility = View.GONE
             binding.header.findViewById<TextView>(R.id.title).visibility = View.GONE
@@ -126,6 +127,8 @@ class HomeFragment : Fragment(), View.OnClickListener{
         binding.header.findViewById<ImageButton>(R.id.refresh).setOnClickListener(this)
         binding.header.findViewById<ImageButton>(R.id.scroll_up).setOnClickListener(this)
         binding.header.findViewById<ImageButton>(R.id.filter).setOnClickListener(this)
+
+        binding.feedRecyclerView.itemAnimator = null
     }
 
     private fun refreshFeedList(){
@@ -176,11 +179,7 @@ class HomeFragment : Fragment(), View.OnClickListener{
         //댓글작성 버튼클릭
         feedAdapter.setOnItemClickListener(object : OnItemClickListener {
             override fun onDetailClicked(feed : Feed, position : Int) {
-                startActivityForResult(
-                    intentFor<FeedDetailActivity>(
-                        "feed" to feed,
-                    ), Constants.FEED_DETAIL_REQUEST)
-                PreferenceManager.setInt(requireActivity().applicationContext, "feed_position", position)
+                startActivity<FeedDetailActivity>("feed" to feed,)
             }
 
             override fun onImageBtnClicked(feed: Feed) {
@@ -198,18 +197,11 @@ class HomeFragment : Fragment(), View.OnClickListener{
             }
 
             override fun onCommentShowClicked(commentCountTextView: TextView, feed: Feed, position : Int) {
-                PreferenceManager.setInt(requireActivity().applicationContext, "feed_position", position)
-                startActivityForResult(
-                    intentFor<CommentActivity>(
-                        "commentCount" to Integer.valueOf(commentCountTextView.text.toString()),
-                        "feed" to feed,
-                    ), Constants.COMMENT_REQUEST
-                )
+                startActivity<CommentActivity>("commentCount" to Integer.valueOf(commentCountTextView.text.toString()), "feed" to feed,)
             }
 
             override fun onMenuClicked(feed: Feed, position: Int) {
                 targetFeed = feed
-                PreferenceManager.setInt(requireActivity().applicationContext, "feed_position", position)
                 feedModule.menuButtonEvent(feed, parentFragmentManager)
             }
 
@@ -222,13 +214,8 @@ class HomeFragment : Fragment(), View.OnClickListener{
             }
 
             override fun onProfileLayoutClicked(feed: Feed) {
-                startActivity<ShowFeedActivity>(
-                    "profileEmail" to feed.email,
-                    "feedSort" to "profile"
-                )
+                startActivity<ShowFeedActivity>("profileEmail" to feed.getEmail(), "feedSort" to "profile")
             }
-
-
         })
     }
 
@@ -252,19 +239,9 @@ class HomeFragment : Fragment(), View.OnClickListener{
     fun onDismissed(type: String) {
         if(targetFeed != null) {
             if(type == "feed_modify") {
-                startActivityForResult(
-                    intentFor<MakeFeedActivity>(
-                        "feed" to targetFeed,
-                        "mode" to "modify"
-                    ), Constants.FEED_MODIFY_REQUEST
-                )
+                startActivity<MakeFeedActivity>("feed" to targetFeed, "mode" to "modify")
             } else if(type == "feed_delete") {
-                startActivityForResult(
-                    intentFor<MakeFeedActivity>(
-                        "feed" to targetFeed,
-                        "mode" to "delete"
-                    ), Constants.FEED_DELETE_REQUEST
-                )
+                startActivity<MakeFeedActivity>("feed" to targetFeed, "mode" to "delete")
             } else if(type == "follow") {
                 feedModule.onDismiss("follow", targetFeed, requireActivity(), LocalRepository.getInstance(requireActivity().applicationContext)!!, feedAdapter, lifecycleScope)
                 CustomToast(requireContext(), getString(R.string.follow_toast)).show()
@@ -279,36 +256,6 @@ class HomeFragment : Fragment(), View.OnClickListener{
 
 
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        if(requestCode == Constants.COMMENT_REQUEST && resultCode == Constants.RESULT_OK){
-            if(data?.getStringExtra("comment_count") != null && data.getParcelableExtra<Feed>("feed") != null) {
-                val feed = data.getParcelableExtra<Feed>("feed")
-                feed.comment = data.getStringExtra("comment_count")!!.toLong()
-                feedListViewModel.updateFeedList(feed, PreferenceManager.getInt(requireActivity().applicationContext, "feed_position"))
-            }
-
-        } else if(requestCode == Constants.FEED_DETAIL_REQUEST && resultCode == Constants.RESULT_OK) {
-            val feed = data?.getParcelableExtra<Feed>("feed")!!
-            feedListViewModel.updateFeedList(feed, PreferenceManager.getInt(requireActivity().applicationContext, "feed_position"))
-
-        } else if(requestCode == Constants.FEED_MAKE_QEQUEST && resultCode == Constants.RESULT_OK) {
-            loadFeedList()
-
-        } else if(requestCode == Constants.FEED_DELETE_REQUEST && resultCode == Constants.RESULT_OK) {
-            if(data?.getParcelableExtra<Feed>("feed") != null) {
-                feedListViewModel.deleteFeedList(PreferenceManager.getInt(requireActivity().applicationContext, "feed_position"))
-            }
-        } else if(requestCode == Constants.FEED_MODIFY_REQUEST && resultCode == Constants.RESULT_OK) {
-            if(data?.getParcelableExtra<Feed>("feed") != null) {
-                val feed = data.getParcelableExtra<Feed>("feed")!!
-                feedListViewModel.updateFeedList(feed, PreferenceManager.getInt(requireActivity().applicationContext, "feed_position"))
-            }
-
-        }
-    }
-
     fun showFilterDialog(){
         val versionArray = arrayOf(
             getString(R.string.check_box1),
@@ -320,23 +267,86 @@ class HomeFragment : Fragment(), View.OnClickListener{
         val builder = AlertDialog.Builder(requireContext())
 
         builder.setTitle(getString(R.string.filter_title))
-            .setMultiChoiceItems(versionArray, checkArray ,object : DialogInterface.OnMultiChoiceClickListener{
-                override fun onClick(dialog: DialogInterface?, which: Int, isChecked: Boolean) {
-                    when(which){
-                        0 -> filter1 = isChecked
-                        1 -> filter2 = isChecked
-                        2 -> filter3 = isChecked
-                    }
+            .setMultiChoiceItems(versionArray, checkArray) { dialog, which, isChecked ->
+                when (which) {
+                    0 -> filter1 = isChecked
+                    1 -> filter2 = isChecked
+                    2 -> filter3 = isChecked
                 }
-            })
-
-        builder.setPositiveButton(getString(R.string.submit), object : DialogInterface.OnClickListener{
-            override fun onClick(dialog: DialogInterface?, which: Int) {
-                loadFeedList()
             }
-        })
 
+        builder.setPositiveButton(getString(R.string.submit)) { dialog, which -> loadFeedList() }
         builder.show()
     }
+
+
+    fun setListener() {
+        FirebaseFirestore.getInstance()
+            .collection("feed")
+            .addSnapshotListener { value, error ->
+                if(error != null)
+                    return@addSnapshotListener
+                else {
+                    var feed : Feed? = null
+                    for(element in value?.documentChanges!!) {
+                        feed = Feed(
+                            element.document.getString("email"),
+                            element.document.getString("nickname")!!,
+                            element.document.getString("sort")!!,
+                            element.document.data.get("hashTags") as MutableList<String>,
+                            element.document.data.get("localUri") as MutableList<String>,
+                            element.document.getString("content")!!,
+                            element.document.getLong("heart")!!,
+                            element.document.getLong("comment")!!,
+                            element.document.getLong("timestamp")!!,
+                            element.document.getString("remoteProfileUri")!!,
+                            element.document.data.get("remoteUri") as MutableList<String>,
+                            element.document.data.get("heartList") as Map<String, String>,
+                            element.document.data.get("bookmarkList") as Map<String, String>
+                        )
+
+                        when(element.type) {
+                            DocumentChange.Type.ADDED -> {}
+
+                            DocumentChange.Type.MODIFIED ->  { modifyItem(feed) }
+                            DocumentChange.Type.REMOVED -> {removeItem(feed)}
+                        }
+
+
+                    }
+                }
+            }
+    }
+
+
+    fun modifyItem(feed : Feed){
+        val tempList = feedListViewModel.getFeedListLiveData().value?.toMutableList()
+        for((position, item) in tempList?.withIndex()!!) {
+            if(item.getTimestamp() == feed.getTimestamp()) {
+                tempList[position] = feed
+                feedListViewModel.setFeedListLiveData(tempList.toList())
+                break
+            }
+        }
+    }
+
+    fun removeItem(feed: Feed) {
+        val tempList = feedListViewModel.getFeedListLiveData().value?.toMutableList()
+        for((position, item) in tempList?.withIndex()!!) {
+            if(item.getTimestamp() == feed.getTimestamp()) {
+                tempList.removeAt(position)
+                feedListViewModel.setFeedListLiveData(tempList.toList())
+                break
+            }
+        }
+    }
+
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if(requestCode == Constants.FEED_MAKE_QEQUEST && resultCode == Constants.RESULT_OK) {
+            loadFeedList()
+        }
+    }
+
 }
 

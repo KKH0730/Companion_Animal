@@ -37,7 +37,7 @@ class FeedModule(
      * 북마크버튼
      */
     fun bookmarkButtonEvent(feed: Feed, bookmarkButton: ImageButton, feedAdapter : FeedListAdapter?){
-        var map = feed.bookmarkList.toMutableMap()
+        var map = feed.getBookmarkList().toMutableMap()
         if (map[currentUserEmail] != null) { //북마크 중인 상태에서 클릭
             updateBookmark(feed, false)
             map.remove(currentUserEmail)
@@ -47,7 +47,7 @@ class FeedModule(
             map[currentUserEmail] = currentUserEmail
             bookmarkButton.isSelected = true
         }
-        feed.bookmarkList = map
+        feed.setBookmarkList(map)
         feedAdapter?.notifyDataSetChanged()
     }
 
@@ -59,8 +59,8 @@ class FeedModule(
      */
 
      fun heartButtonEvent(feed: Feed, heartCount: TextView, heartButton: ImageButton, feedAdapter : FeedListAdapter?){
-        var map = feed.heartList.toMutableMap()
-        var count = feed.heart
+        var map = feed.getHeartList().toMutableMap()
+        var count = feed.getHeart()
 
         if (map[currentUserEmail] != null) {
             count--
@@ -75,8 +75,8 @@ class FeedModule(
         }
 
         feed.apply {
-            heartList = map
-            heart = count
+            setHeartList(map)
+            setHeart(count)
         }
         heartCount.text = count.toString()
         feedAdapter?.notifyDataSetChanged()
@@ -88,16 +88,16 @@ class FeedModule(
      */
     fun menuButtonEvent(feed: Feed, fm : FragmentManager){
         mFeedListViewModel.requestCheckFollow(
-            feed.email!!,
+            feed.getEmail()!!,
             object : LongTaskCallback<Boolean> {
                 override fun onResponse(result: Result<Boolean>) {
                     var dialog: MenuDialog? = null
 
                     if (result is Result.Success) {
                         if (result.data)
-                            dialog = MenuDialog.newInstance(feed.email!!, true)
+                            dialog = MenuDialog.newInstance(feed.getEmail()!!, true)
                         else
-                            dialog = MenuDialog.newInstance(feed.email!!, false)
+                            dialog = MenuDialog.newInstance(feed.getEmail()!!, false)
                         dialog.show(fm, "feed")
                     } else if (result is Result.Error) {
                         Log.e("error", "follow check : ${result.exception}")
@@ -141,8 +141,8 @@ class FeedModule(
 
         //댓글을 서버에 업로드
         mCommentViewModel.requestUploadComment(
-            feed.email!!,
-            feed.timestamp,
+            feed.getEmail()!!,
+            feed.getTimestamp(),
             Constants.PARENT,
             email,
             nickname,
@@ -152,16 +152,17 @@ class FeedModule(
 
         //서버에 댓글 개수 업로드
         mCommentViewModel.requestUploadCommentCount(
-            feed.email!!,
-            feed.timestamp,
+            feed.getEmail()!!,
+            feed.getTimestamp(),
             commentCount.text.toString().toLong(),
             true
         )
 
+
         //댓글수 업데이트
         commentCount.apply {
             var curCommentCount = Integer.valueOf(commentCount.text.toString())
-            text = (curCommentCount + 1).toString()
+            this.text = (curCommentCount + 1).toString()
         }
 
         commentEdit.setText("")
@@ -171,9 +172,11 @@ class FeedModule(
 
 
         //댓글을 작성하면 notification 알림이 전송
-        NotificationModule(commentEdit.context, nickname).sendNotification(feed.email!!, myProfileUri, commentContent, Timestamp(System.currentTimeMillis()).time, feed)
-    }
+        NotificationModule(commentEdit.context, nickname).sendNotification(feed.getEmail()!!, myProfileUri, commentContent, Timestamp(System.currentTimeMillis()).time, feed)
 
+
+
+    }
     fun onDismiss(type : String, targetFeed : Feed?, activity: Activity, localRepository: LocalRepository, feedAdapter :FeedListAdapter?, lifecycleScope : LifecycleCoroutineScope, ){
         if(targetFeed != null) {
             if(type == "feed_modify") {
@@ -192,7 +195,7 @@ class FeedModule(
                 localRepository.getUserInfo(lifecycleScope, object : LongTaskCallback<User>{
                     override fun onResponse(result: Result<User>) {
                         if(result is Result.Success) {
-                            mFeedListViewModel.requestUpdateFollower(targetFeed.email!!,  targetFeed.nickname!!, targetFeed.remoteProfileUri, true, result.data.nickname, result.data.profileUri)
+                            mFeedListViewModel.requestUpdateFollower(targetFeed.getEmail()!!,  targetFeed.getNickname()!!, targetFeed.getRemoteProfileUri(), true, result.data.nickname, result.data.profileUri)
                             localRepository.updateFollowing(lifecycleScope, true)
 
                         } else if(result is Result.Error) {
@@ -204,7 +207,7 @@ class FeedModule(
                 localRepository.getUserInfo(lifecycleScope, object : LongTaskCallback<User>{
                     override fun onResponse(result: Result<User>) {
                         if(result is Result.Success) {
-                            mFeedListViewModel.requestUpdateFollower(targetFeed.email!!,  targetFeed.nickname!!, targetFeed.remoteProfileUri, false, result.data.nickname, result.data.profileUri)
+                            mFeedListViewModel.requestUpdateFollower(targetFeed.getEmail()!!,  targetFeed.getNickname()!!, targetFeed.getRemoteProfileUri(), false, result.data.nickname, result.data.profileUri)
                             localRepository.updateFollowing(lifecycleScope,false)
 
                         } else if(result is Result.Error) {

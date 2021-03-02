@@ -83,7 +83,7 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
                         result.data.nickname
                     )
 
-                    binding.feedLayout.bookmarkBtn2.isSelected = feed!!.bookmarkList[result.data.email] != null
+                    binding.feedLayout.bookmarkBtn2.isSelected = feed!!.getBookmarkList()[result.data.email] != null
 
                     commentModule = CommentModule(
                         commentListViewModel, feed!!, result.data.email,
@@ -114,11 +114,11 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
             feed = intent.getParcelableExtra("feed")
             feedViewModel.setFeedLiveData(feed!!)
             binding.feedLayout.commentShow.visibility = View.GONE
-            commentListViewModel.requestLoadComment(feed!!.email!!, feed!!.timestamp)
+            commentListViewModel.requestLoadComment(feed!!.getEmail()!!, feed!!.getTimestamp())
         }
 
 
-        binding.header.findViewById<TextView>(R.id.title2).text = feed!!.nickname
+        binding.header.findViewById<TextView>(R.id.title2).text = feed!!.getNickname()
         binding.header.findViewById<ImageButton>(R.id.back_btn).setOnClickListener(this)
         binding.commentLayout.commentContainer.visibility = View.GONE
         binding.commentLayout.showCommentBar.visibility = View.GONE
@@ -251,7 +251,7 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
                         binding.feedLayout.commentCount, binding.feedLayout.comment
                     )
                 } else {
-                    feed!!.comment++
+                    feed!!.setComment(feed!!.getComment() + 1)
                     commentModule.submitComment(
                         timestamp, modifyMode, curComment, commentPosition,
                         binding.feedLayout.commentCount, binding.feedLayout.comment
@@ -260,7 +260,7 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
                     LocalRepository.getInstance(this)!!.getUserInfo(lifecycleScope, object : LongTaskCallback<User>{
                         override fun onResponse(result: Result<User>) {
                             if(result is Result.Success)
-                                notificationModule.sendNotification(feed!!.email!!, result.data.profileUri, binding.feedLayout.comment.text.toString(), timestamp, feed!!)
+                                notificationModule.sendNotification(feed!!.getEmail()!!, result.data.profileUri, binding.feedLayout.comment.text.toString(), timestamp, feed!!)
                         }
                     })
                 }
@@ -268,7 +268,7 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
             initVariable()
         } else if(v?.id == R.id.profile_btn) {
             startActivity<ShowFeedActivity>(
-                "profileEmail" to feed?.email,
+                "profileEmail" to feed?.getEmail(),
                 "feedSort" to "profile"
             )
         }
@@ -367,11 +367,11 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
             if(intentFeed != null) {
                 feedViewModel.setFeedLiveData(intentFeed)
 
-                feed!!.localUri = intentFeed.localUri
-                feed!!.remoteUri = intentFeed.remoteUri
-                feed!!.sort = intentFeed.sort
-                feed!!.hashTags = intentFeed.hashTags
-                feed!!.content = intentFeed.content
+                feed!!.setLocalUri(intentFeed.getLocalUri())
+                feed!!.setRemoteUri(intentFeed.getRemoteUri())
+                feed!!.setSort(intentFeed.getSort())
+                feed!!.setHashTags(intentFeed.getHashTags())
+                feed!!.setContent(intentFeed.getContent())
             }
         }
     }

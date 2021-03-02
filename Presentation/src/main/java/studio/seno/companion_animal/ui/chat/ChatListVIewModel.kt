@@ -59,14 +59,15 @@ class ChatListVIewModel : ViewModel() {
         remoteRepository.requestAddChat(myEmail, targetEmail, chat)
     }
 
-    fun addChatLog(chat: Chat, recyclerView: RecyclerView, lifecycleCoroutineScope: LifecycleCoroutineScope) {
+    fun addChatLog(chat: Chat, sort: String, recyclerView: RecyclerView, lifecycleCoroutineScope: LifecycleCoroutineScope) {
         var tempList = chatListLiveData.value?.toMutableList()
         if (tempList == null) {
             tempList = mutableListOf()
         }
 
         if(!tempList.contains(chat)) {
-            tempList.add(chat)
+
+                tempList.add(chat)
         }
 
         chatListLiveData.value = tempList.toList()
@@ -87,15 +88,15 @@ class ChatListVIewModel : ViewModel() {
         if(position >= tempChatList.size)
             tempChatList.add(chat)
         else {
-
             var targetEmail : String? = null
             var targetEmail2 : String? = null
 
             targetEmail = if (chat.realEmail == FirebaseAuth.getInstance().currentUser?.email.toString()) chat.targetEmail else chat.email
             targetEmail2 = if(tempChatList[position].realEmail == FirebaseAuth.getInstance().currentUser?.email.toString()) chat.targetEmail else chat.email
 
-            if(targetEmail == targetEmail2)
+            if(targetEmail == targetEmail2) {
                 tempChatList[position] = chat
+            }
         }
 
         chatListLiveData.value = tempChatList.toList()
@@ -109,17 +110,17 @@ class ChatListVIewModel : ViewModel() {
                     if(sort == "chat_list")
                         setAddedChat(result.data, position)
                     else
-                        addChatLog(result.data, recyclerView!!, lifecycleScope!!)
+                        addChatLog(result.data, sort, recyclerView!!, lifecycleScope!!)
                 }
             }
         })
     }
 
-    fun requestSetChatListListener(email: String, chatRecyclerView: RecyclerView, lifecycleScope : LifecycleCoroutineScope, callback : LongTaskCallback<Boolean>){
+    fun requestSetChatListListener(email: String, sort: String, chatRecyclerView: RecyclerView, lifecycleScope : LifecycleCoroutineScope, callback : LongTaskCallback<Boolean>){
         remoteRepository.requestSetChatListListener(email, object  : LongTaskCallback<Chat>{
             override fun onResponse(result: Result<Chat>) {
                 if(result is Result.Success) {
-                    addChatLog(result.data, chatRecyclerView, lifecycleScope)
+                    addChatLog(result.data, sort, chatRecyclerView, lifecycleScope)
                     callback.onResponse(Result.Success(true))
                 }
             }

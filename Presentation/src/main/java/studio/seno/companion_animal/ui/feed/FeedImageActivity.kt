@@ -19,7 +19,7 @@ class FeedImageActivity : AppCompatActivity() {
         feed = intent.getParcelableExtra("feed")
 
         var pagerAdapter = PagerAdapter(supportFragmentManager, lifecycle)
-        for (element in feed.remoteUri) {
+        for (element in feed.getRemoteUri()) {
             pagerAdapter.addItem(FeedPagerFragment.newInstance(element, "FeedImageActivity"))
             binding.viewpager.adapter = pagerAdapter
             binding.indicator.setViewPager(binding.viewpager)

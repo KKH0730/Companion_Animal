@@ -92,13 +92,13 @@ class MakeFeedActivity : AppCompatActivity(), View.OnClickListener,
     }
 
     fun setModifyInfo(){
-        for(element in feed!!.localUri) {
+        for(element in feed!!.getLocalUri()) {
             selectedImageAdapter.addItem(element)
         }
 
 
         //반려동물 종류
-        when(feed!!.sort) {
+        when(feed!!.getSort()) {
             "dog" -> {
                 binding.dog.isChecked = true
                 currentChecked = "dog"
@@ -109,17 +109,17 @@ class MakeFeedActivity : AppCompatActivity(), View.OnClickListener,
             }
             else -> {
                 binding.etc.isChecked = true
-                binding.etcContent.setText(feed!!.sort)
-                currentChecked = feed!!.sort
+                binding.etcContent.setText(feed!!.getSort())
+                currentChecked = feed!!.getSort()
             }
         }
         //해시태그
-        for(element in feed!!.hashTags.toMutableList()) {
+        for(element in feed!!.getHashTags().toMutableList()) {
             makeHashTag(element)
         }
 
         //내용
-        binding.content.setText(feed!!.content)
+        binding.content.setText(feed!!.getContent())
 
         if(mode == "modify") {
             binding.submitBtn.text = getString(R.string.modify)
@@ -191,7 +191,7 @@ class MakeFeedActivity : AppCompatActivity(), View.OnClickListener,
                 submitResult(Timestamp(System.currentTimeMillis()).time)
             } else if(feed != null && mode != "write") {
                 if(mode == "modify") {
-                    submitResult(feed!!.timestamp)
+                    submitResult(feed!!.getTimestamp())
                 } else {
                     localRepository.updateFeedCount(lifecycleScope, false)
                     feedListViewModel.requestDeleteFeed(feed!!)
@@ -202,11 +202,6 @@ class MakeFeedActivity : AppCompatActivity(), View.OnClickListener,
                 if(it) {
                     CommonFunction.getInstance()!!.unlockTouch(window!!)
                     binding.progressBar.visibility = View.GONE
-
-
-                    var intent = Intent()
-                    intent.putExtra("feed", feed)
-                    setResult(Constants.RESULT_OK, intent)
 
                     finish()
                 }

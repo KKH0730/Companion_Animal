@@ -6,19 +6,19 @@ import android.os.Parcelable
 
 
 class Feed : Parcelable {
-    var email: String? = ""
-    var nickname: String? = ""
-    var sort: String = ""
-    var hashTags: List<String> = listOf()
-    var localUri: List<String> = listOf()
-    var content: String = ""
-    var heart: Long = 0
-    var comment: Long = 0
-    var timestamp: Long = 0
-    var remoteProfileUri: String = ""
-    var remoteUri: List<String> = listOf()
-    var heartList: Map<String, String> = mapOf()
-    var bookmarkList: Map<String, String> = mapOf()
+    private var email: String? = ""
+    private var nickname: String? = ""
+    private var sort: String = ""
+    private var hashTags: List<String> = listOf()
+    private var localUri: List<String> = listOf()
+    private var content: String = ""
+    private var heart: Long = 0
+    private var comment: Long = 0
+    private var timestamp: Long = 0
+    private var remoteProfileUri: String = ""
+    private var remoteUri: List<String> = listOf()
+    private var heartList: Map<String, String> = mapOf()
+    private var bookmarkList: Map<String, String> = mapOf()
 
     constructor(
         email: String?,
@@ -119,6 +119,104 @@ class Feed : Parcelable {
                 parcel.writeString(value)
             }
         }
+    }
+
+
+    fun getEmail() : String?{
+        return email
+    }
+
+
+    fun getNickname() : String? {
+        return nickname
+    }
+
+
+    fun getSort() : String {
+        return sort
+    }
+
+    fun setSort(sort : String) {
+        this.sort = sort
+    }
+
+
+    fun getHashTags() : List<String> {
+        return hashTags
+    }
+
+    fun setHashTags(hashTags: List<String>) {
+        this.hashTags = hashTags
+    }
+
+
+    fun getLocalUri() : List<String> {
+        return  localUri
+    }
+
+    fun setLocalUri(localUri : List<String>){
+        this.localUri = localUri
+    }
+
+    fun getContent() : String {
+        return content
+    }
+
+    fun setContent(content: String) {
+        this.content = content
+    }
+
+    fun getHeart() : Long {
+        return heart
+    }
+
+    fun setHeart(heart: Long) {
+        this.heart = heart
+    }
+
+    fun getComment(): Long{
+        return comment
+    }
+
+    fun setComment(comment: Long) {
+        this.comment = comment
+    }
+
+    fun getTimestamp() : Long {
+        return timestamp
+    }
+
+    fun getRemoteProfileUri() : String {
+        return remoteProfileUri
+    }
+
+    fun setRemoteProfileUri(remoteProfileUri :String) {
+        this.remoteProfileUri = remoteProfileUri
+    }
+
+    fun getRemoteUri(): List<String> {
+        return remoteUri
+    }
+
+    fun setRemoteUri(remoteUri : List<String>) {
+        this.remoteUri = remoteUri
+    }
+
+    fun getHeartList(): Map<String, String> {
+        return heartList
+    }
+
+    fun setHeartList(heartList: Map<String, String>) {
+        this.heartList = heartList
+    }
+
+
+    fun getBookmarkList(): Map<String, String> {
+        return bookmarkList
+    }
+
+    fun setBookmarkList(bookmarkList: Map<String, String>) {
+        this.bookmarkList = bookmarkList
     }
 
 }

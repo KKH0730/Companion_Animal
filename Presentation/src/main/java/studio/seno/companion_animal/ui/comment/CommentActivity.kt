@@ -96,7 +96,7 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
         }
 
         if (intent.getParcelableExtra<Feed>("feed") != null)
-            commentListViewModel.requestLoadComment(feed.email!!, feed.timestamp)
+            commentListViewModel.requestLoadComment(feed.getEmail()!!, feed.getTimestamp())
 
         binding.header.findViewById<TextView>(R.id.title2).text = getString(R.string.header_title)
         binding.header.findViewById<ImageButton>(R.id.back_btn).setOnClickListener(this)
@@ -208,7 +208,7 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
                         binding.header.findViewById(R.id.comment_count), binding.comment
                     )
 
-                    notificationModule.sendNotification(feed.email!!, profileUri, binding.comment.text.toString(), timestamp, feed)
+                    notificationModule.sendNotification(feed.getEmail()!!, profileUri, binding.comment.text.toString(), timestamp, feed)
 
                 }
             }
