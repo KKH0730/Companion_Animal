@@ -18,7 +18,7 @@ class PagingModule {
     private var lastVisible: DocumentSnapshot? = null
     private var isScrolling = false
     private var isLastItemReached = false
-    private val limit = 9
+    private val limit = 18
 
 
     fun pagingFeed(
