@@ -14,7 +14,7 @@ import studio.seno.domain.model.LastSearch
 class LastSearchAdapter : ListAdapter<LastSearch, RecyclerView.ViewHolder>(
     object : DiffUtil.ItemCallback<LastSearch>() {
         override fun areItemsTheSame(oldItem: LastSearch, newItem: LastSearch): Boolean {
-            return oldItem == newItem
+            return oldItem.timestamp == newItem.timestamp
         }
 
         override fun areContentsTheSame(oldItem: LastSearch, newItem: LastSearch): Boolean {

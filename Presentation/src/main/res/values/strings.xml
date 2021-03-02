@@ -171,7 +171,7 @@
     <string name="report_toast">신고가 접수됐습니다.</string>
 
     <!--FilterDialog-->
-    <string name="filter_title">검색 범위를 설정</string>
+    <string name="filter_title">검색 범위 설정</string>
     <string name="filter_message">필터를 통해서 원하는 피드를 찾아볼 수 있습니다.</string>
 
 </resources>

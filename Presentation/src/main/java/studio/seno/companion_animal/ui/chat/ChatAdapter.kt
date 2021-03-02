@@ -28,7 +28,7 @@ import studio.seno.domain.model.Chat
 class ChatAdapter(type: String) : ListAdapter<Chat, RecyclerView.ViewHolder>(
     object : DiffUtil.ItemCallback<Chat>() {
         override fun areItemsTheSame(oldItem: Chat, newItem: Chat): Boolean {
-            return oldItem == newItem
+            return oldItem.timestamp == newItem.timestamp
         }
 
         override fun areContentsTheSame(oldItem: Chat, newItem: Chat): Boolean {

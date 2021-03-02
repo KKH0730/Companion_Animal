@@ -18,7 +18,7 @@ class NotificationAdapter : ListAdapter<NotificationData, RecyclerView.ViewHolde
             oldItem: NotificationData,
             newItem: NotificationData
         ): Boolean {
-            return oldItem == newItem
+            return oldItem.timestamp == newItem.timestamp
         }
 
         override fun areContentsTheSame(

@@ -12,7 +12,7 @@ import studio.seno.domain.model.Feed
 class GridImageAdapter : ListAdapter<Feed, RecyclerView.ViewHolder>(
     object : DiffUtil.ItemCallback<Feed>() {
         override fun areItemsTheSame(oldItem: Feed, newItem: Feed): Boolean {
-            return oldItem == newItem
+            return oldItem.getTimestamp() == newItem.getTimestamp()
         }
 
         override fun areContentsTheSame(oldItem: Feed, newItem: Feed): Boolean {

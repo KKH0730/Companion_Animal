@@ -16,7 +16,7 @@ import studio.seno.domain.model.Follow
 class FollowAdapter(category: String) : ListAdapter<Follow, RecyclerView.ViewHolder>(
     object: DiffUtil.ItemCallback<Follow>(){
         override fun areItemsTheSame(oldItem: Follow, newItem: Follow): Boolean {
-            return oldItem == newItem
+            return oldItem.email == newItem.email
         }
 
         override fun areContentsTheSame(oldItem: Follow, newItem: Follow): Boolean {

@@ -109,6 +109,8 @@ class HomeFragment : Fragment(), View.OnClickListener{
     }
 
     private fun init(){
+        binding.feedRecyclerView.itemAnimator = null
+
         if(feedSort == "feed_list") {
             binding.header.findViewById<ImageButton>(R.id.back_btn).visibility = View.GONE
             binding.header.findViewById<TextView>(R.id.title).visibility = View.GONE
@@ -127,8 +129,6 @@ class HomeFragment : Fragment(), View.OnClickListener{
         binding.header.findViewById<ImageButton>(R.id.refresh).setOnClickListener(this)
         binding.header.findViewById<ImageButton>(R.id.scroll_up).setOnClickListener(this)
         binding.header.findViewById<ImageButton>(R.id.filter).setOnClickListener(this)
-
-        binding.feedRecyclerView.itemAnimator = null
     }
 
     private fun refreshFeedList(){

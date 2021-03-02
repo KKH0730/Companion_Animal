@@ -16,7 +16,7 @@ import studio.seno.domain.model.Comment
 class CommentAdapter : ListAdapter<Comment, RecyclerView.ViewHolder>(
     object : DiffUtil.ItemCallback<Comment>() {
         override fun areItemsTheSame(oldItem: Comment, newItem: Comment): Boolean {
-            return oldItem == newItem
+            return oldItem.timestamp == newItem.timestamp
         }
 
         override fun areContentsTheSame(oldItem: Comment, newItem: Comment): Boolean {
