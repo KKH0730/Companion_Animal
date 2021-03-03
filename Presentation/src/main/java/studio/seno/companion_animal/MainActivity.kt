@@ -1,6 +1,7 @@
 package studio.seno.companion_animal
 
 import android.content.DialogInterface
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.viewModels
@@ -44,6 +45,7 @@ class MainActivity : BaseActivity() , DialogInterface.OnDismissListener, ViewCon
         pendingIntent()
 
         supportFragmentManager.beginTransaction().replace(R.id.container, homeFragment).commit()
+
     }
 
     fun init(){
@@ -98,6 +100,7 @@ class MainActivity : BaseActivity() , DialogInterface.OnDismissListener, ViewCon
     }
 
     private fun pendingIntent(){
+        //notification의 pendintIntent로 view 이동
         if(intent.getStringExtra("from") != null){
             if(intent.getStringExtra("from") == "notification") {
                 RemoteRepository.getInstance()!!.loadFeed(intent.getStringExtra("target_path")!!, object : LongTaskCallback<Feed>{
@@ -122,6 +125,23 @@ class MainActivity : BaseActivity() , DialogInterface.OnDismissListener, ViewCon
             }
         }
 
+        //kakao 공유하기로 view이동
+        if(intent.action == Intent.ACTION_VIEW) {
+            val path = intent.data?.getQueryParameter("path")
+
+            if (path != null) {
+                RemoteRepository.getInstance()!!.loadFeed(path, object : LongTaskCallback<Feed>{
+                    override fun onResponse(result: Result<Feed>) {
+                        if(result is Result.Success){
+                            if(result.data != null)
+                                startActivity<FeedDetailActivity>("feed" to result.data)
+                        }else if(result is Result.Error) {
+                            Log.e("error", "MainActivity kakao share error: ${result.exception}")
+                        }
+                    }
+                })
+            }
+        }
     }
 
     override fun onDismiss(dialog: DialogInterface?) {

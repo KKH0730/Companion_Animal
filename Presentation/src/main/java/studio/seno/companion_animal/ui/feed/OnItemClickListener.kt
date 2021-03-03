@@ -15,4 +15,6 @@ interface OnItemClickListener {
     fun onDetailClicked(feed : Feed, position: Int)
     fun onImageBtnClicked(feed: Feed)
     fun onProfileLayoutClicked(feed : Feed)
+    fun onShareButtonClicked(feed : Feed)
+
 }

@@ -1,4 +1,4 @@
-package studio.seno.companion_animal.ui.GridLayout
+package studio.seno.companion_animal.ui.gridLayout
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -15,7 +15,6 @@ import studio.seno.companion_animal.databinding.FragmentFeedGridBinding
 import studio.seno.companion_animal.ui.feed.FeedDetailActivity
 import studio.seno.companion_animal.ui.feed.FeedListViewModel
 import studio.seno.companion_animal.ui.feed.ShowFeedActivity
-import studio.seno.companion_animal.ui.search.GridImageAdapter
 import studio.seno.companion_animal.ui.search.OnSearchItemClickListener
 import studio.seno.domain.LongTaskCallback
 import studio.seno.domain.Result

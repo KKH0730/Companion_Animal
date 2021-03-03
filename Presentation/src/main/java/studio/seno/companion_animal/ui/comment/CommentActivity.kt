@@ -193,7 +193,7 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
                         answerPosition, commentPosition, binding.comment
                     )
 
-                    notificationModule.sendNotification(curComment!!.email, profileUri, binding.comment.text.toString(), timestamp, feed)
+                    notificationModule.sendNotification(curComment!!.email, profileUri, binding.comment.text.toString(), timestamp, feed, lifecycleScope)
 
                 }
             } else {
@@ -208,7 +208,7 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
                         binding.header.findViewById(R.id.comment_count), binding.comment
                     )
 
-                    notificationModule.sendNotification(feed.getEmail()!!, profileUri, binding.comment.text.toString(), timestamp, feed)
+                    notificationModule.sendNotification(feed.getEmail()!!, profileUri, binding.comment.text.toString(), timestamp, feed, lifecycleScope)
 
                 }
             }

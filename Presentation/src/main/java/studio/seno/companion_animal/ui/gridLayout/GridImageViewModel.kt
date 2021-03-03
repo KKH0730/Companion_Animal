@@ -1,4 +1,4 @@
-package studio.seno.companion_animal.ui.search
+package studio.seno.companion_animal.ui.gridLayout
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel

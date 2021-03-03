@@ -5,6 +5,7 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.util.Log.e
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -18,6 +19,11 @@ import androidx.lifecycle.observe
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.FirebaseFirestore
+import com.kakao.kakaolink.v2.KakaoLinkResponse
+import com.kakao.kakaolink.v2.KakaoLinkService
+import com.kakao.message.template.*
+import com.kakao.network.ErrorResult
+import com.kakao.network.callback.ResponseCallback
 import org.jetbrains.anko.support.v4.intentFor
 import org.jetbrains.anko.support.v4.startActivity
 import studio.seno.commonmodule.CustomToast
@@ -37,6 +43,7 @@ import studio.seno.domain.Result
 import studio.seno.domain.model.Feed
 import studio.seno.domain.model.User
 import studio.seno.domain.util.PreferenceManager
+import java.util.logging.Logger
 
 /**
  * HomeFragment는 FeedViewListModel과 연결.
@@ -104,8 +111,10 @@ class HomeFragment : Fragment(), View.OnClickListener{
         }
         loadFeedList()
         observe()
-
         setListener()
+
+
+
     }
 
     private fun init(){
@@ -149,7 +158,7 @@ class HomeFragment : Fragment(), View.OnClickListener{
                             //feedListViewModel.setFeedListListener()
 
                         } else if (result is Result.Error) {
-                            Log.e("error", "feed refresh error : ${result.exception}")
+                            e("error", "feed refresh error : ${result.exception}")
                         }
                     }
                 })
@@ -190,7 +199,7 @@ class HomeFragment : Fragment(), View.OnClickListener{
                 LocalRepository.getInstance(activity?.applicationContext!!)?.getUserInfo(lifecycleScope, object : LongTaskCallback<User>{
                     override fun onResponse(result: Result<User>) {
                         if(result is Result.Success) {
-                            feedModule.onCommentBtnClicked(feed, result.data.email, result.data.nickname, result.data.profileUri, commentEdit, commentCount, container)
+                            feedModule.onCommentBtnClicked(feed, result.data.email, result.data.nickname, result.data.profileUri, commentEdit, commentCount, container, lifecycleScope)
                         }
                     }
                 })
@@ -215,6 +224,10 @@ class HomeFragment : Fragment(), View.OnClickListener{
 
             override fun onProfileLayoutClicked(feed: Feed) {
                 startActivity<ShowFeedActivity>("profileEmail" to feed.getEmail(), "feedSort" to "profile")
+            }
+
+            override fun onShareButtonClicked(feed: Feed) {
+                kakaoLink(feed)
             }
         })
     }
@@ -348,5 +361,42 @@ class HomeFragment : Fragment(), View.OnClickListener{
         }
     }
 
+    fun kakaoLink(feed: Feed) {
+        val params = FeedTemplate
+            .newBuilder(
+                ContentObject.newBuilder(
+                    getString(R.string.kakao_title),
+                    "https://firebasestorage.googleapis.com/v0/b/companion-animal-f0bfa.appspot.com/o/logo.png?alt=media&token=a0fa3ee2-d150-47d0-855d-ecded4306030",
+                    LinkObject.newBuilder().setMobileWebUrl("https://www.naver.com").build()
+                )
+                    .setDescrption(getString(R.string.kakao_description))
+                    .build()
+            )
+            .addButton(
+                ButtonObject(
+                    getString(R.string.kakao_description2), LinkObject.newBuilder()
+                        .setMobileWebUrl("https://www.naver.com")
+                        .setAndroidExecutionParams("path=${feed.getEmail()}${feed.getTimestamp()}")
+                        .build()
+                )
+            )
+            .build()
+
+        val serverCallbackArgs: MutableMap<String, String> = HashMap()
+        serverCallbackArgs["user_id"] = "\${current_user_id}"
+        serverCallbackArgs["product_id"] = "\${shared_product_id}"
+
+        KakaoLinkService.getInstance().sendDefault(
+            requireContext(),
+            params,
+            serverCallbackArgs,
+            object : ResponseCallback<KakaoLinkResponse?>() {
+                override fun onFailure(errorResult: ErrorResult) {
+                    e("error", "kakao share error : ${errorResult.errorMessage}")
+                }
+
+                override fun onSuccess(result: KakaoLinkResponse?) {}
+            })
+    }
 }
 

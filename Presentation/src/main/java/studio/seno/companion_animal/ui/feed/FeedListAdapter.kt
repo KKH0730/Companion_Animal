@@ -108,6 +108,7 @@ class FeedListAdapter(
             binding.detailBtn.setOnClickListener { mListener.onDetailClicked(feed, bindingAdapterPosition) }
             binding.imageBtn.setOnClickListener{ mListener.onImageBtnClicked(feed) }
             binding.profileLayout.setOnClickListener { mListener.onProfileLayoutClicked(feed) }
+            binding.shareBtn.setOnClickListener { mListener.onShareButtonClicked(feed) }
 
         }
 

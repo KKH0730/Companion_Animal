@@ -9,7 +9,7 @@ import android.widget.TextView
 import androidx.databinding.DataBindingUtil
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.ActivityShowFeedBinding
-import studio.seno.companion_animal.ui.GridLayout.FeedGridFragment
+import studio.seno.companion_animal.ui.gridLayout.FeedGridFragment
 import studio.seno.companion_animal.ui.main_ui.HomeFragment
 import studio.seno.companion_animal.ui.main_ui.TimeLineFragment
 import studio.seno.domain.util.PreferenceManager

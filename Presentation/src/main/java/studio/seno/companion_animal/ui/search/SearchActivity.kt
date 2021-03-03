@@ -14,7 +14,8 @@ import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.ActivitySearchBinding
 import studio.seno.companion_animal.module.CommonFunction
 import studio.seno.companion_animal.ui.feed.FeedDetailActivity
-import studio.seno.companion_animal.ui.GridLayout.FeedGridFragment
+import studio.seno.companion_animal.ui.gridLayout.FeedGridFragment
+import studio.seno.companion_animal.ui.gridLayout.GridImageAdapter
 import studio.seno.companion_animal.ui.feed.FeedListViewModel
 import studio.seno.domain.model.Feed
 import studio.seno.domain.model.LastSearch

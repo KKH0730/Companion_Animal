@@ -115,7 +115,7 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener {
                 user!!.profileUri, targetProfileUri, Timestamp(System.currentTimeMillis()).time
             )
 
-            notificationModule.sendNotification(targetRealEmail, user!!.profileUri, binding.content.text.toString(), Timestamp(System.currentTimeMillis()).time, null)
+            notificationModule.sendNotification(targetRealEmail, user!!.profileUri, binding.content.text.toString(), Timestamp(System.currentTimeMillis()).time, null, lifecycleScope)
             commonFunction.closeKeyboard(this, binding.content)
             binding.content.setText("")
         }

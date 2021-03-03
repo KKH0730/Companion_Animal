@@ -240,7 +240,7 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
                     LocalRepository.getInstance(this)!!.getUserInfo(lifecycleScope, object : LongTaskCallback<User>{
                         override fun onResponse(result: Result<User>) {
                             if(result is Result.Success)
-                                notificationModule.sendNotification(curComment!!.email, result.data.profileUri, binding.feedLayout.comment.text.toString(), timestamp, feed!!)
+                                notificationModule.sendNotification(curComment!!.email, result.data.profileUri, binding.feedLayout.comment.text.toString(), timestamp, feed!!, lifecycleScope)
                         }
                     })
                 }
@@ -260,7 +260,7 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
                     LocalRepository.getInstance(this)!!.getUserInfo(lifecycleScope, object : LongTaskCallback<User>{
                         override fun onResponse(result: Result<User>) {
                             if(result is Result.Success)
-                                notificationModule.sendNotification(feed!!.getEmail()!!, result.data.profileUri, binding.feedLayout.comment.text.toString(), timestamp, feed!!)
+                                notificationModule.sendNotification(feed!!.getEmail()!!, result.data.profileUri, binding.feedLayout.comment.text.toString(), timestamp, feed!!, lifecycleScope)
                         }
                     })
                 }

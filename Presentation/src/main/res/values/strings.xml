@@ -174,4 +174,11 @@
     <string name="filter_title">검색 범위 설정</string>
     <string name="filter_message">필터를 통해서 원하는 피드를 찾아볼 수 있습니다.</string>
 
+    <!-- 카카오 디벨로퍼 앱 만들기에서 네이티브 키를 입력해주시면 됩니다. -->
+    <string name="kakao_app_key">fba4427cc0597b551edf661393a5bc9d</string>
+    <string name="kakao_scheme">kakaofba4427cc0597b551edf661393a5bc9d</string>
+    <string name="kakaolink_host">kakaolink</string>
+    <string name="kakao_title">반려동물 자랑</string>
+    <string name="kakao_description">귀여운 반려동물 사진 공유해요</string>
+    <string name="kakao_description2">앱에서 보기</string>
 </resources>

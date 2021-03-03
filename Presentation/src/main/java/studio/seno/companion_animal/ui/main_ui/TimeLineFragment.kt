@@ -15,7 +15,6 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.observe
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.google.firebase.auth.FirebaseAuth
@@ -28,21 +27,18 @@ import studio.seno.companion_animal.databinding.FragmentTimeLineBinding
 import studio.seno.companion_animal.module.CommonFunction
 import studio.seno.companion_animal.module.ProfileModule
 import studio.seno.companion_animal.ui.chat.ChatActivity
-import studio.seno.companion_animal.ui.GridLayout.FeedGridFragment
-import studio.seno.companion_animal.ui.feed.FeedDetailActivity
+import studio.seno.companion_animal.ui.gridLayout.FeedGridFragment
 import studio.seno.companion_animal.ui.feed.FeedListViewModel
 import studio.seno.companion_animal.ui.feed.MakeFeedActivity
 import studio.seno.companion_animal.ui.feed.ShowFeedActivity
 import studio.seno.companion_animal.ui.follow.FollowActivity
-import studio.seno.companion_animal.ui.search.GridImageAdapter
-import studio.seno.companion_animal.ui.search.OnSearchItemClickListener
+import studio.seno.companion_animal.ui.gridLayout.GridImageAdapter
 import studio.seno.companion_animal.ui.user_manage.UserManageActivity
 import studio.seno.companion_animal.util.ViewControlListener
 import studio.seno.datamodule.LocalRepository
 import studio.seno.datamodule.RemoteRepository
 import studio.seno.domain.LongTaskCallback
 import studio.seno.domain.Result
-import studio.seno.domain.model.Feed
 import studio.seno.domain.model.User
 
 

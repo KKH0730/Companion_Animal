@@ -11,8 +11,6 @@ import studio.seno.datamodule.RemoteRepository
 import studio.seno.domain.model.NotificationData
 
 class FcmMessageService : FirebaseMessagingService() {
-
-
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         val title = remoteMessage.data["title"].toString()
         val body = remoteMessage.data["body"].toString()

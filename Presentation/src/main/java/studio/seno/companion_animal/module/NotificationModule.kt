@@ -12,7 +12,10 @@ import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Build
 import android.util.Log
+import androidx.lifecycle.LifecycleCoroutineScope
 import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import okhttp3.ResponseBody
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.util.Constants
@@ -109,7 +112,8 @@ class NotificationModule(context: Context, title: String) {
         myProfileUri : String?,
         content: String,
         currentTimestamp: Long,
-        feed: Feed?
+        feed: Feed?,
+        lifecycleCoroutineScope: LifecycleCoroutineScope
     ) {
         //댓글을 작성하면 notification 알림이 전송
         if (targetEmail == FirebaseAuth.getInstance().currentUser?.email.toString()) {
@@ -155,20 +159,22 @@ class NotificationModule(context: Context, title: String) {
                         )
                     }
 
+                    lifecycleCoroutineScope.launch(Dispatchers.IO){
+                        var apiService = ApiClient.getClient().create(ApiInterface::class.java)
+                        var responseBodyCall: retrofit2.Call<ResponseBody> =
+                            apiService.sendNotification(notificationModel)
 
-                    var apiService = ApiClient.getClient().create(ApiInterface::class.java)
-                    var responseBodyCall: retrofit2.Call<ResponseBody> =
-                        apiService.sendNotification(notificationModel)
-                    responseBodyCall.enqueue(object : retrofit2.Callback<ResponseBody> {
-                        override fun onResponse(
-                            call: retrofit2.Call<ResponseBody>,
-                            response: retrofit2.Response<ResponseBody>
-                        ) {
-                        }
-                        override fun onFailure(call: retrofit2.Call<ResponseBody>, t: Throwable) {
-                        }
+                        responseBodyCall.enqueue(object : retrofit2.Callback<ResponseBody> {
+                            override fun onResponse(
+                                call: retrofit2.Call<ResponseBody>,
+                                response: retrofit2.Response<ResponseBody>
+                            ) {
+                            }
+                            override fun onFailure(call: retrofit2.Call<ResponseBody>, t: Throwable) {
+                            }
 
-                    })
+                        })
+                    }
                 }
             }
         })

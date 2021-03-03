@@ -1,12 +1,12 @@
-package studio.seno.companion_animal.ui.search
+package studio.seno.companion_animal.ui.gridLayout
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.*
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.SearchItemBinding
+import studio.seno.companion_animal.ui.search.OnSearchItemClickListener
 import studio.seno.domain.model.Feed
 
 class GridImageAdapter : ListAdapter<Feed, RecyclerView.ViewHolder>(

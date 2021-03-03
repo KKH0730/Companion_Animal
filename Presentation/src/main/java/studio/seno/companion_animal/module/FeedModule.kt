@@ -116,7 +116,8 @@ class FeedModule(
         myProfileUri: String,
         commentEdit: EditText,
         commentCount: TextView,
-        container: LinearLayout
+        container: LinearLayout,
+        lifecycleScope: LifecycleCoroutineScope
     ){
         //피드에 보여지는 댓글의 라이브 데이터 업데이트
         val textView = TextView(commentEdit.context)
@@ -172,7 +173,7 @@ class FeedModule(
 
 
         //댓글을 작성하면 notification 알림이 전송
-        NotificationModule(commentEdit.context, nickname).sendNotification(feed.getEmail()!!, myProfileUri, commentContent, Timestamp(System.currentTimeMillis()).time, feed)
+        NotificationModule(commentEdit.context, nickname).sendNotification(feed.getEmail()!!, myProfileUri, commentContent, Timestamp(System.currentTimeMillis()).time, feed, lifecycleScope)
 
 
 

@@ -160,6 +160,18 @@
                     app:srcCompat="@drawable/profile" />
 
                 <ImageButton
+                    android:id="@+id/share_btn"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_marginStart="10dp"
+                    android:layout_weight="1"
+                    android:background="@color/white"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:srcCompat="@drawable/share" />
+
+                <ImageButton
                     android:id="@+id/detail_btn"
                     android:layout_width="30dp"
                     android:layout_height="30dp"
