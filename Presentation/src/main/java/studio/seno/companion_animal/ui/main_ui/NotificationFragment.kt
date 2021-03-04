@@ -7,15 +7,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
-import android.widget.ImageView
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
-import com.google.firebase.auth.FirebaseAuth
 import org.jetbrains.anko.support.v4.startActivity
-import studio.seno.companion_animal.ErrorActivity
+import studio.seno.companion_animal.ReportActivity
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.FragmentNotificationBinding
 import studio.seno.companion_animal.ui.feed.FeedDetailActivity
@@ -30,8 +28,9 @@ import studio.seno.domain.model.NotificationData
 
 class NotificationFragment : Fragment() {
     private lateinit var binding : FragmentNotificationBinding
-    private val notiListViewModel : NotificationListViewModel by viewModels()
-    private val notiAdater: NotificationAdapter =  NotificationAdapter()
+    private val notificationListViewModel : NotificationListViewModel by viewModels()
+    private val notificationAdapter: NotificationAdapter =  NotificationAdapter()
+
     companion object {
         @JvmStatic
         fun newInstance() =
@@ -53,13 +52,13 @@ class NotificationFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.lifecycleOwner = this
-        binding.model = notiListViewModel
-        binding.notiRecyclerView.adapter = notiAdater
+        binding.model = notificationListViewModel
+        binding.notiRecyclerView.adapter = notificationAdapter
 
         init()
         itemEvent()
 
-        notiListViewModel.requestLoadNotification()
+        notificationListViewModel.requestLoadNotification()
         observe()
     }
 
@@ -69,9 +68,9 @@ class NotificationFragment : Fragment() {
     }
 
     private fun itemEvent(){
-        notiAdater.setOnNotificationListener(object : OnNotificationClickedListener{
-            override fun onNotificationClicked(notiLayout : ConstraintLayout, item: NotificationData) {
-                notiListViewModel.requestUpdateCheckDot(item)
+        notificationAdapter.setOnNotificationListener(object : OnNotificationClickedListener{
+            override fun onNotificationClicked(notificationLayout : ConstraintLayout, item: NotificationData) {
+                notificationListViewModel.requestUpdateCheckDot(item)
 
                 RemoteRepository.getInstance()!!.loadFeed(item.targetPath!!, object : LongTaskCallback<Feed>{
                     override fun onResponse(result: Result<Feed>) {
@@ -79,26 +78,25 @@ class NotificationFragment : Fragment() {
                             if(result.data != null)
                                 startActivity<FeedDetailActivity>("feed" to result.data)
                             else
-                                startActivity<ErrorActivity>()
+                                startActivity<ReportActivity>()
 
-                            notiLayout.setBackgroundColor(requireActivity().applicationContext.getColor(R.color.white))
+                            notificationLayout.setBackgroundColor(requireActivity().applicationContext.getColor(R.color.white))
                         } else if(result is Result.Error) {
                             Log.e("error", "NotificationFragment intent error : ${result.exception}")
                         }
                     }
                 })
-
             }
 
             override fun onDeleteClicked(item: NotificationData) {
-                notiListViewModel.deleteNotification(item)
+                notificationListViewModel.deleteNotification(item)
             }
         })
     }
 
-    fun observe(){
-        notiListViewModel.getNotificationListLiveData().observe(viewLifecycleOwner, {
-            notiAdater.submitList(it)
+    private fun observe(){
+        notificationListViewModel.getNotificationListLiveData().observe(viewLifecycleOwner, {
+            notificationAdapter.submitList(it)
         })
     }
 }

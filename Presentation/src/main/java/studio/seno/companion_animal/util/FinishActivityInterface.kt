@@ -1,5 +1,5 @@
 package studio.seno.companion_animal.util
 
-interface ViewControlListener {
+interface FinishActivityInterface {
     fun finishCurrentActivity()
 }

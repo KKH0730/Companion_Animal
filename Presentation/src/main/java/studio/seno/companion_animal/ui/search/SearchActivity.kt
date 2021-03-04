@@ -27,7 +27,6 @@ class SearchActivity : AppCompatActivity(), View.OnClickListener {
     private val feedListViewModel: FeedListViewModel by viewModels()
     private val lastSearchAdapter: LastSearchAdapter by lazy { LastSearchAdapter() }
     private val gridImageAdapter: GridImageAdapter by lazy { GridImageAdapter() }
-    private var backKeyPressedTime = 0L
     private lateinit var feedGridFragment : FeedGridFragment
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,12 +50,11 @@ class SearchActivity : AppCompatActivity(), View.OnClickListener {
             }
         })
 
-
         listViewModel.requestLoadLastSearch()
         observe()
     }
 
-    fun init() {
+    private fun init() {
         binding.backBtn.setOnClickListener(this)
     }
 
@@ -91,24 +89,21 @@ class SearchActivity : AppCompatActivity(), View.OnClickListener {
 
     override fun onClick(v: View?) {
         if(v?.id == R.id.back_btn) {
-            if(binding.lastSearchRecyclerView.visibility == View.GONE){
+            if(binding.lastSearchRecyclerView.visibility == View.GONE)
                 backButtonEvent()
-            }else
+            else
                 finish()
-
         }
     }
 
     override fun onBackPressed() {
-        if(binding.lastSearchRecyclerView.visibility == View.GONE) {
-                backKeyPressedTime = System.currentTimeMillis()
+        if(binding.lastSearchRecyclerView.visibility == View.GONE)
                 backButtonEvent()
-        } else
+        else
             finish()
-
     }
 
-    fun backButtonEvent(){
+    private fun backButtonEvent(){
         binding.searchAnnounce.text = getString(R.string.last_search)
         binding.searchBar.setText("")
          supportFragmentManager.beginTransaction().detach(feedGridFragment).commit()
@@ -116,12 +111,12 @@ class SearchActivity : AppCompatActivity(), View.OnClickListener {
         listViewModel.requestLoadLastSearch()
     }
 
-    fun searchButtonEvent(){
+    private fun searchButtonEvent(){
+        feedListViewModel.clearFeedList()
         CommonFunction.closeKeyboard(applicationContext, binding.searchBar)
         val timestamp = Timestamp(System.currentTimeMillis()).time
         val content = binding.searchBar.text.toString().trim()
         binding.searchAnnounce.text = "\"" + content + "\"" + getString(R.string.search_result)
-        feedListViewModel.clearFeedList()
 
         //검색기록 서버에 저장
         if (content.isNotEmpty()) {
@@ -143,6 +138,5 @@ class SearchActivity : AppCompatActivity(), View.OnClickListener {
         binding.lastSearchRecyclerView.visibility = View.GONE
         feedGridFragment = FeedGridFragment.newInstance(content, "feed_search", null)
         supportFragmentManager.beginTransaction().replace(R.id.container, feedGridFragment).commit()
-
     }
 }

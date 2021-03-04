@@ -23,8 +23,9 @@ import studio.seno.domain.Result
 import studio.seno.domain.model.Feed
 import studio.seno.domain.model.User
 import java.sql.Timestamp
+import javax.inject.Inject
 
-class FeedModule(
+class FeedModule (
     feedListViewModel: FeedListViewModel,
     commentViewModel : CommentListViewModel
 ) {

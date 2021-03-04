@@ -12,7 +12,6 @@ import android.widget.ImageButton
 import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -21,7 +20,7 @@ import androidx.lifecycle.observe
 import org.jetbrains.anko.intentFor
 import org.jetbrains.anko.startActivity
 import studio.seno.commonmodule.CustomToast
-import studio.seno.companion_animal.ErrorActivity
+import studio.seno.companion_animal.ReportActivity
 import studio.seno.companion_animal.MainActivity
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.ActivityFeedDetailBinding
@@ -116,7 +115,6 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
             binding.feedLayout.commentShow.visibility = View.GONE
             commentListViewModel.requestLoadComment(feed!!.getEmail()!!, feed!!.getTimestamp())
         }
-
 
         binding.header.findViewById<TextView>(R.id.title2).text = feed!!.getNickname()
         binding.header.findViewById<ImageButton>(R.id.back_btn).setOnClickListener(this)
@@ -345,7 +343,7 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
             )
             CustomToast(applicationContext, getString(R.string.unfollow_toast)).show()
         } else if(PreferenceManager.getString(applicationContext, "mode") == "report") {
-            startActivity<ErrorActivity>("feed" to feed)
+            startActivity<ReportActivity>("feed" to feed)
         }
     }
 

@@ -2,7 +2,6 @@ package studio.seno.companion_animal.ui.user_manage
 
 import android.content.Context
 import android.os.Bundle
-import android.text.InputType
 import android.text.SpannableStringBuilder
 import android.text.method.PasswordTransformationMethod
 import android.util.Log
@@ -22,7 +21,7 @@ import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.FragmentLoginBinding
 import studio.seno.companion_animal.module.CommonFunction
 import studio.seno.companion_animal.module.TextModule
-import studio.seno.companion_animal.util.ViewControlListener
+import studio.seno.companion_animal.util.FinishActivityInterface
 import studio.seno.domain.LongTaskCallback
 import studio.seno.domain.Result
 
@@ -30,14 +29,14 @@ import studio.seno.domain.Result
 class LoginFragment : Fragment(), View.OnClickListener {
     private lateinit var binding: FragmentLoginBinding
     private val viewModel : UserViewModel by viewModels()
-    private lateinit var viewControlListener : ViewControlListener
+    private lateinit var finishActivityInterface : FinishActivityInterface
     private var key = false
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
 
-        if(context is ViewControlListener)
-            viewControlListener = context
+        if(context is FinishActivityInterface)
+            finishActivityInterface = context
     }
 
     override fun onCreateView(
@@ -55,7 +54,7 @@ class LoginFragment : Fragment(), View.OnClickListener {
             initView()
         else {
             startActivity<MainActivity>()
-            viewControlListener.finishCurrentActivity()
+            finishActivityInterface.finishCurrentActivity()
         }
 
     }
@@ -90,21 +89,23 @@ class LoginFragment : Fragment(), View.OnClickListener {
             val email: String = binding.emailInput.text.toString().trim()
             val password: String = binding.passInput.text.toString().trim()
 
-            if (email.isEmpty()  || password.isEmpty()) {
-                binding.loginBtn.stopAnimation(TransitionButton.StopAnimationStyle.SHAKE, null)
-            } else {
-                viewModel.requestCheckEnbleLogin(email, password, object : LongTaskCallback<Boolean> {
+            if (email.isEmpty()  || password.isEmpty())
+                failLogin()
+            else {
+                viewModel.requestCheckEnableLogin(
+                    email,
+                    password,
+                    object : LongTaskCallback<Boolean> {
                     override fun onResponse(result: Result<Boolean>) {
                         if(result is Result.Success) {
                             if(result.data) {
                                 binding.loginBtn.stopAnimation(TransitionButton.StopAnimationStyle.EXPAND) {
                                     startActivity<MainActivity>()
-                                    viewControlListener.finishCurrentActivity()
+                                    finishActivityInterface.finishCurrentActivity()
                                 }
-                            } else {
-                                CustomToast(requireContext(), getString(R.string.login_fail)).show()
-                                binding.loginBtn.stopAnimation(TransitionButton.StopAnimationStyle.SHAKE, null)
-                            }
+                            } else
+                                failLogin()
+
 
                         } else if(result is Result.Error) {
                             Log.e("error", "LoginFragment enableLogin error : ${result.exception}")
@@ -113,7 +114,7 @@ class LoginFragment : Fragment(), View.OnClickListener {
                 })
             }
         } else if(v?.id == R.id.key_btn) {
-            if(key == true){
+            if(key){
                 binding.passInput.transformationMethod = PasswordTransformationMethod.getInstance()
                 key = false
             } else {
@@ -121,5 +122,10 @@ class LoginFragment : Fragment(), View.OnClickListener {
                 key = true
             }
         }
+    }
+
+    private fun failLogin(){
+        CustomToast(requireContext(), getString(R.string.login_fail)).show()
+        binding.loginBtn.stopAnimation(TransitionButton.StopAnimationStyle.SHAKE, null)
     }
 }

@@ -23,31 +23,31 @@ class LastSearchAdapter : ListAdapter<LastSearch, RecyclerView.ViewHolder>(
 
     }
 ){
-    private var listener: OnLastSearchListener? = null
+    private var lastSearchListener: OnLastSearchListener? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val binding : LastSearchItemBinding = DataBindingUtil.inflate(LayoutInflater.from(parent.context), R.layout.last_search_item, parent, false)
         return LastSearchViewHolder(
             binding,
-            listener!!
+            lastSearchListener!!
         )
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        var holder = holder as LastSearchViewHolder
-        var item = getItem(position)
+        val holder = holder as LastSearchViewHolder
+        val item = getItem(position)
         val model = LastSearchModel()
         model.setLastSearchLiveData(item)
         holder.setViewModel(model, item)
 
     }
-    fun setOnItemClickListener(listener: OnLastSearchListener) {
-        this.listener = listener
+    fun setOnItemClickListener(lastSearchListener: OnLastSearchListener) {
+        this.lastSearchListener = lastSearchListener
     }
 
-    private class LastSearchViewHolder(binding : LastSearchItemBinding, listener: OnLastSearchListener) : RecyclerView.ViewHolder(binding.root){
+    private class LastSearchViewHolder(binding : LastSearchItemBinding, lastSearchListener: OnLastSearchListener) : RecyclerView.ViewHolder(binding.root){
         private var mBinding: LastSearchItemBinding = binding
-        private var mListener = listener
+        private var mLastSearchListener = lastSearchListener
 
         fun setViewModel(model : LastSearchModel, item : LastSearch){
             mBinding.model = model
@@ -58,11 +58,11 @@ class LastSearchAdapter : ListAdapter<LastSearch, RecyclerView.ViewHolder>(
 
         fun setEvent(item : LastSearch){
             mBinding.keywordContainer.setOnClickListener {
-                mListener.onItemClicked(mBinding.content.text.toString().trim())
+                mLastSearchListener.onItemClicked(mBinding.content.text.toString().trim())
             }
 
             mBinding.closeBtn.setOnClickListener {
-                mListener.onDeleteClicked(item.timestamp, item)
+                mLastSearchListener.onDeleteClicked(item.timestamp, item)
             }
         }
     }

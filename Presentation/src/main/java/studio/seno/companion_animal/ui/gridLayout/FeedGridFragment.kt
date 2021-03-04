@@ -73,12 +73,12 @@ class FeedGridFragment : Fragment() {
         observe()
     }
 
-    fun init(){
+    private fun init(){
         binding.gridRecyclerview.adapter = gridImageAdapter
         binding.progressBar.visibility = View.VISIBLE
     }
 
-    fun setFeedList() {
+    private fun setFeedList() {
         feedListViewModel.clearFeedList()
 
 
@@ -130,7 +130,7 @@ class FeedGridFragment : Fragment() {
     }
 
 
-    fun feedItemEvent(){
+    private fun feedItemEvent(){
         gridImageAdapter.setOnItemClickListener(object : OnSearchItemClickListener {
             override fun onSearchItemClicked(feed: Feed, position : Int) {
                 if(feedSort == "feed_timeline")

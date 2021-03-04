@@ -83,7 +83,7 @@ class RemoteRepository() {
     }
 
     //회원가입시 이메일 중복여부 확인
-    fun checkOverlapEmail(email: String, callback: LongTaskCallback<Boolean>) {
+    fun requestCheckOverlapEmail(email: String, callback: LongTaskCallback<Boolean>) {
         userManagerUseCase.checkRemoteOverlapUser(email, mDB, callback)
     }
 
@@ -141,8 +141,7 @@ class RemoteRepository() {
      * 이미지 업로드 및 이미지 로드
      */
 
-    //profile image uri 로드
-    fun loadRemoteProfileImage(email: String, callback: LongTaskCallback<String>){
+    fun requestLoadProfileUri(email: String, callback: LongTaskCallback<String>){
         uploadUseCase.loadRemoteProfileImage(email, mStorageRef, callback)
     }
 
@@ -160,8 +159,9 @@ class RemoteRepository() {
         followUseCase.updateFollower(targetEmail, FirebaseAuth.getInstance().currentUser?.email.toString(), flag, myFollow, targetFollow, mDB)
     }
 
-    fun loadFollower(fieldName: String, callback: LongTaskCallback<List<Follow>>) {
-        followUseCase.loadFollower(FirebaseAuth.getInstance().currentUser?.email.toString(), fieldName, mDB, callback)
+
+    fun requestLoadFollow(fieldName: String, callback: LongTaskCallback<List<Follow>>) {
+        followUseCase.requestLoadFollow(FirebaseAuth.getInstance().currentUser?.email.toString(), fieldName, mDB, callback)
     }
 
 

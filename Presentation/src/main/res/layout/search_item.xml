@@ -16,7 +16,7 @@
         android:layout_height="wrap_content">
 
         <com.makeramen.roundedimageview.RoundedImageView
-            setImage="@{model.feedLiveData.remoteUri}"
+            setGridImage="@{model.feedLiveData.remoteUri}"
             android:id="@+id/search_image"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

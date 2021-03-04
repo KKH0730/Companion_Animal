@@ -10,8 +10,7 @@ import studio.seno.domain.Result
 import studio.seno.domain.model.LastSearch
 
 class LastSearchListViewModel : ViewModel() {
-    val repository = RemoteRepository.getInstance()!!
-
+    private val remoteRepository = RemoteRepository.getInstance()!!
     private var lastSearchListLiveData  = MutableLiveData<List<LastSearch>>()
 
     fun setLastSearchLiveData(list : List<LastSearch>) {
@@ -32,23 +31,23 @@ class LastSearchListViewModel : ViewModel() {
                     return
         }
 
-        repository.requestUploadLastSearch(lastSearch)
+        remoteRepository.requestUploadLastSearch(lastSearch)
     }
 
     fun requestLoadLastSearch(){
-        repository.requestLoadLastSearch(object : LongTaskCallback<List<LastSearch>>{
+        remoteRepository.requestLoadLastSearch(object : LongTaskCallback<List<LastSearch>>{
             override fun onResponse(result: Result<List<LastSearch>>) {
                 if(result is Result.Success) {
                     lastSearchListLiveData.value = result.data
                 }else if(result is Result.Error) {
-                    Log.e("error","load LastSearch Error : ${result.exception}")
+                    Log.e("error","LastSearchListViewModel load LastSearch Error : ${result.exception}")
                 }
             }
         })
     }
 
     fun requestDeleteLastSearch(lastSearch: LastSearch){
-        repository.requestDeleteLastSearch(lastSearch)
+        remoteRepository.requestDeleteLastSearch(lastSearch)
     }
 
 }

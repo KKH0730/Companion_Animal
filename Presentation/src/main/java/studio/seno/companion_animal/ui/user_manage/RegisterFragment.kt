@@ -21,7 +21,7 @@ import org.jetbrains.anko.support.v4.startActivity
 import studio.seno.commonmodule.CustomToast
 import studio.seno.companion_animal.MainActivity
 import studio.seno.companion_animal.R
-import studio.seno.companion_animal.util.ViewControlListener
+import studio.seno.companion_animal.util.FinishActivityInterface
 import studio.seno.companion_animal.databinding.FragmentRegisterBinding
 import studio.seno.companion_animal.module.CommonFunction
 import studio.seno.companion_animal.module.TextModule
@@ -35,13 +35,13 @@ class RegisterFragment : Fragment(), View.OnClickListener {
     private var key = false
 
 
-    private lateinit var viewControlListener : ViewControlListener
+    private lateinit var finishActivityInterface : FinishActivityInterface
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
 
-        if(context is ViewControlListener)
-            viewControlListener = context
+        if(context is FinishActivityInterface)
+            finishActivityInterface = context
     }
 
     override fun onCreateView(
@@ -76,9 +76,10 @@ class RegisterFragment : Fragment(), View.OnClickListener {
     }
 
     override fun onClick(v: View?) {
-        if (v?.id == R.id.move_login_btn) {
+        if (v?.id == R.id.move_login_btn)
             findNavController().navigate(R.id.action_registerFragment_to_loginFragment)
-        } else if (v?.id == R.id.register_Btn) {
+
+        else if (v?.id == R.id.register_Btn) {
             binding.registerBtn.startAnimation()
             CommonFunction.closeKeyboard(requireContext(), binding.emailInput)
 
@@ -91,7 +92,7 @@ class RegisterFragment : Fragment(), View.OnClickListener {
             if (email.isEmpty() || nickName.isEmpty() || password.isEmpty()) {
                 binding.registerBtn.stopAnimation(TransitionButton.StopAnimationStyle.SHAKE, null)
             } else {
-                viewModel.registerUser(email, password, object  : LongTaskCallback<Boolean>{
+                viewModel.requestRegisterUser(email, password, object  : LongTaskCallback<Boolean>{
                     override fun onResponse(result: Result<Boolean>) {
                         if(result is Result.Success) {
                             if(result.data){
@@ -104,22 +105,20 @@ class RegisterFragment : Fragment(), View.OnClickListener {
                                     override fun onResponse(result: Result<Boolean>) {
                                         if(result is Result.Success) {
 
-                                            viewModel.requestLoadProfileUri(
-                                                email,
-                                                object : LongTaskCallback<String> {
+                                            viewModel.requestLoadProfileUri(email, object : LongTaskCallback<String> {
                                                     override fun onResponse(result: Result<String>) {
                                                         if(result is Result.Success) {
                                                             val uri = result.data
 
-                                                            FirebaseInstanceId.getInstance().instanceId.addOnSuccessListener {it2 ->
-                                                                viewModel.uploadUserInfo(0L, email, nickName, 0L, 0L, 0L,it2.token, uri)
+                                                            FirebaseInstanceId.getInstance().instanceId.addOnSuccessListener {it ->
+                                                                viewModel.requestUploadUserInfo(0L, email, nickName, 0L, 0L, 0L, it.token, uri)
 
 
-                                                                viewModel.getUpLoadLiveData().observe(requireActivity(), {it ->
-                                                                    if(it) {
+                                                                viewModel.getUpLoadLiveData().observe(requireActivity(), {it2 ->
+                                                                    if(it2) {
                                                                         binding.registerBtn.stopAnimation(TransitionButton.StopAnimationStyle.EXPAND) {
                                                                             startActivity<MainActivity>( )
-                                                                            viewControlListener.finishCurrentActivity()
+                                                                            finishActivityInterface.finishCurrentActivity()
                                                                         }
                                                                     } else
                                                                         CustomToast(requireContext(), getString(R.string.register_fail)).show()
@@ -133,7 +132,7 @@ class RegisterFragment : Fragment(), View.OnClickListener {
                                 })
 
                             } else {
-                                viewModel.checkOverlapEmail(email)
+                                viewModel.requestCheckOverlapEmail(email)
                                 viewModel.getOverLapLiveData().observe(requireActivity(), {
                                     if(it)  // 이메일 중복
                                         CustomToast(requireContext(), getString(R.string.email_overlap)).show()
@@ -152,7 +151,7 @@ class RegisterFragment : Fragment(), View.OnClickListener {
                 })
             }
         } else if(v?.id == R.id.key_btn) {
-            if(key == true){
+            if(key){
                 binding.passInput.transformationMethod = PasswordTransformationMethod.getInstance()
                 key = false
             } else {

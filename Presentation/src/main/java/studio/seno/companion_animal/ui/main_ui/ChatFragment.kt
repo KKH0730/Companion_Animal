@@ -79,7 +79,7 @@ class ChatFragment : Fragment() {
     }
 
 
-    fun setUserInfo(){
+    private fun setUserInfo(){
         LocalRepository.getInstance(requireContext())!!.getUserInfo(lifecycleScope, object :
             LongTaskCallback<User> {
             override fun onResponse(result: Result<User>) {
@@ -96,7 +96,7 @@ class ChatFragment : Fragment() {
         })
     }
 
-    fun setChatItemEvent(){
+    private fun setChatItemEvent(){
         chatAdapter.setOnChatItemClickListener(object : OnChatItemClickListener{
             override fun onChatItemClicked(chat: Chat, checkDotImage : ImageView) {
                 checkDotImage.visibility = View.GONE
@@ -152,7 +152,7 @@ class ChatFragment : Fragment() {
         })
     }
 
-    fun requestSetChatListListener() {
+    private fun requestSetChatListListener() {
         chatListViewModel.clearChatList()
         chatListViewModel.requestSetChatListListener(
             CommonFunction.getInstance()!!.makeChatPath(user!!.email),
@@ -169,13 +169,9 @@ class ChatFragment : Fragment() {
         )
     }
 
-    fun observe(){
+    private fun observe(){
         chatListViewModel.getChatListLiveData().observe(this, {
             chatAdapter.submitList(it)
         })
     }
-
-
-
-
 }

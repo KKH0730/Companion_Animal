@@ -43,29 +43,33 @@ class FindPasswordFragment : Fragment(){
             var emailAddress = binding.emailInput.text.toString().trim()
             binding.progressBar.visibility = View.VISIBLE
 
-            if(emailAddress.isEmpty()) {
-                CustomToast(requireContext(), getString(R.string.find_password_announcement1)).show()
-            } else {
-                viewModel.sendFindEmail(emailAddress)
+            if(emailAddress.isEmpty())
+                failSendEmail()
+            else {
+                viewModel.requestSendFindEmail(emailAddress)
                 viewModel.getFindPasswordListData().observe(requireActivity(), {
                     if (it) {
+                        binding.progressBar.visibility = View.GONE
                         binding.emailInput.isEnabled = false
                         binding.sendEmail.isEnabled = false
-                        binding.progressBar.visibility = View.GONE
                         CustomToast(requireContext(), getString(R.string.find_password_announcement2)).show()
                         findNavController().navigate(R.id.action_findPasswordFragment_to_loginFragment)
-
                     } else
-                        CustomToast(requireContext(), getString(R.string.find_password_announcement1)).show()
+                        failSendEmail()
                 })
             }
         }
     }
 
-    fun init(){
+    private fun init(){
         binding.header.findViewById<TextView>(R.id.title2).text = getString(R.string.find_password_title)
         binding.header.findViewById<ImageButton>(R.id.back_btn).setOnClickListener {
             findNavController().navigate(R.id.action_findPasswordFragment_to_loginFragment)
         }
+    }
+
+    private fun failSendEmail(){
+        binding.progressBar.visibility = View.GONE
+        CustomToast(requireContext(), getString(R.string.find_password_announcement1)).show()
     }
 }

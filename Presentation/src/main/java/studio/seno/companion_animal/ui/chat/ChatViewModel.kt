@@ -7,7 +7,6 @@ import studio.seno.domain.model.Chat
 class ChatViewModel() : ViewModel(){
     private val chatLiveData = MutableLiveData<Chat>()
 
-
     fun getChatLiveData() : MutableLiveData<Chat> {
         return chatLiveData
     }

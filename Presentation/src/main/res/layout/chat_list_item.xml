@@ -40,7 +40,7 @@
 
             <de.hdodenhof.circleimageview.CircleImageView
                 android:id="@+id/profileImage"
-                getMyEmail="@{chatViewModel.chatLiveData.email}"
+                setChatListProfileUri="@{chatViewModel.chatLiveData.email}"
                 getMyProfileUri="@{chatViewModel.chatLiveData.profileUri}"
                 getTargetProfileUri="@{chatViewModel.chatLiveData.targetProfileUri}"
                 android:layout_width="50dp"
@@ -52,7 +52,7 @@
 
             <TextView
                 android:id="@+id/chat_nickname"
-                getMyEmail="@{chatViewModel.chatLiveData.email}"
+                setChatListNickname="@{chatViewModel.chatLiveData.email}"
                 getMyNickname="@{chatViewModel.chatLiveData.nickname}"
                 getTargetNickname="@{chatViewModel.chatLiveData.targetNickname}"
                 android:layout_width="wrap_content"

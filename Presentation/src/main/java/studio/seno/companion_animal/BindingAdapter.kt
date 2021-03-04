@@ -4,8 +4,10 @@ import android.graphics.Point
 import android.net.Uri
 import android.text.SpannableStringBuilder
 import android.util.Log
-import android.view.View
-import android.widget.*
+import android.widget.Button
+import android.widget.ImageButton
+import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.databinding.BindingAdapter
@@ -30,6 +32,10 @@ import studio.seno.domain.LongTaskCallback
 import studio.seno.domain.Result
 
 object BindingAdapter {
+
+    /**
+     * Feed
+     */
     @BindingAdapter("setProfileImage")
     @JvmStatic
     fun setProfileImage(imageView: CircleImageView, profileUri: String?) {
@@ -47,10 +53,10 @@ object BindingAdapter {
 
     @BindingAdapter("setText")
     @JvmStatic
-    fun setText(view: TextView, nickName: String?) {
+    fun setText(view: TextView, text: String?) {
         try {
-            if (nickName != null) {
-                view.text = nickName
+            if (text != null) {
+                view.text = text
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -71,24 +77,11 @@ object BindingAdapter {
         }
     }
 
-    @BindingAdapter("setCommentContent")
+    @BindingAdapter("setLong")
     @JvmStatic
-    fun setCommentContent(view: TextView, content: String?) {
+    fun setLong(view: TextView, count: Long) {
         try {
-            if (content != null) {
-                view.text = content
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-    }
-
-
-    @BindingAdapter("setHeart")
-    @JvmStatic
-    fun setHeart(view: TextView, heart: Long) {
-        try {
-            view.text = heart.toString()
+            view.text = count.toString()
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -98,26 +91,16 @@ object BindingAdapter {
     @JvmStatic
     fun setHeartButton(imageButton: ImageButton, map: Map<String, String>) {
         imageButton.isSelected =
-            map[FirebaseAuth.getInstance().currentUser!!.email.toString()] != null
+            map[FirebaseAuth.getInstance().currentUser.email.toString()] != null
     }
 
     @BindingAdapter("setBookmarkButton")
     @JvmStatic
     fun setBookmarkButton(imageButton: ImageButton, map: Map<String, String>) {
         imageButton.isSelected =
-            map[FirebaseAuth.getInstance().currentUser!!.email.toString()] != null
+            map[FirebaseAuth.getInstance().currentUser.email.toString()] != null
     }
 
-
-    @BindingAdapter("setComment")
-    @JvmStatic
-    fun setComment(view: TextView, comment: Long) {
-        try {
-            view.text = comment.toString()
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-    }
 
     @BindingAdapter("setHashTag")
     @JvmStatic
@@ -148,7 +131,7 @@ object BindingAdapter {
         lifecycle: Lifecycle, fm: FragmentManager, indicator: CircleIndicator3
     ) {
         try {
-            var pagerAdapter = PagerAdapter(fm, lifecycle)
+            val pagerAdapter = PagerAdapter(fm, lifecycle)
             for (element in remoteUri) {
                 pagerAdapter.addItem(FeedPagerFragment.newInstance(element, "BindingAdapter"))
                 viewPager.adapter = pagerAdapter
@@ -172,7 +155,7 @@ object BindingAdapter {
     @BindingAdapter("setMyProfileUri")
     @JvmStatic
     fun setMyProfileUri(circleImageView: CircleImageView, imageUri: String) {
-        RemoteRepository.getInstance()!!.loadRemoteProfileImage(
+        RemoteRepository.getInstance()!!.requestLoadProfileUri(
             FirebaseAuth.getInstance().currentUser?.email.toString(),
             object: LongTaskCallback<String> {
                 override fun onResponse(result: Result<String>) {
@@ -186,13 +169,11 @@ object BindingAdapter {
                             .centerCrop()
                             .into(circleImageView)
                     } else if(result is Result.Error) {
-                        Log.e("hi", "BindingAdapter setMyProfileUri Error : ${result.exception}")
+                        Log.e("error", "BindingAdapter setMyProfileUri Error : ${result.exception}")
                     }
                 }
             })
     }
-
-
 
 
     /**
@@ -232,9 +213,9 @@ object BindingAdapter {
     /**
      * Search
      */
-    @BindingAdapter("setImage")
+    @BindingAdapter("setGridImage")
     @JvmStatic
-    fun setImage(imageView: RoundedImageView, uri: List<String>) {
+    fun setGridImage(imageView: RoundedImageView, uri: List<String>) {
         try {
             var display = imageView.context.windowManager.defaultDisplay
             val size = Point()
@@ -257,7 +238,6 @@ object BindingAdapter {
     /**
      * follower and following
      */
-
     @BindingAdapter("setFollowBtn", "getTargetEmail")
     @JvmStatic
     fun setFollowBtn(button: Button, category : String, targetEmail : String) {
@@ -295,7 +275,7 @@ object BindingAdapter {
     @JvmStatic
     fun setRemoteProfileUri(circleImageView: CircleImageView, email: String) {
 
-        RemoteRepository.getInstance()!!.loadRemoteProfileImage(email, object: LongTaskCallback<String> {
+        RemoteRepository.getInstance()!!.requestLoadProfileUri(email, object: LongTaskCallback<String> {
                 override fun onResponse(result: Result<String>) {
                     if(result is Result.Success) {
 
@@ -315,8 +295,7 @@ object BindingAdapter {
     /**
      * Chat
      */
-
-    @BindingAdapter("getMyEmail", "getMyNickname", "getTargetNickname")
+    @BindingAdapter("setChatListNickname", "getMyNickname", "getTargetNickname")
     @JvmStatic
     fun setChatListNickname(textView: TextView, myEmail: String?, myNickname: String?, targetNickname : String?) {
         if(myEmail ==  CommonFunction.getInstance()!!.makeChatPath(FirebaseAuth.getInstance().currentUser?.email.toString())) {
@@ -326,7 +305,7 @@ object BindingAdapter {
         }
     }
 
-    @BindingAdapter("getMyEmail", "getMyProfileUri", "getTargetProfileUri")
+    @BindingAdapter("setChatListProfileUri", "getMyProfileUri", "getTargetProfileUri")
     @JvmStatic
     fun setChatListProfileUri(circleImageView: CircleImageView, myEmail: String?, myProfileUri : String?, targetProfileUri : String?) {
         if(myEmail ==  CommonFunction.getInstance()!!.makeChatPath(FirebaseAuth.getInstance().currentUser?.email.toString())) {

@@ -34,7 +34,7 @@ import studio.seno.companion_animal.ui.feed.ShowFeedActivity
 import studio.seno.companion_animal.ui.follow.FollowActivity
 import studio.seno.companion_animal.ui.gridLayout.GridImageAdapter
 import studio.seno.companion_animal.ui.user_manage.UserManageActivity
-import studio.seno.companion_animal.util.ViewControlListener
+import studio.seno.companion_animal.util.FinishActivityInterface
 import studio.seno.datamodule.LocalRepository
 import studio.seno.datamodule.RemoteRepository
 import studio.seno.domain.LongTaskCallback
@@ -46,12 +46,10 @@ class TimeLineFragment : Fragment(), View.OnClickListener,
     BottomSheetImagePicker.OnImagesSelectedListener {
     private lateinit var binding: FragmentTimeLineBinding
     private lateinit var localRepository: LocalRepository
+    private lateinit var finishActivityInterface : FinishActivityInterface
     private val remoteRepository: RemoteRepository = RemoteRepository.getInstance()!!
     private val mainViewModel: MainViewModel by viewModels()
-    private val feedListViewModel: FeedListViewModel by viewModels()
-    private val gridImageAdapter = GridImageAdapter()
-    private lateinit var viewControlListener : ViewControlListener
-    private var profileEmail : String? = null
+    private var profileEmail : String? = null // Feed, follow, 댓글 등에서 프로필 클릭시 상대방의 프로필을 보여주기 위한 email
     private var targetNickname : String? = null
     private var targetProfileUri : String? = null
     private val profileModule : ProfileModule by lazy {
@@ -61,8 +59,8 @@ class TimeLineFragment : Fragment(), View.OnClickListener,
     override fun onAttach(context: Context) {
         super.onAttach(context)
 
-        if(context is ViewControlListener)
-            viewControlListener = context
+        if(context is FinishActivityInterface)
+            finishActivityInterface = context
     }
 
 
@@ -107,7 +105,7 @@ class TimeLineFragment : Fragment(), View.OnClickListener,
 
     }
 
-    fun init() {
+    private fun init() {
         localRepository = LocalRepository.getInstance(requireContext())!!
 
         if(profileEmail != FirebaseAuth.getInstance().currentUser?.email) {
@@ -139,7 +137,7 @@ class TimeLineFragment : Fragment(), View.OnClickListener,
         binding.nickNameEdit.isEnabled = false
     }
 
-    fun userInfoSet() {
+    private fun userInfoSet() {
         if(profileEmail == FirebaseAuth.getInstance().currentUser?.email.toString()) {
             localRepository.getUserInfo(lifecycleScope, object : LongTaskCallback<User> {
                 override fun onResponse(result: Result<User>) {
@@ -225,6 +223,7 @@ class TimeLineFragment : Fragment(), View.OnClickListener,
                 .columnSize(R.dimen.columnSize)
                 .requestTag("single")
                 .show(childFragmentManager, null)
+
         } else if (v?.id == R.id.follower_btn) {
             startActivity<FollowActivity>("category" to "follower")
         } else if (v?.id == R.id.following_btn) {
@@ -283,7 +282,7 @@ class TimeLineFragment : Fragment(), View.OnClickListener,
         }
     }
 
-    fun makeAlertDialog(){
+    private fun makeAlertDialog(){
 
         val info = arrayOf<CharSequence>("라이센스", "로그아웃")
         val builder= AlertDialog.Builder(requireContext())
@@ -299,12 +298,11 @@ class TimeLineFragment : Fragment(), View.OnClickListener,
                 1 -> {
                     FirebaseAuth.getInstance().signOut()
                     startActivity<UserManageActivity>()
-                    viewControlListener.finishCurrentActivity()
+                    finishActivityInterface.finishCurrentActivity()
                 }
             }
             dialog.dismiss()
         }
-
         builder.show()
     }
 
@@ -318,7 +316,7 @@ class TimeLineFragment : Fragment(), View.OnClickListener,
             override fun onResponse(result: Result<Boolean>) {
                 if (result is Result.Success) {
 
-                    remoteRepository.loadRemoteProfileImage(
+                    remoteRepository.requestLoadProfileUri(
                         FirebaseAuth.getInstance().currentUser?.email.toString(),
                         object : LongTaskCallback<String> {
                             override fun onResponse(result: Result<String>) {
@@ -359,7 +357,7 @@ class TimeLineFragment : Fragment(), View.OnClickListener,
         })
     }
 
-    fun setFollowButton(flag: Boolean){
+    private fun setFollowButton(flag: Boolean){
         if(flag) {
             context?.getColor(R.color.main_color)?.let { binding.followBtn.setBackgroundColor(it) }
             context?.getColor(R.color.white)?.let { binding.followBtn.setTextColor(it) }

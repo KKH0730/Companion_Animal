@@ -20,7 +20,7 @@ class GridImageAdapter : ListAdapter<Feed, RecyclerView.ViewHolder>(
         }
     }
 ){
-    private var listener: OnSearchItemClickListener? = null
+    private var mOnSearchClickListener: OnSearchItemClickListener? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val binding : SearchItemBinding = DataBindingUtil.inflate(LayoutInflater.from(parent.context), R.layout.search_item, parent, false)
@@ -30,7 +30,7 @@ class GridImageAdapter : ListAdapter<Feed, RecyclerView.ViewHolder>(
         binding.root.layoutParams = params
         return SearchViewHolder(
             binding,
-            listener!!
+            mOnSearchClickListener!!
         )
     }
 
@@ -44,12 +44,12 @@ class GridImageAdapter : ListAdapter<Feed, RecyclerView.ViewHolder>(
     }
 
     fun setOnItemClickListener(listener: OnSearchItemClickListener) {
-        this.listener = listener
+        this.mOnSearchClickListener = listener
     }
 
-    private class SearchViewHolder(binding : SearchItemBinding, listener: OnSearchItemClickListener) : RecyclerView.ViewHolder(binding.root){
+    private class SearchViewHolder(binding : SearchItemBinding, mOnSearchClickListener: OnSearchItemClickListener) : RecyclerView.ViewHolder(binding.root){
         private var mBinding: SearchItemBinding = binding
-        private var mListener = listener
+        private var mOnSearchClickListener = mOnSearchClickListener
 
 
         fun setViewModel(model : GridImageViewModel, item : Feed){
@@ -61,7 +61,7 @@ class GridImageAdapter : ListAdapter<Feed, RecyclerView.ViewHolder>(
 
         fun setEvent(item : Feed){
             mBinding.container.setOnClickListener {
-                mListener.onSearchItemClicked(item, bindingAdapterPosition)
+                mOnSearchClickListener.onSearchItemClicked(item, bindingAdapterPosition)
             }
         }
     }

@@ -33,33 +33,30 @@ class UserViewModel() : ViewModel() {
         return overLapLiveData
     }
 
-    fun requestCheckEnbleLogin(email : String, password : String, callback : LongTaskCallback<Boolean>)  {
+    fun requestCheckEnableLogin(email : String, password : String, callback : LongTaskCallback<Boolean>)  {
         remoteRepository.requestCheckEnableLogin(email, password, callback)
     }
 
-    fun sendFindEmail(emailAddress : String){
+    fun requestSendFindEmail(emailAddress : String){
         remoteRepository.requestSendFindEmail(emailAddress, object : LongTaskCallback<Boolean>{
             override fun onResponse(result: Result<Boolean>) {
-                if(result is Result.Success) {
-                    if(result.data)
-                        findPasswordListData.value = true
-                    else
-                        findPasswordListData.value = false
-                }
+                if(result is Result.Success)
+                    findPasswordListData.value = result.data
+                else if(result is Result.Error)
+                    Log.e("error", "UserViewModel sendFindEmail error : ${result.exception}")
             }
         })
     }
 
-    fun registerUser(email : String, password : String, callback: LongTaskCallback<Boolean>){
+    fun requestRegisterUser(email : String, password : String, callback: LongTaskCallback<Boolean>){
         remoteRepository.requestRegisterUser(email, password, callback)
     }
 
-
     fun requestLoadProfileUri(email: String, callback: LongTaskCallback<String>){
-        remoteRepository.loadRemoteProfileImage(email, callback)
+        remoteRepository.requestLoadProfileUri(email, callback)
     }
 
-    fun requestUploadInItProfileImage( imageUri : Uri, callback: LongTaskCallback<Boolean>){
+    fun requestUploadInItProfileImage(imageUri : Uri, callback: LongTaskCallback<Boolean>){
         remoteRepository.uploadInItProfileImage(imageUri, object : LongTaskCallback<Boolean>{
             override fun onResponse(result: Result<Boolean>) {
                 if(result is Result.Success) {
@@ -68,31 +65,26 @@ class UserViewModel() : ViewModel() {
 
                 } else if(result is Result.Error) {
                     uploadLiveData.value = false
-                    Log.e("error", "uploadInItProfileImage : ${result.exception}")
+                    Log.e("error", "UserViewModel uploadInItProfileImage error: ${result.exception}")
                 }
-
             }
         })
     }
 
-    fun uploadUserInfo(id : Long, email: String, nickname: String, follower: Long,
+    fun requestUploadUserInfo(id : Long, email: String, nickname: String, follower: Long,
                         following: Long, feedCount: Long, token : String, profileUri : String){
-        var user = Mapper.getInstance()!!.mapperToUser(id, email, nickname, follower, following, feedCount, token, profileUri)
+        val user = Mapper.getInstance()!!.mapperToUser(id, email, nickname, follower, following, feedCount, token, profileUri)
         remoteRepository.uploadUserInfo(user)
     }
 
-    fun checkOverlapEmail(email : String) {
-        remoteRepository.checkOverlapEmail(email, object : LongTaskCallback<Boolean>{
+    fun requestCheckOverlapEmail(email : String) {
+        remoteRepository.requestCheckOverlapEmail(email, object : LongTaskCallback<Boolean>{
             override fun onResponse(result: Result<Boolean>) {
-                if(result is Result.Success) {
-                    if(result.data) {
-                        overLapLiveData.value = true
-                    } else {
-                        overLapLiveData.value = false
-                    }
-                } else if(result is Result.Error){
-                    Log.e("error", "checkOverlapEmail : ${result.exception}")
-                }
+                if(result is Result.Success)
+                    overLapLiveData.value = result.data
+
+                else if(result is Result.Error)
+                    Log.e("error", "UserViewModel checkOverlapEmail error : ${result.exception}")
             }
         })
     }

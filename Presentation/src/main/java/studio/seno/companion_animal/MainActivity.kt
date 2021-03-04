@@ -11,13 +11,12 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.iid.FirebaseInstanceId
 import me.ibrahimsn.lib.OnItemSelectedListener
 import org.jetbrains.anko.startActivity
-import org.jetbrains.anko.support.v4.startActivity
 import studio.seno.commonmodule.BaseActivity
 import studio.seno.companion_animal.databinding.ActivityMainBinding
 import studio.seno.companion_animal.ui.chat.ChatActivity
 import studio.seno.companion_animal.ui.feed.FeedDetailActivity
 import studio.seno.companion_animal.ui.main_ui.*
-import studio.seno.companion_animal.util.ViewControlListener
+import studio.seno.companion_animal.util.FinishActivityInterface
 import studio.seno.datamodule.LocalRepository
 import studio.seno.datamodule.RemoteRepository
 import studio.seno.domain.LongTaskCallback
@@ -27,14 +26,14 @@ import studio.seno.domain.model.Feed
 import studio.seno.domain.model.User
 import studio.seno.domain.util.PreferenceManager
 
-class MainActivity : BaseActivity() , DialogInterface.OnDismissListener, ViewControlListener {
-    private lateinit var binding: ActivityMainBinding
-    private lateinit var db :AppDatabase
+class MainActivity : BaseActivity() , DialogInterface.OnDismissListener, FinishActivityInterface {
     private val mainViewModel : MainViewModel by viewModels()
+    private lateinit var binding: ActivityMainBinding
     private lateinit var homeFragment: HomeFragment
     private lateinit var notificationFragment: NotificationFragment
     private lateinit var chatFragment: ChatFragment
     private lateinit var timeLineFragment: TimeLineFragment
+    private lateinit var db :AppDatabase
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,7 +41,8 @@ class MainActivity : BaseActivity() , DialogInterface.OnDismissListener, ViewCon
         init()
         loadUserInfo()
         navigateView()
-        pendingIntent()
+        notificationClicked()
+        kakaoSharedClicked()
 
         supportFragmentManager.beginTransaction().replace(R.id.container, homeFragment).commit()
 
@@ -56,6 +56,7 @@ class MainActivity : BaseActivity() , DialogInterface.OnDismissListener, ViewCon
         timeLineFragment = TimeLineFragment.newInstance(FirebaseAuth.getInstance().currentUser?.email.toString())
     }
 
+    //앱이 실행되면 회원정보를 Remote DB에서 Local DB에 저장
     private fun loadUserInfo(){
             mainViewModel.requestUserData(FirebaseAuth.getInstance().currentUser?.email.toString(), object: LongTaskCallback<User>{
                 override fun onResponse(result: Result<User>) {
@@ -99,8 +100,8 @@ class MainActivity : BaseActivity() , DialogInterface.OnDismissListener, ViewCon
         }
     }
 
-    private fun pendingIntent(){
-        //notification의 pendintIntent로 view 이동
+    //notification 클릭시 DetailFeedActivity 혹은 ChatActivity 이동
+    private fun notificationClicked(){
         if(intent.getStringExtra("from") != null){
             if(intent.getStringExtra("from") == "notification") {
                 RemoteRepository.getInstance()!!.loadFeed(intent.getStringExtra("target_path")!!, object : LongTaskCallback<Feed>{
@@ -109,7 +110,7 @@ class MainActivity : BaseActivity() , DialogInterface.OnDismissListener, ViewCon
                             if(result.data != null)
                                 startActivity<FeedDetailActivity>("feed" to result.data)
                             else
-                                startActivity<ErrorActivity>()
+                                startActivity<ReportActivity>()
                         } else if(result is Result.Error) {
                             Log.e("error", "MainActivity notification intent error: ${result.exception}")
                         }
@@ -124,8 +125,10 @@ class MainActivity : BaseActivity() , DialogInterface.OnDismissListener, ViewCon
                 )
             }
         }
+    }
 
-        //kakao 공유하기로 view이동
+    //kakao 공유하기 클릭시 FeedDetailActivity 이동
+    private fun kakaoSharedClicked(){
         if(intent.action == Intent.ACTION_VIEW) {
             val path = intent.data?.getQueryParameter("path")
 

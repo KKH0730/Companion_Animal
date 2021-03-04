@@ -26,6 +26,7 @@ class FeedUseCase {
         db: FirebaseFirestore, callback: LongTaskCallback<Feed>
     ) {
 
+
         //var remoteProfilePath = feed.email + "/profile/profileImage"
         var remoteImagePath = feed.getEmail() + "/feed/" + feed.getTimestamp() + "/"
 

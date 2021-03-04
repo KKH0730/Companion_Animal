@@ -238,7 +238,7 @@
 
             <TextView
                 android:id="@+id/heart_count"
-                setHeart="@{model.feedLiveData.heart}"
+                setLong="@{model.feedLiveData.heart}"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="5dp"
@@ -277,7 +277,7 @@
 
             <TextView
                 android:id="@+id/comment_count"
-                setComment="@{model.feedLiveData.comment}"
+                setLong="@{model.feedLiveData.comment}"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="5dp"

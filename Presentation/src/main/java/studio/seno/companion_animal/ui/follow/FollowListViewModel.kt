@@ -12,7 +12,7 @@ import studio.seno.domain.model.Follow
 
 class FollowListViewModel() : ViewModel() {
     private var followListLiveData : MutableLiveData<List<Follow>> = MutableLiveData()
-    private val repository = RemoteRepository.getInstance()!!
+    private val remoteRepository = RemoteRepository.getInstance()!!
 
 
     fun getFollowListLiveData() : MutableLiveData<List<Follow>> {
@@ -20,9 +20,8 @@ class FollowListViewModel() : ViewModel() {
     }
 
 
-
     fun requestLoadFollower(){
-        repository.loadFollower("follower", object : LongTaskCallback<List<Follow>>{
+        remoteRepository.requestLoadFollow("follower", object : LongTaskCallback<List<Follow>>{
             override fun onResponse(result: Result<List<Follow>>) {
                 if(result is Result.Success){
                     followListLiveData.value = result.data
@@ -34,7 +33,7 @@ class FollowListViewModel() : ViewModel() {
     }
 
     fun requestLoadFollowing(){
-        repository.loadFollower("following", object : LongTaskCallback<List<Follow>>{
+        remoteRepository.requestLoadFollow("following", object : LongTaskCallback<List<Follow>>{
             override fun onResponse(result: Result<List<Follow>>) {
                 if(result is Result.Success){
                     followListLiveData.value = result.data
@@ -48,16 +47,12 @@ class FollowListViewModel() : ViewModel() {
     fun requestUpdateFollower(follow : Follow, flag : Boolean, myNickName : String, myProfileUri : String, isDelete : Boolean) {
         val targetFollow = Mapper.getInstance()!!.mapperToFollow(follow.email, follow.nickname, follow.profileUri)
         val myFollow = Mapper.getInstance()!!.mapperToFollow(FirebaseAuth.getInstance().currentUser?.email.toString(), myNickName, myProfileUri)
-        repository.requestUpdateFollower(follow.email, flag, myFollow, targetFollow)
+        remoteRepository.requestUpdateFollower(follow.email, flag, myFollow, targetFollow)
 
         if(isDelete){
             val tempList = followListLiveData.value?.toMutableList()
             tempList?.remove(follow)
             followListLiveData.value = tempList?.toList()
         }
-    }
-
-    fun requestCheckFollow(targetEmail : String ,callback : LongTaskCallback<Boolean>){
-        repository.requestCheckFollow(targetEmail, callback)
     }
 }

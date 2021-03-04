@@ -12,7 +12,7 @@ import java.util.*
 
 class CommentListViewModel : ViewModel() {
     private var commentListLiveData: MutableLiveData<List<Comment>> = MutableLiveData()
-    private val repository = RemoteRepository.getInstance()!!
+    private val remoteRepository = RemoteRepository.getInstance()!!
 
     fun getCommentListLiveData(): MutableLiveData<List<Comment>> {
         return commentListLiveData
@@ -24,7 +24,7 @@ class CommentListViewModel : ViewModel() {
     }
 
     fun requestLoadComment(targetEmail: String, targetTimestamp: Long) {
-        repository.loadComment(
+        remoteRepository.loadComment(
             targetEmail,
             targetTimestamp,
             object : LongTaskCallback<List<Comment>> {
@@ -51,7 +51,7 @@ class CommentListViewModel : ViewModel() {
         timestamp: Long
     ) {
         var comment = Mapper.getInstance()!!.mapperToComment(type, myEmail, nickname, content, null, timestamp)
-        repository.uploadComment(targetEmail, targetTimestamp, comment)
+        remoteRepository.uploadComment(targetEmail, targetTimestamp, comment)
     }
 
     fun requestUploadCommentAnswer(
@@ -66,11 +66,11 @@ class CommentListViewModel : ViewModel() {
         timestamp: Long
     ) {
         var commentAnswer = Mapper.getInstance()!!.mapperToComment(type, myEmail, myNickname, content, null, timestamp)
-        repository.uploadCommentAnswer(feedEmail, feedTimestamp, targetEmail, targetTimestamp, commentAnswer)
+        remoteRepository.uploadCommentAnswer(feedEmail, feedTimestamp, targetEmail, targetTimestamp, commentAnswer)
     }
 
     fun requestUploadCommentCount(targetEmail: String, targetTimestamp: Long, commentCount: Long, flag : Boolean) {
-        repository.uploadCommentCount(targetEmail, targetTimestamp, commentCount, flag)
+        remoteRepository.uploadCommentCount(targetEmail, targetTimestamp, commentCount, flag)
     }
 
     fun requestDeleteComment(
@@ -81,7 +81,7 @@ class CommentListViewModel : ViewModel() {
         type: String,
         list: MutableList<Comment>
     ){
-        repository.deleteComment(feedEmail, feedTimestamp, parentComment, childComment, type)
+        remoteRepository.deleteComment(feedEmail, feedTimestamp, parentComment, childComment, type)
         commentListLiveData.value = list
     }
 

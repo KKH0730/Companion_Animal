@@ -52,7 +52,7 @@ class FollowActivity : AppCompatActivity(), View.OnClickListener {
 
     }
 
-    fun init() {
+    private fun init() {
         category = intent.getStringExtra("category")
         if (category != null)
             followAdapter = FollowAdapter(category!!)
@@ -65,7 +65,7 @@ class FollowActivity : AppCompatActivity(), View.OnClickListener {
             binding.header.findViewById<TextView>(R.id.title2).text = getString(R.string.following)
     }
 
-    fun followItemEvent() {
+    private fun followItemEvent() {
         followAdapter.setOnFollowClickListener(object : OnFollowClickListener {
             override fun onProfileClicked(layout: ConstraintLayout, follow: Follow) {
                 startActivity<ShowFeedActivity>(
@@ -94,21 +94,20 @@ class FollowActivity : AppCompatActivity(), View.OnClickListener {
         })
     }
 
-    fun updateFollow(follow : Follow, isAdd : Boolean, isDeleted : Boolean){
-        LocalRepository.getInstance(applicationContext)!!.getUserInfo(lifecycleScope, object : LongTaskCallback<User> {
+    private fun updateFollow(follow : Follow, isAdd : Boolean, isDeleted : Boolean){
+        LocalRepository.getInstance(this)!!.getUserInfo(lifecycleScope, object : LongTaskCallback<User> {
             override fun onResponse(result: Result<User>) {
                 if(result is Result.Success) {
                     followListViewModel.requestUpdateFollower(follow, isAdd, result.data.nickname, result.data.profileUri, isDeleted)
-                    LocalRepository.getInstance(applicationContext)!!.updateFollowing(lifecycleScope, isAdd)
+                    LocalRepository.getInstance(this@FollowActivity)!!.updateFollowing(lifecycleScope, isAdd)
 
-                } else if(result is Result.Error) {
-                    Log.e("error", "Homefragment follow error : ${result.exception}")
-                }
+                } else if(result is Result.Error)
+                    Log.e("error", "FollowActivity follow error : ${result.exception}")
             }
         })
     }
 
-    fun observe() {
+    private fun observe() {
         followListViewModel.getFollowListLiveData().observe(this, {
             followAdapter.submitList(it)
         })

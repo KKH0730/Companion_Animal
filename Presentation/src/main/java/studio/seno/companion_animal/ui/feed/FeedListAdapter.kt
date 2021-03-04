@@ -1,9 +1,7 @@
 package studio.seno.companion_animal.ui.feed
 
-import android.content.DialogInterface
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,13 +9,9 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleCoroutineScope
-import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
-import org.jetbrains.anko.sdk27.coroutines.textChangedListener
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.FeedItemBinding
 import studio.seno.domain.model.Feed

@@ -20,8 +20,11 @@ import androidx.lifecycle.observe
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.google.firebase.auth.FirebaseAuth
+import org.jetbrains.anko.startActivity
+import org.jetbrains.anko.support.v4.startActivity
 import studio.seno.companion_animal.MainActivity
 import studio.seno.companion_animal.R
+import studio.seno.companion_animal.ReportActivity
 import studio.seno.companion_animal.databinding.ActivityCommentBinding
 import studio.seno.companion_animal.module.CommentModule
 import studio.seno.companion_animal.module.CommonFunction
@@ -109,7 +112,7 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
     fun commentEvent() {
         commentAdapter.setOnEventListener(object : OnCommentEventListener {
             override fun onReadAnswerClicked(readAnswer: Button, targetComment: Comment) {
-                if (targetComment.getChildren()!!.size != 0)
+                if (targetComment.getChildren()!!.isNotEmpty())
                     commentModule.showComment(readAnswer, targetComment)
                 else {
                     commentModule.hideComment(readAnswer, targetComment)
@@ -194,7 +197,6 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
                     )
 
                     notificationModule.sendNotification(curComment!!.email, profileUri, binding.comment.text.toString(), timestamp, feed, lifecycleScope)
-
                 }
             } else {
                 if (modifyMode) { //댓글 수정 모드
@@ -209,16 +211,16 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
                     )
 
                     notificationModule.sendNotification(feed.getEmail()!!, profileUri, binding.comment.text.toString(), timestamp, feed, lifecycleScope)
-
                 }
             }
             initVariable()
+
         } else if(v?.id == R.id.show_comment_bar) {
             showCommentContainer()
         }
     }
 
-    fun initVariable() {
+    private fun initVariable() {
         answerMode = false
         curComment = null
         answerComment = null
@@ -229,7 +231,7 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
         binding.modeLayout.visibility = View.INVISIBLE
     }
 
-    fun showCommentContainer(){
+    private fun showCommentContainer(){
         binding.commentContainer.visibility = View.VISIBLE
         CommonFunction.getInstance()!!.showKeyboard(this)
         binding.comment.requestFocus()
@@ -270,10 +272,7 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
             modifyMode = true
             commentModule.setHint(binding.comment, binding.modeTitle, 3)
             CommonFunction.showKeyboard(this)
-        } else if (PreferenceManager.getString(
-                applicationContext,
-                "mode"
-            ) == "comment_answer_modify"
+        } else if (PreferenceManager.getString(applicationContext, "mode") == "comment_answer_modify"
         ) {
             binding.modeLayout.visibility = View.VISIBLE
             modifyMode = true
@@ -285,7 +284,7 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
                 answerMode, binding.header.findViewById(R.id.comment_count)
             )
         } else {
-
+            startActivity<ReportActivity>("feed" to feed)
         }
     }
 

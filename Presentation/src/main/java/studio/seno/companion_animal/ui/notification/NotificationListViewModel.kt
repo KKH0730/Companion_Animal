@@ -10,7 +10,7 @@ import studio.seno.domain.model.NotificationData
 
 class NotificationListViewModel : ViewModel() {
     private var notificationListLiveData : MutableLiveData<List<NotificationData>> = MutableLiveData()
-    private val repository = RemoteRepository.getInstance()!!
+    private val remoteRepository = RemoteRepository.getInstance()!!
 
     fun getNotificationListLiveData() : MutableLiveData<List<NotificationData>>{
         return notificationListLiveData
@@ -18,7 +18,7 @@ class NotificationListViewModel : ViewModel() {
 
 
     fun requestLoadNotification() {
-        repository.requestLoadNotification(object : LongTaskCallback<List<NotificationData>>{
+        remoteRepository.requestLoadNotification(object : LongTaskCallback<List<NotificationData>>{
             override fun onResponse(result: Result<List<NotificationData>>) {
                 if(result is Result.Success) {
                     notificationListLiveData.value = result.data
@@ -30,11 +30,11 @@ class NotificationListViewModel : ViewModel() {
     }
 
     fun requestUpdateCheckDot(notificationData : NotificationData){
-        repository.requestUpdateCheckDot(notificationData)
+        remoteRepository.requestUpdateCheckDot(notificationData)
     }
 
     fun deleteNotification(notificationData : NotificationData){
-        repository.requestDeleteNotification(notificationData, object : LongTaskCallback<Boolean> {
+        remoteRepository.requestDeleteNotification(notificationData, object : LongTaskCallback<Boolean> {
             override fun onResponse(result: Result<Boolean>) {
                 if(result is Result.Success) {
                     val list = notificationListLiveData.value?.toMutableList()

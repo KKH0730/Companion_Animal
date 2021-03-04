@@ -1,23 +1,28 @@
 package studio.seno.companion_animal
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageButton
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import studio.seno.commonmodule.CustomToast
-import studio.seno.companion_animal.databinding.ActivityErrorBinding
+import studio.seno.companion_animal.databinding.ActivityReportBinding
 import studio.seno.datamodule.RemoteRepository
 import studio.seno.domain.model.Feed
 
-class ErrorActivity : AppCompatActivity(), View.OnClickListener {
-    private lateinit var binding : ActivityErrorBinding
+/**
+ * 1. NotificationFragment 에서 알림 클릭시 피드가 삭제된 경우
+ * 2. Feed 메뉴에서 신고하기 선택된 경우
+ */
+
+class ReportActivity : AppCompatActivity(), View.OnClickListener {
+    private lateinit var binding : ActivityReportBinding
     private var feed : Feed? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_error)
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_report)
 
         init()
     }

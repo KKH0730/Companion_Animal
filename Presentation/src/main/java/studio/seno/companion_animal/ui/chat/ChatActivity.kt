@@ -56,7 +56,7 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener {
         setRecyclerPositionListener()
     }
 
-    fun init(){
+    private fun init(){
         targetEmail = intent.getStringExtra("targetEmail")
         targetRealEmail = intent.getStringExtra("targetRealEmail")
         targetProfileUri = intent.getStringExtra("targetProfileUri")
@@ -67,7 +67,7 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener {
         binding.header.findViewById<TextView>(R.id.title2).text = targetNickname
     }
 
-    fun setUserInfo(){
+    private fun setUserInfo(){
         LocalRepository.getInstance(this)!!.getUserInfo(lifecycleScope, object : LongTaskCallback<User>{
             override fun onResponse(result: Result<User>) {
                 if(result is Result.Success) {
@@ -89,15 +89,14 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener {
         })
     }
 
-    fun observe(){
+    private fun observe(){
         chatListViewModel.getChatListLiveData().observe(this, {
             chatAdapter.submitList(it)
         })
     }
 
-    fun setRecyclerPositionListener(){
-        //키보드가 올라올 때 recyclerview의 마지막 위치로 이동
-        binding.chatRecyclerview.addOnLayoutChangeListener { v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
+    private fun setRecyclerPositionListener(){
+        binding.chatRecyclerview.addOnLayoutChangeListener { v, _, _, _, bottom, _, _, _, oldBottom ->
             if(bottom < oldBottom) {
                 v.postDelayed({ binding.chatRecyclerview.smoothScrollToPosition(chatAdapter.itemCount) }, 100)
             }

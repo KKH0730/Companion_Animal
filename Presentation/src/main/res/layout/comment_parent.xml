@@ -71,7 +71,7 @@
 
             <TextView
                 android:id="@+id/comment_content"
-                setCommentContent="@{model.parentCommentLiveData.component4()}"
+                setText="@{model.parentCommentLiveData.component4()}"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="20dp"

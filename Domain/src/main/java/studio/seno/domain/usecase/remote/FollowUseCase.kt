@@ -37,7 +37,7 @@ class FollowUseCase {
 
 
     //팔로워를 불러온다.
-    fun loadFollower(email: String, fieldName: String, db: FirebaseFirestore, callback: LongTaskCallback<List<Follow>>) {
+    fun requestLoadFollow(email: String, fieldName: String, db: FirebaseFirestore, callback: LongTaskCallback<List<Follow>>) {
         db.collection("user")
             .document(email)
             .collection(fieldName)

@@ -1,7 +1,6 @@
 package studio.seno.companion_animal.ui.main_ui
 
 import android.app.AlertDialog
-import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -27,7 +26,7 @@ import com.kakao.network.callback.ResponseCallback
 import org.jetbrains.anko.support.v4.intentFor
 import org.jetbrains.anko.support.v4.startActivity
 import studio.seno.commonmodule.CustomToast
-import studio.seno.companion_animal.ErrorActivity
+import studio.seno.companion_animal.ReportActivity
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.FragmentHomeBinding
 import studio.seno.companion_animal.module.FeedModule
@@ -37,13 +36,10 @@ import studio.seno.companion_animal.ui.feed.*
 import studio.seno.companion_animal.ui.search.SearchActivity
 import studio.seno.companion_animal.util.Constants
 import studio.seno.datamodule.LocalRepository
-import studio.seno.datamodule.mapper.Mapper
 import studio.seno.domain.LongTaskCallback
 import studio.seno.domain.Result
 import studio.seno.domain.model.Feed
 import studio.seno.domain.model.User
-import studio.seno.domain.util.PreferenceManager
-import java.util.logging.Logger
 
 /**
  * HomeFragment는 FeedViewListModel과 연결.
@@ -110,11 +106,8 @@ class HomeFragment : Fragment(), View.OnClickListener{
             refreshFeedList()
         }
         loadFeedList()
-        observe()
         setListener()
-
-
-
+        observe()
     }
 
     private fun init(){
@@ -155,7 +148,6 @@ class HomeFragment : Fragment(), View.OnClickListener{
                     override fun onResponse(result: Result<List<Feed>>) {
                         if (result is Result.Success) {
                             binding.refreshLayout.isRefreshing = false
-                            //feedListViewModel.setFeedListListener()
 
                         } else if (result is Result.Error) {
                             e("error", "feed refresh error : ${result.exception}")
@@ -227,7 +219,7 @@ class HomeFragment : Fragment(), View.OnClickListener{
             }
 
             override fun onShareButtonClicked(feed: Feed) {
-                kakaoLink(feed)
+                sendKakaoLink(feed)
             }
         })
     }
@@ -262,7 +254,7 @@ class HomeFragment : Fragment(), View.OnClickListener{
                 feedModule.onDismiss("unfollow", targetFeed, requireActivity(), LocalRepository.getInstance(requireActivity().applicationContext)!!, feedAdapter, lifecycleScope)
                 CustomToast(requireContext(), getString(R.string.unfollow_toast)).show()
             } else if(type == "report") {
-                startActivity<ErrorActivity>("feed" to targetFeed)
+                startActivity<ReportActivity>("feed" to targetFeed)
             }
         }
     }
@@ -361,12 +353,12 @@ class HomeFragment : Fragment(), View.OnClickListener{
         }
     }
 
-    fun kakaoLink(feed: Feed) {
+    fun sendKakaoLink(feed: Feed) {
         val params = FeedTemplate
             .newBuilder(
                 ContentObject.newBuilder(
                     getString(R.string.kakao_title),
-                    "https://firebasestorage.googleapis.com/v0/b/companion-animal-f0bfa.appspot.com/o/logo.png?alt=media&token=a0fa3ee2-d150-47d0-855d-ecded4306030",
+                    feed.getRemoteUri()[0],
                     LinkObject.newBuilder().setMobileWebUrl("https://www.naver.com").build()
                 )
                     .setDescrption(getString(R.string.kakao_description))
@@ -392,7 +384,7 @@ class HomeFragment : Fragment(), View.OnClickListener{
             serverCallbackArgs,
             object : ResponseCallback<KakaoLinkResponse?>() {
                 override fun onFailure(errorResult: ErrorResult) {
-                    e("error", "kakao share error : ${errorResult.errorMessage}")
+                    e("error", "HomeFragment kakao share error : ${errorResult.errorMessage}")
                 }
 
                 override fun onSuccess(result: KakaoLinkResponse?) {}

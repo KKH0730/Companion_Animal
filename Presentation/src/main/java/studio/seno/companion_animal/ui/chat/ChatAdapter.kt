@@ -71,7 +71,6 @@ class ChatAdapter(type: String) : ListAdapter<Chat, RecyclerView.ViewHolder>(
             holder.setVisibility(chat)
         } else if (mType == "chat_list") {
             val holder = holder as ChatListViewHolder
-
             val chat = getItem(position)
             val model = ChatViewModel()
             model.setChatLiveData(chat)
@@ -81,9 +80,6 @@ class ChatAdapter(type: String) : ListAdapter<Chat, RecyclerView.ViewHolder>(
         }
     }
 
-    fun setItem(items: List<Chat>) {
-        this.items = items
-    }
 
     fun setOnChatItemClickListener(chatItemClickListener: OnChatItemClickListener) {
         mChatItemListener = chatItemClickListener
@@ -95,7 +91,7 @@ class ChatAdapter(type: String) : ListAdapter<Chat, RecyclerView.ViewHolder>(
 
         fun setVisibility(chat: Chat) {
             mBinding.exitTextView.visibility = View.GONE
-            if (chat.isExit == false) {
+            if (!chat.isExit) {
                 if (chat.email == CommonFunction.getInstance()!!
                         .makeChatPath(FirebaseAuth.getInstance().currentUser?.email.toString())
                 ) {
@@ -132,7 +128,7 @@ class ChatAdapter(type: String) : ListAdapter<Chat, RecyclerView.ViewHolder>(
         }
 
         fun setVisibility(chat: Chat) {
-            if (chat.isRead == true)
+            if (chat.isRead)
                 mBinding.checkDot.visibility = View.GONE
             else {
                 if (chat.realEmail == FirebaseAuth.getInstance().currentUser?.email.toString())
@@ -150,15 +146,10 @@ class ChatAdapter(type: String) : ListAdapter<Chat, RecyclerView.ViewHolder>(
                 )
             }
             mBinding.exitBtn.setOnClickListener { mChatItemListener.onExitButtonClicked(chat) }
-            mBinding.profileImage.setOnClickListener {
-                mChatItemListener.onImageClicked(
-                    chat,
-                    absoluteAdapterPosition
-                )
+            mBinding.profileImage.setOnClickListener { mChatItemListener.onImageClicked(chat, absoluteAdapterPosition)
             }
 
             mBinding.profileImage.performClick()
-
         }
     }
 }

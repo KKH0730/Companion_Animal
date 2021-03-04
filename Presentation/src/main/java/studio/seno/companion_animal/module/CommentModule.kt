@@ -38,7 +38,7 @@ class CommentModule(
             mCommentListViewModel.setCommentListLiveData(currentCommentList.toList())
 
         } else {
-            RemoteRepository.getInstance()!!.loadRemoteProfileImage(myEmail, object : LongTaskCallback<String>{
+            RemoteRepository.getInstance()!!.requestLoadProfileUri(myEmail, object : LongTaskCallback<String>{
 
                     override fun onResponse(result: Result<String>) {
                         if(result is Result.Success) {
@@ -74,7 +74,7 @@ class CommentModule(
             currentCommentList.set(answerPosition, tempComment!!)
             mCommentListViewModel.setCommentListLiveData(currentCommentList)
         } else {
-            RemoteRepository.getInstance()!!.loadRemoteProfileImage(myEmail, object :LongTaskCallback<String>{
+            RemoteRepository.getInstance()!!.requestLoadProfileUri(myEmail, object :LongTaskCallback<String>{
                 override fun onResponse(result: Result<String>) {
                     if(result is Result.Success) {
 
