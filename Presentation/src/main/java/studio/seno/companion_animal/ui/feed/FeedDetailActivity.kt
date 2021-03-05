@@ -10,7 +10,6 @@ import android.view.View
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModel
@@ -19,10 +18,11 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
 import org.jetbrains.anko.intentFor
 import org.jetbrains.anko.startActivity
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import studio.seno.commonmodule.CustomToast
-import studio.seno.companion_animal.ReportActivity
 import studio.seno.companion_animal.MainActivity
 import studio.seno.companion_animal.R
+import studio.seno.companion_animal.ui.ReportActivity
 import studio.seno.companion_animal.databinding.ActivityFeedDetailBinding
 import studio.seno.companion_animal.module.CommentModule
 import studio.seno.companion_animal.module.CommonFunction
@@ -33,13 +33,13 @@ import studio.seno.companion_animal.ui.comment.CommentAdapter
 import studio.seno.companion_animal.ui.comment.CommentListViewModel
 import studio.seno.companion_animal.ui.comment.OnCommentEventListener
 import studio.seno.companion_animal.util.Constants
-import studio.seno.datamodule.LocalRepository
-import studio.seno.domain.LongTaskCallback
-import studio.seno.domain.Result
+import studio.seno.datamodule.repository.local.LocalRepository
 import studio.seno.domain.model.Comment
 import studio.seno.domain.model.Feed
 import studio.seno.domain.model.User
+import studio.seno.domain.util.LongTaskCallback
 import studio.seno.domain.util.PreferenceManager
+import studio.seno.domain.util.Result
 import java.sql.Timestamp
 
 class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
@@ -47,9 +47,9 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
     private var feed: Feed? = null
     private lateinit var binding: ActivityFeedDetailBinding
     private lateinit var feedViewModel: FeedViewModel
-    private val feedListViewModel: FeedListViewModel by viewModels()
-    private val commentViewModel: CommentListViewModel by viewModels()
-    private val commentListViewModel: CommentListViewModel by viewModels()
+    private val feedListViewModel: FeedListViewModel by viewModel()
+    private val commentViewModel: CommentListViewModel by viewModel()
+    private val commentListViewModel: CommentListViewModel by viewModel()
     private val feedModule: FeedModule by lazy { FeedModule(feedListViewModel, commentViewModel) }
     private lateinit var notificationModule : NotificationModule
     private var curComment: Comment? = null
@@ -132,6 +132,7 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
         binding.feedLayout.feedMenu2.setOnClickListener(this)
         binding.feedLayout.commentBtn.setOnClickListener(this)
         binding.feedLayout.imageBtn.setOnClickListener(this)
+        binding.feedLayout.shareBtn.setOnClickListener(this)
         binding.feedLayout.comment.addTextChangedListener(textWatcher)
 
 
@@ -235,7 +236,8 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
                         answerPosition, commentPosition, binding.feedLayout.comment
                     )
 
-                    LocalRepository.getInstance(this)!!.getUserInfo(lifecycleScope, object : LongTaskCallback<User>{
+                    LocalRepository.getInstance(this)!!.getUserInfo(lifecycleScope, object :
+                        LongTaskCallback<User> {
                         override fun onResponse(result: Result<User>) {
                             if(result is Result.Success)
                                 notificationModule.sendNotification(curComment!!.email, result.data.profileUri, binding.feedLayout.comment.text.toString(), timestamp, feed!!, lifecycleScope)
@@ -255,7 +257,8 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
                         binding.feedLayout.commentCount, binding.feedLayout.comment
                     )
 
-                    LocalRepository.getInstance(this)!!.getUserInfo(lifecycleScope, object : LongTaskCallback<User>{
+                    LocalRepository.getInstance(this)!!.getUserInfo(lifecycleScope, object :
+                        LongTaskCallback<User> {
                         override fun onResponse(result: Result<User>) {
                             if(result is Result.Success)
                                 notificationModule.sendNotification(feed!!.getEmail()!!, result.data.profileUri, binding.feedLayout.comment.text.toString(), timestamp, feed!!, lifecycleScope)
@@ -269,6 +272,8 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
                 "profileEmail" to feed?.getEmail(),
                 "feedSort" to "profile"
             )
+        } else if(v?.id == R.id.share_btn){
+            feed?.let { feedModule.sendShareLink(it, this, lifecycleScope) }
         }
     }
 

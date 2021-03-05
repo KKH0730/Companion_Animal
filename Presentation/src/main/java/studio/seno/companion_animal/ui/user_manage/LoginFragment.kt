@@ -10,11 +10,11 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.google.firebase.auth.FirebaseAuth
 import com.royrodriguez.transitionbutton.TransitionButton
 import org.jetbrains.anko.support.v4.startActivity
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import studio.seno.commonmodule.CustomToast
 import studio.seno.companion_animal.MainActivity
 import studio.seno.companion_animal.R
@@ -22,13 +22,13 @@ import studio.seno.companion_animal.databinding.FragmentLoginBinding
 import studio.seno.companion_animal.module.CommonFunction
 import studio.seno.companion_animal.module.TextModule
 import studio.seno.companion_animal.util.FinishActivityInterface
-import studio.seno.domain.LongTaskCallback
-import studio.seno.domain.Result
+import studio.seno.domain.util.LongTaskCallback
+import studio.seno.domain.util.Result
 
 
 class LoginFragment : Fragment(), View.OnClickListener {
     private lateinit var binding: FragmentLoginBinding
-    private val viewModel : UserViewModel by viewModels()
+    private val viewModel : UserViewModel by viewModel()
     private lateinit var finishActivityInterface : FinishActivityInterface
     private var key = false
 
@@ -92,7 +92,7 @@ class LoginFragment : Fragment(), View.OnClickListener {
             if (email.isEmpty()  || password.isEmpty())
                 failLogin()
             else {
-                viewModel.requestCheckEnableLogin(
+                viewModel.checkEnableLogin(
                     email,
                     password,
                     object : LongTaskCallback<Boolean> {

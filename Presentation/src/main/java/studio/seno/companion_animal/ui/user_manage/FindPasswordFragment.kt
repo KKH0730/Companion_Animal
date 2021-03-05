@@ -8,8 +8,8 @@ import android.widget.ImageButton
 import android.widget.TextView
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import studio.seno.commonmodule.CustomToast
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.FragmentFindPasswordBinding
@@ -18,7 +18,7 @@ import studio.seno.companion_animal.module.CommonFunction
 
 class FindPasswordFragment : Fragment(){
     private lateinit var binding : FragmentFindPasswordBinding
-    private val viewModel : UserViewModel by viewModels()
+    private val viewModel : UserViewModel by viewModel()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,

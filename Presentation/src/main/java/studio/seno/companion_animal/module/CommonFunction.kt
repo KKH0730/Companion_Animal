@@ -5,10 +5,6 @@ import android.view.Window
 import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
-import androidx.recyclerview.widget.StaggeredGridLayoutManager
-import androidx.room.Room
-import studio.seno.domain.database.AppDatabase
-import java.lang.StringBuilder
 import java.util.*
 
 object CommonFunction {

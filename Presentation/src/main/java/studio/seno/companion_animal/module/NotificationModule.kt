@@ -11,7 +11,6 @@ import android.graphics.BitmapFactory
 import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Build
-import android.util.Log
 import androidx.lifecycle.LifecycleCoroutineScope
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.Dispatchers
@@ -19,17 +18,15 @@ import kotlinx.coroutines.launch
 import okhttp3.ResponseBody
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.util.Constants
-import studio.seno.datamodule.LocalRepository
-import studio.seno.datamodule.RemoteRepository
 import studio.seno.datamodule.api.ApiClient
 import studio.seno.datamodule.api.ApiInterface
 import studio.seno.datamodule.model.NotificationModel
-import studio.seno.domain.LongTaskCallback
-import studio.seno.domain.Result
+import studio.seno.datamodule.repository.remote.UserManagerRepositoryImpl
+import studio.seno.domain.util.LongTaskCallback
+import studio.seno.domain.util.Result
 import studio.seno.domain.model.Feed
 import studio.seno.domain.model.NotificationData
 import studio.seno.domain.model.User
-import studio.seno.domain.util.PreferenceManager
 
 
 class NotificationModule(context: Context, title: String) {
@@ -120,7 +117,7 @@ class NotificationModule(context: Context, title: String) {
             return
         }
 
-        RemoteRepository.getInstance()!!.loadUserInfo(targetEmail, object : LongTaskCallback<User> {
+        UserManagerRepositoryImpl().getUserInfo(targetEmail, object : LongTaskCallback<User> {
             override fun onResponse(result: Result<User>) {
                 if (result is Result.Success) {
                     var notificationModel: NotificationModel? = null

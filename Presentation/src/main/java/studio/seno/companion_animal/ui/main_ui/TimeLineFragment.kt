@@ -13,7 +13,6 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
@@ -22,23 +21,22 @@ import com.kroegerama.imgpicker.BottomSheetImagePicker
 import com.kroegerama.imgpicker.ButtonType
 import com.marcoscg.easylicensesdialog.EasyLicensesDialogCompat
 import org.jetbrains.anko.support.v4.startActivity
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.FragmentTimeLineBinding
 import studio.seno.companion_animal.module.CommonFunction
 import studio.seno.companion_animal.module.ProfileModule
 import studio.seno.companion_animal.ui.chat.ChatActivity
 import studio.seno.companion_animal.ui.gridLayout.FeedGridFragment
-import studio.seno.companion_animal.ui.feed.FeedListViewModel
 import studio.seno.companion_animal.ui.feed.MakeFeedActivity
 import studio.seno.companion_animal.ui.feed.ShowFeedActivity
 import studio.seno.companion_animal.ui.follow.FollowActivity
-import studio.seno.companion_animal.ui.gridLayout.GridImageAdapter
 import studio.seno.companion_animal.ui.user_manage.UserManageActivity
+import studio.seno.companion_animal.ui.user_manage.UserViewModel
 import studio.seno.companion_animal.util.FinishActivityInterface
-import studio.seno.datamodule.LocalRepository
-import studio.seno.datamodule.RemoteRepository
-import studio.seno.domain.LongTaskCallback
-import studio.seno.domain.Result
+import studio.seno.datamodule.repository.local.LocalRepository
+import studio.seno.domain.util.LongTaskCallback
+import studio.seno.domain.util.Result
 import studio.seno.domain.model.User
 
 
@@ -47,13 +45,13 @@ class TimeLineFragment : Fragment(), View.OnClickListener,
     private lateinit var binding: FragmentTimeLineBinding
     private lateinit var localRepository: LocalRepository
     private lateinit var finishActivityInterface : FinishActivityInterface
-    private val remoteRepository: RemoteRepository = RemoteRepository.getInstance()!!
-    private val mainViewModel: MainViewModel by viewModels()
+    private val mainViewModel: MainViewModel by viewModel()
+    private val userViewModel : UserViewModel by viewModel()
     private var profileEmail : String? = null // Feed, follow, 댓글 등에서 프로필 클릭시 상대방의 프로필을 보여주기 위한 email
     private var targetNickname : String? = null
     private var targetProfileUri : String? = null
     private val profileModule : ProfileModule by lazy {
-        ProfileModule(profileEmail)
+        ProfileModule(profileEmail, mainViewModel)
     }
 
     override fun onAttach(context: Context) {
@@ -156,7 +154,7 @@ class TimeLineFragment : Fragment(), View.OnClickListener,
                 }
             })
         } else {
-            mainViewModel.requestUserData(profileEmail!!, object : LongTaskCallback<User> {
+            mainViewModel.requestUserInfo(profileEmail!!, object : LongTaskCallback<User> {
                 override fun onResponse(result: Result<User>) {
                     if (result is Result.Success) {
                         profileModule.userInfoSet(
@@ -176,7 +174,7 @@ class TimeLineFragment : Fragment(), View.OnClickListener,
                 }
             })
 
-            RemoteRepository.getInstance()!!.requestCheckFollow(
+            mainViewModel.checkFollow(
                 profileEmail!!,
                 object : LongTaskCallback<Boolean> {
                     override fun onResponse(result: Result<Boolean>) {
@@ -239,7 +237,7 @@ class TimeLineFragment : Fragment(), View.OnClickListener,
                 localRepository.getUserInfo(lifecycleScope, object : LongTaskCallback<User> {
                     override fun onResponse(result: Result<User>) {
                         if (result is Result.Success) {
-                            profileModule.requestUpdateFollower(
+                            profileModule.requestUpdateFollow(
                                 profileEmail!!, targetNickname!!, targetProfileUri!!,
                                 false, result.data.nickname, result.data.profileUri
                             )
@@ -257,7 +255,7 @@ class TimeLineFragment : Fragment(), View.OnClickListener,
                 localRepository.getUserInfo(lifecycleScope, object : LongTaskCallback<User> {
                     override fun onResponse(result: Result<User>) {
                         if (result is Result.Success) {
-                            profileModule.requestUpdateFollower(
+                            profileModule.requestUpdateFollow(
                                 profileEmail!!, targetNickname!!, targetProfileUri!!,
                                 true, result.data.nickname, result.data.profileUri
                             )
@@ -312,18 +310,18 @@ class TimeLineFragment : Fragment(), View.OnClickListener,
         CommonFunction.getInstance()!!.lockTouch(activity?.window!!)
         binding.progressBar.visibility = View.VISIBLE
 
-        remoteRepository.uploadInItProfileImage(uris[0], object : LongTaskCallback<Boolean> {
+        userViewModel.uploadProfileImage(uris[0], object : LongTaskCallback<Boolean> {
             override fun onResponse(result: Result<Boolean>) {
                 if (result is Result.Success) {
 
-                    remoteRepository.requestLoadProfileUri(
+                    userViewModel.loadProfileUri(
                         FirebaseAuth.getInstance().currentUser?.email.toString(),
                         object : LongTaskCallback<String> {
                             override fun onResponse(result: Result<String>) {
                                 if (result is Result.Success) {
                                     val profileUri = result.data
 
-                                    remoteRepository.updateRemoteProfileUri(profileUri)
+                                    userViewModel.updateRemoteProfileUri(profileUri)
                                     LocalRepository(context!!).updateProfileUri(
                                         lifecycleScope,
                                         profileUri,

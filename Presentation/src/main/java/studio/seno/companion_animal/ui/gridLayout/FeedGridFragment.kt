@@ -6,22 +6,22 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
 import com.google.firebase.auth.FirebaseAuth
 import org.jetbrains.anko.support.v4.startActivity
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.FragmentFeedGridBinding
 import studio.seno.companion_animal.ui.feed.FeedDetailActivity
 import studio.seno.companion_animal.ui.feed.FeedListViewModel
 import studio.seno.companion_animal.ui.feed.ShowFeedActivity
 import studio.seno.companion_animal.ui.search.OnSearchItemClickListener
-import studio.seno.domain.LongTaskCallback
-import studio.seno.domain.Result
+import studio.seno.domain.util.LongTaskCallback
+import studio.seno.domain.util.Result
 import studio.seno.domain.model.Feed
 
 class FeedGridFragment : Fragment() {
-    private val feedListViewModel: FeedListViewModel by viewModels()
+    private val feedListViewModel: FeedListViewModel by viewModel()
     private lateinit var binding : FragmentFeedGridBinding
     private val gridImageAdapter = GridImageAdapter()
     private var keyword : String? = null
@@ -83,13 +83,13 @@ class FeedGridFragment : Fragment() {
 
 
         if(feedSort == "feed_timeline") {
-            feedListViewModel.requestLoadFeedList(
+            feedListViewModel.getPagingFeed(
                 null, null, null,
                 null,
                 "feed_timeline",
                 timeLineEmail,
                 binding.gridRecyclerview,
-                object : LongTaskCallback<List<Feed>>{
+                object : LongTaskCallback<List<Feed>> {
                     override fun onResponse(result: Result<List<Feed>>) {
                         binding.progressBar.visibility = View.GONE
                         binding.gridRecyclerview.visibility = View.VISIBLE
@@ -97,13 +97,13 @@ class FeedGridFragment : Fragment() {
                 }
             )
         } else if(feedSort == "feed_search"){
-            feedListViewModel.requestLoadFeedList(
+            feedListViewModel.getPagingFeed(
                 null, null, null,
                 keyword,
                 "feed_search",
                 null,
                 binding.gridRecyclerview,
-                object : LongTaskCallback<List<Feed>>{
+                object : LongTaskCallback<List<Feed>> {
                 override fun onResponse(result: Result<List<Feed>>) {
                     binding.progressBar.visibility = View.GONE
                     binding.gridRecyclerview.visibility = View.VISIBLE
@@ -117,7 +117,7 @@ class FeedGridFragment : Fragment() {
                 }
             })
         } else if(feedSort == "feed_bookmark") {
-            feedListViewModel.requestLoadFeedList(
+            feedListViewModel.getPagingFeed(
                 null, null, null, null,"feed_bookmark", FirebaseAuth.getInstance().currentUser?.email.toString(),
                 binding.gridRecyclerview, object : LongTaskCallback<List<Feed>> {
                     override fun onResponse(result: Result<List<Feed>>) {

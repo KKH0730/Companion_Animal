@@ -3,7 +3,6 @@ package studio.seno.companion_animal.ui.main_ui
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.util.Log.e
 import android.view.LayoutInflater
 import android.view.View
@@ -12,22 +11,18 @@ import android.widget.*
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.FirebaseFirestore
-import com.kakao.kakaolink.v2.KakaoLinkResponse
-import com.kakao.kakaolink.v2.KakaoLinkService
 import com.kakao.message.template.*
-import com.kakao.network.ErrorResult
-import com.kakao.network.callback.ResponseCallback
 import org.jetbrains.anko.support.v4.intentFor
 import org.jetbrains.anko.support.v4.startActivity
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import studio.seno.commonmodule.CustomToast
-import studio.seno.companion_animal.ReportActivity
 import studio.seno.companion_animal.R
+import studio.seno.companion_animal.ui.ReportActivity
 import studio.seno.companion_animal.databinding.FragmentHomeBinding
 import studio.seno.companion_animal.module.FeedModule
 import studio.seno.companion_animal.ui.comment.CommentActivity
@@ -35,11 +30,11 @@ import studio.seno.companion_animal.ui.comment.CommentListViewModel
 import studio.seno.companion_animal.ui.feed.*
 import studio.seno.companion_animal.ui.search.SearchActivity
 import studio.seno.companion_animal.util.Constants
-import studio.seno.datamodule.LocalRepository
-import studio.seno.domain.LongTaskCallback
-import studio.seno.domain.Result
+import studio.seno.datamodule.repository.local.LocalRepository
 import studio.seno.domain.model.Feed
 import studio.seno.domain.model.User
+import studio.seno.domain.util.LongTaskCallback
+import studio.seno.domain.util.Result
 
 /**
  * HomeFragment는 FeedViewListModel과 연결.
@@ -47,8 +42,8 @@ import studio.seno.domain.model.User
  */
 class HomeFragment : Fragment(), View.OnClickListener{
     private lateinit var binding: FragmentHomeBinding
-    private val feedListViewModel: FeedListViewModel by viewModels()
-    private val commentViewModel : CommentListViewModel by viewModels()
+    private val feedListViewModel: FeedListViewModel by viewModel()
+    private val commentViewModel : CommentListViewModel by viewModel()
     private var filter1  = true
     private var filter2  = true
     private var filter3  = true
@@ -143,8 +138,8 @@ class HomeFragment : Fragment(), View.OnClickListener{
         //게시판 데이터 서버로부터 불러와서 viewmode의 livedata 업데이트
         feedListViewModel.clearFeedList()
         if(feedSort != null && feedSort == "feed_list")
-            feedListViewModel.requestLoadFeedList(filter1, filter2, filter3, null, "feed_list",
-                null, binding.feedRecyclerView, object : LongTaskCallback<List<Feed>>{
+            feedListViewModel.getPagingFeed(filter1, filter2, filter3, null, "feed_list",
+                null, binding.feedRecyclerView, object : LongTaskCallback<List<Feed>> {
                     override fun onResponse(result: Result<List<Feed>>) {
                         if (result is Result.Success) {
                             binding.refreshLayout.isRefreshing = false
@@ -156,13 +151,13 @@ class HomeFragment : Fragment(), View.OnClickListener{
                 })
 
         else if(feedSort != null && feedSort == "feed_timeline") {
-            feedListViewModel.requestLoadFeedList(
+            feedListViewModel.getPagingFeed(
                 null, null, null,
                 null,
                 "feed_timeline",
                 timeLineEmail,
                 binding.feedRecyclerView,
-                object : LongTaskCallback<List<Feed>>{
+                object : LongTaskCallback<List<Feed>> {
                     override fun onResponse(result: Result<List<Feed>>) {
                         binding.feedRecyclerView.scrollToPosition(feedPosition!!)
                     }
@@ -188,7 +183,8 @@ class HomeFragment : Fragment(), View.OnClickListener{
             }
 
             override fun onCommentBtnClicked(feed: Feed, commentEdit: EditText, commentCount: TextView, container: LinearLayout) {
-                LocalRepository.getInstance(activity?.applicationContext!!)?.getUserInfo(lifecycleScope, object : LongTaskCallback<User>{
+                LocalRepository.getInstance(activity?.applicationContext!!)?.getUserInfo(lifecycleScope, object :
+                    LongTaskCallback<User> {
                     override fun onResponse(result: Result<User>) {
                         if(result is Result.Success) {
                             feedModule.onCommentBtnClicked(feed, result.data.email, result.data.nickname, result.data.profileUri, commentEdit, commentCount, container, lifecycleScope)
@@ -219,7 +215,7 @@ class HomeFragment : Fragment(), View.OnClickListener{
             }
 
             override fun onShareButtonClicked(feed: Feed) {
-                sendKakaoLink(feed)
+                feedModule.sendShareLink(feed, requireContext(), lifecycleScope)
             }
         })
     }
@@ -351,44 +347,6 @@ class HomeFragment : Fragment(), View.OnClickListener{
         if(requestCode == Constants.FEED_MAKE_QEQUEST && resultCode == Constants.RESULT_OK) {
             loadFeedList()
         }
-    }
-
-    fun sendKakaoLink(feed: Feed) {
-        val params = FeedTemplate
-            .newBuilder(
-                ContentObject.newBuilder(
-                    getString(R.string.kakao_title),
-                    feed.getRemoteUri()[0],
-                    LinkObject.newBuilder().setMobileWebUrl("https://www.naver.com").build()
-                )
-                    .setDescrption(getString(R.string.kakao_description))
-                    .build()
-            )
-            .addButton(
-                ButtonObject(
-                    getString(R.string.kakao_description2), LinkObject.newBuilder()
-                        .setMobileWebUrl("https://www.naver.com")
-                        .setAndroidExecutionParams("path=${feed.getEmail()}${feed.getTimestamp()}")
-                        .build()
-                )
-            )
-            .build()
-
-        val serverCallbackArgs: MutableMap<String, String> = HashMap()
-        serverCallbackArgs["user_id"] = "\${current_user_id}"
-        serverCallbackArgs["product_id"] = "\${shared_product_id}"
-
-        KakaoLinkService.getInstance().sendDefault(
-            requireContext(),
-            params,
-            serverCallbackArgs,
-            object : ResponseCallback<KakaoLinkResponse?>() {
-                override fun onFailure(errorResult: ErrorResult) {
-                    e("error", "HomeFragment kakao share error : ${errorResult.errorMessage}")
-                }
-
-                override fun onSuccess(result: KakaoLinkResponse?) {}
-            })
     }
 }
 

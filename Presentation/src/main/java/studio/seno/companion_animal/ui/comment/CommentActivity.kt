@@ -6,38 +6,34 @@ import android.graphics.Rect
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.View
-import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
-import com.google.firebase.auth.FirebaseAuth
 import org.jetbrains.anko.startActivity
-import org.jetbrains.anko.support.v4.startActivity
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import studio.seno.companion_animal.MainActivity
 import studio.seno.companion_animal.R
-import studio.seno.companion_animal.ReportActivity
+import studio.seno.companion_animal.ui.ReportActivity
 import studio.seno.companion_animal.databinding.ActivityCommentBinding
 import studio.seno.companion_animal.module.CommentModule
 import studio.seno.companion_animal.module.CommonFunction
 import studio.seno.companion_animal.module.NotificationModule
 import studio.seno.companion_animal.ui.MenuDialog
 import studio.seno.companion_animal.util.Constants
-import studio.seno.datamodule.LocalRepository
-import studio.seno.domain.LongTaskCallback
-import studio.seno.domain.Result
-import studio.seno.domain.util.PreferenceManager
+import studio.seno.datamodule.repository.local.LocalRepository
 import studio.seno.domain.model.Comment
 import studio.seno.domain.model.Feed
 import studio.seno.domain.model.User
+import studio.seno.domain.util.LongTaskCallback
+import studio.seno.domain.util.PreferenceManager
+import studio.seno.domain.util.Result
 import java.sql.Timestamp
 
 const val SOFT_KEYBOARD_HEIGHT_DP_THRESHOLD = 128
@@ -45,7 +41,7 @@ const val SOFT_KEYBOARD_HEIGHT_DP_THRESHOLD = 128
 class CommentActivity : AppCompatActivity(), View.OnClickListener,
     DialogInterface.OnDismissListener {
     private lateinit var binding: ActivityCommentBinding
-    private val commentListViewModel: CommentListViewModel by viewModels()
+    private val commentListViewModel: CommentListViewModel by viewModel()
     private val commentAdapter = CommentAdapter()
     private var answerMode = false
     private var modifyMode = false
@@ -68,7 +64,8 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
         binding.model = commentListViewModel
 
         initView()
-        LocalRepository.getInstance(this)!!.getUserInfo(lifecycleScope, object : LongTaskCallback<User>{
+        LocalRepository.getInstance(this)!!.getUserInfo(lifecycleScope, object :
+            LongTaskCallback<User> {
             override fun onResponse(result: Result<User>) {
                 if(result is Result.Success) {
                     profileUri = result.data.profileUri

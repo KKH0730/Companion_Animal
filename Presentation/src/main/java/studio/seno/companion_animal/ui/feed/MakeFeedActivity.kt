@@ -1,36 +1,26 @@
 package studio.seno.companion_animal.ui.feed
 
-import android.content.Context
-import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.ImageButton
 import android.widget.RadioGroup
 import android.widget.TextView
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
 import androidx.recyclerview.widget.ItemTouchHelper
-import com.google.firebase.auth.FirebaseAuth
 import com.kroegerama.imgpicker.BottomSheetImagePicker
 import com.pchmn.materialchips.ChipView
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import studio.seno.commonmodule.CustomToast
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.ActivityMakeFeedBinding
 import studio.seno.companion_animal.module.CommonFunction
-import studio.seno.companion_animal.util.Constants
-import studio.seno.datamodule.LocalRepository
-import studio.seno.datamodule.RemoteRepository
-import studio.seno.datamodule.mapper.Mapper
-import studio.seno.domain.LongTaskCallback
-import studio.seno.domain.Result
-import studio.seno.domain.util.PreferenceManager
+import studio.seno.datamodule.repository.local.LocalRepository
+import studio.seno.domain.util.LongTaskCallback
+import studio.seno.domain.util.Result
 import studio.seno.domain.model.Feed
 import studio.seno.domain.model.User
 import java.sql.Timestamp
@@ -39,7 +29,7 @@ class MakeFeedActivity : AppCompatActivity(), View.OnClickListener,
     BottomSheetImagePicker.OnImagesSelectedListener, RadioGroup.OnCheckedChangeListener {
     private lateinit var binding: ActivityMakeFeedBinding
     private lateinit var selectedImageAdapter: SelectedImageAdapter
-    private val feedListViewModel: FeedListViewModel by viewModels()
+    private val feedListViewModel: FeedListViewModel by viewModel()
     private val localRepository = LocalRepository(this)
     private var feed : Feed? = null
     private var mode = "write"
@@ -211,7 +201,8 @@ class MakeFeedActivity : AppCompatActivity(), View.OnClickListener,
 
 
     fun submitResult(timestamp: Long){
-        LocalRepository.getInstance(this)!!.getUserInfo(lifecycleScope, object : LongTaskCallback<User>{
+        LocalRepository.getInstance(this)!!.getUserInfo(lifecycleScope, object :
+            LongTaskCallback<User> {
             override fun onResponse(result: Result<User>) {
                 if (result is Result.Success) {
 

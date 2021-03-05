@@ -6,30 +6,26 @@ import android.view.View
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
-import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import org.jetbrains.anko.startActivity
-import org.jetbrains.anko.support.v4.startActivity
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.FragmentNotificationBinding
 import studio.seno.companion_animal.ui.feed.ShowFeedActivity
-import studio.seno.datamodule.LocalRepository
-import studio.seno.domain.LongTaskCallback
-import studio.seno.domain.Result
+import studio.seno.datamodule.repository.local.LocalRepository
 import studio.seno.domain.model.Follow
 import studio.seno.domain.model.User
+import studio.seno.domain.util.LongTaskCallback
+import studio.seno.domain.util.Result
 
 class FollowActivity : AppCompatActivity(), View.OnClickListener {
     private lateinit var binding: FragmentNotificationBinding
     private var category : String? = null
-    private val followListViewModel: FollowListViewModel by viewModels()
+    private val followListViewModel: FollowListViewModel by viewModel()
     private lateinit var followAdapter: FollowAdapter
 
 
@@ -43,9 +39,9 @@ class FollowActivity : AppCompatActivity(), View.OnClickListener {
         followItemEvent()
 
         if (category == "follower") {
-            followListViewModel.requestLoadFollower()
+            followListViewModel.requestLoadFollower("follower")
         } else if (category == "following") {
-            followListViewModel.requestLoadFollowing()
+            followListViewModel.requestLoadFollower("following")
         }
 
         observe()
@@ -95,10 +91,11 @@ class FollowActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun updateFollow(follow : Follow, isAdd : Boolean, isDeleted : Boolean){
-        LocalRepository.getInstance(this)!!.getUserInfo(lifecycleScope, object : LongTaskCallback<User> {
+        LocalRepository.getInstance(this)!!.getUserInfo(lifecycleScope, object :
+            LongTaskCallback<User> {
             override fun onResponse(result: Result<User>) {
                 if(result is Result.Success) {
-                    followListViewModel.requestUpdateFollower(follow, isAdd, result.data.nickname, result.data.profileUri, isDeleted)
+                    followListViewModel.requestUpdateFollow(follow, isAdd, result.data.nickname, result.data.profileUri, isDeleted)
                     LocalRepository.getInstance(this@FollowActivity)!!.updateFollowing(lifecycleScope, isAdd)
 
                 } else if(result is Result.Error)

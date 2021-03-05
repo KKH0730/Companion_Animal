@@ -37,7 +37,6 @@ class ChatAdapter(type: String) : ListAdapter<Chat, RecyclerView.ViewHolder>(
     }
 ) {
     private var mChatItemListener: OnChatItemClickListener? = null
-    private var items = listOf<Chat>()
     private val mType = type
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -75,7 +74,7 @@ class ChatAdapter(type: String) : ListAdapter<Chat, RecyclerView.ViewHolder>(
             val model = ChatViewModel()
             model.setChatLiveData(chat)
             holder.setModel(model)
-            holder.setItemEvent(chat, itemCount)
+            holder.setItemEvent(chat)
             holder.setVisibility(chat)
         }
     }
@@ -138,7 +137,7 @@ class ChatAdapter(type: String) : ListAdapter<Chat, RecyclerView.ViewHolder>(
             }
         }
 
-        fun setItemEvent(chat: Chat, itemCount: Int) {
+        fun setItemEvent(chat: Chat) {
             mBinding.chatLayout.setOnClickListener {
                 mChatItemListener.onChatItemClicked(
                     chat,

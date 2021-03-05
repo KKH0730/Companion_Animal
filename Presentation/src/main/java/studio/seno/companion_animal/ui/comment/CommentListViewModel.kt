@@ -3,16 +3,23 @@ package studio.seno.companion_animal.ui.comment
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import studio.seno.datamodule.RemoteRepository
-import studio.seno.datamodule.mapper.Mapper
-import studio.seno.domain.LongTaskCallback
-import studio.seno.domain.Result
+import studio.seno.domain.util.LongTaskCallback
+import studio.seno.domain.util.Result
 import studio.seno.domain.model.Comment
+import studio.seno.domain.usecase.commentUseCase.*
+import studio.seno.domain.usecase.uploadUseCase.GetProfileImageUseCase
 import java.util.*
 
-class CommentListViewModel : ViewModel() {
+class CommentListViewModel (
+    private val getProfileImageUseCase: GetProfileImageUseCase,
+    private val setCommentUseCase: SetCommentUseCase,
+    private val getCommentAnswerUseCase: GetCommentAnswerUseCase,
+    private val setCommentCountUseCase: SetCommentCountUseCase,
+    private val getCommentUseCase: GetCommentUseCase,
+    private val deleteCommentUseCase: DeleteCommentUseCase
+
+    ): ViewModel() {
     private var commentListLiveData: MutableLiveData<List<Comment>> = MutableLiveData()
-    private val remoteRepository = RemoteRepository.getInstance()!!
 
     fun getCommentListLiveData(): MutableLiveData<List<Comment>> {
         return commentListLiveData
@@ -24,7 +31,7 @@ class CommentListViewModel : ViewModel() {
     }
 
     fun requestLoadComment(targetEmail: String, targetTimestamp: Long) {
-        remoteRepository.loadComment(
+        getCommentUseCase.execute(
             targetEmail,
             targetTimestamp,
             object : LongTaskCallback<List<Comment>> {
@@ -32,7 +39,7 @@ class CommentListViewModel : ViewModel() {
                     if (result is Result.Success) {
                         var commentList = result.data
                         Collections.sort(commentList)
-                        //commentListLiveData.value = null
+
                         commentListLiveData.value = commentList
                     } else if(result is Result.Error) {
                         Log.e("error", "comment load error : ${result.exception}")
@@ -50,8 +57,7 @@ class CommentListViewModel : ViewModel() {
         content: String,
         timestamp: Long
     ) {
-        var comment = Mapper.getInstance()!!.mapperToComment(type, myEmail, nickname, content, null, timestamp)
-        remoteRepository.uploadComment(targetEmail, targetTimestamp, comment)
+        setCommentUseCase.execute(targetEmail, targetTimestamp, type, myEmail, nickname, content, timestamp)
     }
 
     fun requestUploadCommentAnswer(
@@ -65,12 +71,11 @@ class CommentListViewModel : ViewModel() {
         content: String,
         timestamp: Long
     ) {
-        var commentAnswer = Mapper.getInstance()!!.mapperToComment(type, myEmail, myNickname, content, null, timestamp)
-        remoteRepository.uploadCommentAnswer(feedEmail, feedTimestamp, targetEmail, targetTimestamp, commentAnswer)
+        getCommentAnswerUseCase.execute(feedEmail, feedTimestamp, targetEmail, targetTimestamp, type, myEmail, myNickname, content, timestamp)
     }
 
     fun requestUploadCommentCount(targetEmail: String, targetTimestamp: Long, commentCount: Long, flag : Boolean) {
-        remoteRepository.uploadCommentCount(targetEmail, targetTimestamp, commentCount, flag)
+        setCommentCountUseCase.execute(targetEmail, targetTimestamp, commentCount, flag)
     }
 
     fun requestDeleteComment(
@@ -81,9 +86,20 @@ class CommentListViewModel : ViewModel() {
         type: String,
         list: MutableList<Comment>
     ){
-        remoteRepository.deleteComment(feedEmail, feedTimestamp, parentComment, childComment, type)
+        deleteCommentUseCase.execute(feedEmail, feedTimestamp, parentComment, childComment, type)
         commentListLiveData.value = list
     }
 
+    fun loadProfileUri(email: String, callback: LongTaskCallback<String>){
+        getProfileImageUseCase.execute(email, object  : LongTaskCallback<String>{
+            override fun onResponse(result: Result<String>) {
+                if(result is Result.Success)
+                    callback.onResponse(Result.Success(result.data))
+                else if(result is Result.Error) {
+                    Log.e("error", "UserViewModel loadProfileUri error: ${result.exception}")
+                }
+            }
+        })
+    }
 
 }

@@ -12,26 +12,26 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
 import androidx.navigation.fragment.findNavController
 import com.google.firebase.iid.FirebaseInstanceId
 import com.royrodriguez.transitionbutton.TransitionButton
 import org.jetbrains.anko.support.v4.startActivity
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import studio.seno.commonmodule.CustomToast
 import studio.seno.companion_animal.MainActivity
 import studio.seno.companion_animal.R
-import studio.seno.companion_animal.util.FinishActivityInterface
 import studio.seno.companion_animal.databinding.FragmentRegisterBinding
 import studio.seno.companion_animal.module.CommonFunction
 import studio.seno.companion_animal.module.TextModule
-import studio.seno.domain.LongTaskCallback
-import studio.seno.domain.Result
+import studio.seno.companion_animal.util.FinishActivityInterface
+import studio.seno.domain.util.LongTaskCallback
+import studio.seno.domain.util.Result
 
 
 class RegisterFragment : Fragment(), View.OnClickListener {
     private lateinit var binding: FragmentRegisterBinding
-    private val viewModel : UserViewModel by viewModels()
+    private val viewModel : UserViewModel by viewModel()
     private var key = false
 
 
@@ -92,20 +92,24 @@ class RegisterFragment : Fragment(), View.OnClickListener {
             if (email.isEmpty() || nickName.isEmpty() || password.isEmpty()) {
                 binding.registerBtn.stopAnimation(TransitionButton.StopAnimationStyle.SHAKE, null)
             } else {
-                viewModel.requestRegisterUser(email, password, object  : LongTaskCallback<Boolean>{
+                viewModel.registerUser(email, password, object  : LongTaskCallback<Boolean> {
                     override fun onResponse(result: Result<Boolean>) {
                         if(result is Result.Success) {
                             if(result.data){
+
                                 var imageUri = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE
                                         + "://" + resources.getResourcePackageName(R.drawable.menu_profile)
                                         + '/' + resources.getResourceTypeName(R.drawable.menu_profile)
                                         + '/' + resources.getResourceEntryName(R.drawable.menu_profile))
 
-                                viewModel.requestUploadInItProfileImage(imageUri, object : LongTaskCallback<Boolean> {
+                                //회원가입시 기본 프로필 이미지 업로드
+                                viewModel.uploadProfileImage(imageUri, object :
+                                    LongTaskCallback<Boolean> {
                                     override fun onResponse(result: Result<Boolean>) {
                                         if(result is Result.Success) {
 
-                                            viewModel.requestLoadProfileUri(email, object : LongTaskCallback<String> {
+                                            viewModel.loadProfileUri(email, object :
+                                                LongTaskCallback<String> {
                                                     override fun onResponse(result: Result<String>) {
                                                         if(result is Result.Success) {
                                                             val uri = result.data

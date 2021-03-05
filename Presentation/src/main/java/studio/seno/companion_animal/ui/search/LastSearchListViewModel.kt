@@ -3,14 +3,18 @@ package studio.seno.companion_animal.ui.search
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import studio.seno.datamodule.RemoteRepository
-import studio.seno.datamodule.mapper.Mapper
-import studio.seno.domain.LongTaskCallback
-import studio.seno.domain.Result
 import studio.seno.domain.model.LastSearch
+import studio.seno.domain.usecase.searchUseCase.DeleteLastSearchUseCase
+import studio.seno.domain.usecase.searchUseCase.GetLastSearchUseCase
+import studio.seno.domain.usecase.searchUseCase.SetLastSearchUseCase
+import studio.seno.domain.util.LongTaskCallback
+import studio.seno.domain.util.Result
 
-class LastSearchListViewModel : ViewModel() {
-    private val remoteRepository = RemoteRepository.getInstance()!!
+class LastSearchListViewModel(
+    private val setLastSearchUseCase: SetLastSearchUseCase,
+    private val getLastSearchUseCase: GetLastSearchUseCase,
+    private val deleteLastSearchUseCase: DeleteLastSearchUseCase
+) : ViewModel() {
     private var lastSearchListLiveData  = MutableLiveData<List<LastSearch>>()
 
     fun setLastSearchLiveData(list : List<LastSearch>) {
@@ -22,7 +26,6 @@ class LastSearchListViewModel : ViewModel() {
     }
 
     fun requestUploadLastSearch(content : String, timestamp : Long){
-        val lastSearch = Mapper.getInstance()!!.mapperToLastSearch(content , timestamp)
         val keywordList = lastSearchListLiveData.value?.toMutableList()
 
         if (keywordList != null) {
@@ -31,11 +34,11 @@ class LastSearchListViewModel : ViewModel() {
                     return
         }
 
-        remoteRepository.requestUploadLastSearch(lastSearch)
+        setLastSearchUseCase.execute(content, timestamp)
     }
 
     fun requestLoadLastSearch(){
-        remoteRepository.requestLoadLastSearch(object : LongTaskCallback<List<LastSearch>>{
+        getLastSearchUseCase.execute(object : LongTaskCallback<List<LastSearch>> {
             override fun onResponse(result: Result<List<LastSearch>>) {
                 if(result is Result.Success) {
                     lastSearchListLiveData.value = result.data
@@ -47,7 +50,7 @@ class LastSearchListViewModel : ViewModel() {
     }
 
     fun requestDeleteLastSearch(lastSearch: LastSearch){
-        remoteRepository.requestDeleteLastSearch(lastSearch)
+        deleteLastSearchUseCase.execute(lastSearch)
     }
 
 }

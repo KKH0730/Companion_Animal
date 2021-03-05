@@ -1,10 +1,8 @@
 package studio.seno.companion_animal.ui.main_ui
 
 import android.app.AlertDialog
-import android.content.DialogInterface
 import android.os.Bundle
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,15 +10,12 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.databinding.DataBindingUtil
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.ChildEventListener
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.FirebaseDatabase
 import org.jetbrains.anko.support.v4.startActivity
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.FragmentChatBinding
 import studio.seno.companion_animal.module.CommonFunction
@@ -28,18 +23,16 @@ import studio.seno.companion_animal.ui.chat.ChatActivity
 import studio.seno.companion_animal.ui.chat.ChatAdapter
 import studio.seno.companion_animal.ui.chat.ChatListVIewModel
 import studio.seno.companion_animal.ui.chat.OnChatItemClickListener
-import studio.seno.companion_animal.util.Constants
-import studio.seno.datamodule.LocalRepository
-import studio.seno.domain.LongTaskCallback
-import studio.seno.domain.Result
+import studio.seno.datamodule.repository.local.LocalRepository
 import studio.seno.domain.model.Chat
 import studio.seno.domain.model.User
-import studio.seno.domain.usecase.remote.ChatUseCase
+import studio.seno.domain.util.LongTaskCallback
+import studio.seno.domain.util.Result
 
 
 class ChatFragment : Fragment() {
     private lateinit var  binding : FragmentChatBinding
-    private val chatListViewModel : ChatListVIewModel by viewModels()
+    private val chatListViewModel : ChatListVIewModel by viewModel()
     private val chatAdapter = ChatAdapter("chat_list")
     private var user : User? = null
 
@@ -156,7 +149,6 @@ class ChatFragment : Fragment() {
         chatListViewModel.clearChatList()
         chatListViewModel.requestSetChatListListener(
             CommonFunction.getInstance()!!.makeChatPath(user!!.email),
-            "chat_list",
             binding.chatRecyclerView,
             lifecycleScope,
             object : LongTaskCallback<Boolean> {

@@ -1,6 +1,7 @@
 package studio.seno.companion_animal.module
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.text.SpannableStringBuilder
 import android.util.Log
@@ -12,18 +13,24 @@ import androidx.core.app.ActivityCompat.startActivityForResult
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.LifecycleCoroutineScope
 import com.google.firebase.auth.FirebaseAuth
+import com.kakao.message.template.ButtonObject
+import com.kakao.message.template.ContentObject
+import com.kakao.message.template.FeedTemplate
+import com.kakao.message.template.LinkObject
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.ui.MenuDialog
 import studio.seno.companion_animal.ui.comment.CommentListViewModel
 import studio.seno.companion_animal.ui.feed.*
 import studio.seno.companion_animal.util.Constants
-import studio.seno.datamodule.LocalRepository
-import studio.seno.domain.LongTaskCallback
-import studio.seno.domain.Result
+import studio.seno.datamodule.repository.local.LocalRepository
+import studio.seno.datamodule.api.LinkShareApi
+import studio.seno.domain.util.LongTaskCallback
+import studio.seno.domain.util.Result
 import studio.seno.domain.model.Feed
 import studio.seno.domain.model.User
 import java.sql.Timestamp
-import javax.inject.Inject
 
 class FeedModule (
     feedListViewModel: FeedListViewModel,
@@ -53,7 +60,7 @@ class FeedModule (
     }
 
     private fun updateBookmark(feed: Feed, flag: Boolean) {
-        mFeedListViewModel.requestUpdateBookmark(feed, flag) }
+        mFeedListViewModel.updateBookmark(feed, flag) }
 
     /**
      * 좋아요버튼
@@ -82,7 +89,7 @@ class FeedModule (
         heartCount.text = count.toString()
         feedAdapter?.notifyDataSetChanged()
      }
-    private fun updateHeart(feed: Feed, count: Long, flag: Boolean) { mFeedListViewModel.requestUpdateHeart(feed, count, flag) }
+    private fun updateHeart(feed: Feed, count: Long, flag: Boolean) { mFeedListViewModel.updateHeart(feed, count, flag) }
 
     /**
      * 피드 메뉴 버튼
@@ -194,10 +201,10 @@ class FeedModule (
                 startActivityForResult(activity, intent, Constants.FEED_DELETE_REQUEST, null)
 
             } else if(type == "follow") {
-                localRepository.getUserInfo(lifecycleScope, object : LongTaskCallback<User>{
+                localRepository.getUserInfo(lifecycleScope, object : LongTaskCallback<User> {
                     override fun onResponse(result: Result<User>) {
                         if(result is Result.Success) {
-                            mFeedListViewModel.requestUpdateFollower(targetFeed.getEmail()!!,  targetFeed.getNickname()!!, targetFeed.getRemoteProfileUri(), true, result.data.nickname, result.data.profileUri)
+                            mFeedListViewModel.requestUpdateFollow(targetFeed.getEmail()!!,  targetFeed.getNickname()!!, targetFeed.getRemoteProfileUri(), true, result.data.nickname, result.data.profileUri)
                             localRepository.updateFollowing(lifecycleScope, true)
 
                         } else if(result is Result.Error) {
@@ -206,10 +213,10 @@ class FeedModule (
                     }
                 })
             } else if(type == "unfollow") {
-                localRepository.getUserInfo(lifecycleScope, object : LongTaskCallback<User>{
+                localRepository.getUserInfo(lifecycleScope, object : LongTaskCallback<User> {
                     override fun onResponse(result: Result<User>) {
                         if(result is Result.Success) {
-                            mFeedListViewModel.requestUpdateFollower(targetFeed.getEmail()!!,  targetFeed.getNickname()!!, targetFeed.getRemoteProfileUri(), false, result.data.nickname, result.data.profileUri)
+                            mFeedListViewModel.requestUpdateFollow(targetFeed.getEmail()!!,  targetFeed.getNickname()!!, targetFeed.getRemoteProfileUri(), false, result.data.nickname, result.data.profileUri)
                             localRepository.updateFollowing(lifecycleScope,false)
 
                         } else if(result is Result.Error) {
@@ -218,6 +225,33 @@ class FeedModule (
                     }
                 })
             }
+        }
+    }
+
+    fun sendShareLink(feed: Feed, context : Context, lifecycleScope: LifecycleCoroutineScope) {
+        val params = FeedTemplate
+            .newBuilder(
+                ContentObject.newBuilder(
+                    context.getString(R.string.kakao_title),
+                    feed.getRemoteUri()[0],
+                    LinkObject.newBuilder().setMobileWebUrl("https://www.naver.com")
+                        .setAndroidExecutionParams("path=${feed.getEmail()}${feed.getTimestamp()}")
+                        .build()
+                )
+                    .setDescrption(context.getString(R.string.kakao_description))
+                    .build()
+            )
+            .addButton(
+                ButtonObject(
+                    context.getString(R.string.kakao_description2), LinkObject.newBuilder()
+                        .setMobileWebUrl("https://www.naver.com")
+                        .setAndroidExecutionParams("path=${feed.getEmail()}${feed.getTimestamp()}")
+                        .build()
+                )
+            )
+            .build()
+        lifecycleScope.launch(Dispatchers.IO){
+            LinkShareApi().sendShareLink(context, params, HashMap())
         }
     }
 }

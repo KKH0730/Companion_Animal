@@ -8,25 +8,21 @@ import android.util.Log
 import android.view.View
 import android.widget.ImageButton
 import android.widget.TextView
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
-import com.google.firebase.database.*
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.ActivityChattingBinding
 import studio.seno.companion_animal.module.CommonFunction
 import studio.seno.companion_animal.module.NotificationModule
-import studio.seno.companion_animal.util.Constants
-import studio.seno.datamodule.LocalRepository
-import studio.seno.domain.LongTaskCallback
-import studio.seno.domain.Result
-import studio.seno.domain.model.Chat
+import studio.seno.datamodule.repository.local.LocalRepository
 import studio.seno.domain.model.User
+import studio.seno.domain.util.LongTaskCallback
+import studio.seno.domain.util.Result
 import java.sql.Timestamp
 
 class ChatActivity : AppCompatActivity(), View.OnClickListener {
@@ -36,7 +32,7 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener {
     private lateinit var targetProfileUri : String
     private lateinit var targetNickname : String
     private lateinit var notificationModule : NotificationModule
-    private val chatListViewModel : ChatListVIewModel by viewModels()
+    private val chatListViewModel : ChatListVIewModel by viewModel()
     private val chatAdapter = ChatAdapter("chat")
     private val commonFunction = CommonFunction.getInstance()!!
     private var user : User? = null
@@ -68,7 +64,8 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun setUserInfo(){
-        LocalRepository.getInstance(this)!!.getUserInfo(lifecycleScope, object : LongTaskCallback<User>{
+        LocalRepository.getInstance(this)!!.getUserInfo(lifecycleScope, object :
+            LongTaskCallback<User> {
             override fun onResponse(result: Result<User>) {
                 if(result is Result.Success) {
                     user = result.data
@@ -98,7 +95,7 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener {
     private fun setRecyclerPositionListener(){
         binding.chatRecyclerview.addOnLayoutChangeListener { v, _, _, _, bottom, _, _, _, oldBottom ->
             if(bottom < oldBottom) {
-                v.postDelayed({ binding.chatRecyclerview.smoothScrollToPosition(chatAdapter.itemCount) }, 100)
+                v.postDelayed({ binding.chatRecyclerview.scrollToPosition(chatAdapter.itemCount) }, 100)
             }
         }
     }

@@ -27,9 +27,10 @@ import studio.seno.companion_animal.module.CommonFunction
 import studio.seno.companion_animal.module.TextModule
 import studio.seno.companion_animal.ui.feed.FeedPagerFragment
 import studio.seno.companion_animal.ui.main_ui.PagerAdapter
-import studio.seno.datamodule.RemoteRepository
-import studio.seno.domain.LongTaskCallback
-import studio.seno.domain.Result
+import studio.seno.datamodule.repository.remote.FollowRepositoryImpl
+import studio.seno.datamodule.repository.remote.UploadRepositoryImpl
+import studio.seno.domain.util.LongTaskCallback
+import studio.seno.domain.util.Result
 
 object BindingAdapter {
 
@@ -155,7 +156,8 @@ object BindingAdapter {
     @BindingAdapter("setMyProfileUri")
     @JvmStatic
     fun setMyProfileUri(circleImageView: CircleImageView, imageUri: String) {
-        RemoteRepository.getInstance()!!.requestLoadProfileUri(
+
+        UploadRepositoryImpl().getRemoteProfileImage(
             FirebaseAuth.getInstance().currentUser?.email.toString(),
             object: LongTaskCallback<String> {
                 override fun onResponse(result: Result<String>) {
@@ -243,7 +245,8 @@ object BindingAdapter {
     fun setFollowBtn(button: Button, category : String, targetEmail : String) {
         try {
             if(category == "follower") {
-                RemoteRepository.getInstance()!!.requestCheckFollow(targetEmail, object : LongTaskCallback<Boolean> {
+                FollowRepositoryImpl().checkFollow(targetEmail, object :
+                    LongTaskCallback<Boolean> {
                     override fun onResponse(result: Result<Boolean>) {
                         if(result is Result.Success) {
                             if(result.data) {
@@ -275,7 +278,8 @@ object BindingAdapter {
     @JvmStatic
     fun setRemoteProfileUri(circleImageView: CircleImageView, email: String) {
 
-        RemoteRepository.getInstance()!!.requestLoadProfileUri(email, object: LongTaskCallback<String> {
+        UploadRepositoryImpl().getRemoteProfileImage(email, object:
+            LongTaskCallback<String> {
                 override fun onResponse(result: Result<String>) {
                     if(result is Result.Success) {
 

@@ -3,14 +3,23 @@ package studio.seno.companion_animal.ui.notification
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import studio.seno.datamodule.RemoteRepository
-import studio.seno.domain.LongTaskCallback
-import studio.seno.domain.Result
+import studio.seno.domain.util.LongTaskCallback
+import studio.seno.domain.util.Result
+import studio.seno.domain.model.Feed
 import studio.seno.domain.model.NotificationData
+import studio.seno.domain.usecase.feedUseCase.GetFeedUseCase
+import studio.seno.domain.usecase.notificationUseCase.DeleteNotificationUseCase
+import studio.seno.domain.usecase.notificationUseCase.GetNotificationUseCase
+import studio.seno.domain.usecase.notificationUseCase.SetCheckDotUseCase
 
-class NotificationListViewModel : ViewModel() {
+class NotificationListViewModel(
+    private val getFeedUseCase: GetFeedUseCase,
+    private val getNotificationUseCase: GetNotificationUseCase,
+    private val deleteNotificationUseCase: DeleteNotificationUseCase,
+    private val checkDotUseCase: SetCheckDotUseCase
+) : ViewModel() {
     private var notificationListLiveData : MutableLiveData<List<NotificationData>> = MutableLiveData()
-    private val remoteRepository = RemoteRepository.getInstance()!!
+
 
     fun getNotificationListLiveData() : MutableLiveData<List<NotificationData>>{
         return notificationListLiveData
@@ -18,7 +27,7 @@ class NotificationListViewModel : ViewModel() {
 
 
     fun requestLoadNotification() {
-        remoteRepository.requestLoadNotification(object : LongTaskCallback<List<NotificationData>>{
+        getNotificationUseCase.execute(object : LongTaskCallback<List<NotificationData>> {
             override fun onResponse(result: Result<List<NotificationData>>) {
                 if(result is Result.Success) {
                     notificationListLiveData.value = result.data
@@ -30,11 +39,12 @@ class NotificationListViewModel : ViewModel() {
     }
 
     fun requestUpdateCheckDot(notificationData : NotificationData){
-        remoteRepository.requestUpdateCheckDot(notificationData)
+        checkDotUseCase.execute(notificationData)
     }
 
     fun deleteNotification(notificationData : NotificationData){
-        remoteRepository.requestDeleteNotification(notificationData, object : LongTaskCallback<Boolean> {
+        deleteNotificationUseCase.execute(notificationData, object :
+            LongTaskCallback<Boolean> {
             override fun onResponse(result: Result<Boolean>) {
                 if(result is Result.Success) {
                     val list = notificationListLiveData.value?.toMutableList()
@@ -49,5 +59,10 @@ class NotificationListViewModel : ViewModel() {
                 }
             }
         })
+    }
+
+
+    fun getFeed(path : String, callback: LongTaskCallback<Feed>){
+        getFeedUseCase.execute(path, callback)
     }
 }

@@ -9,15 +9,21 @@ import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import studio.seno.companion_animal.R
-import studio.seno.datamodule.RemoteRepository
-import studio.seno.datamodule.mapper.Mapper
-import studio.seno.domain.LongTaskCallback
-import studio.seno.domain.Result
 import studio.seno.domain.model.Chat
+import studio.seno.domain.usecase.chatUseCase.*
+import studio.seno.domain.util.LongTaskCallback
+import studio.seno.domain.util.Result
 
-class ChatListVIewModel : ViewModel() {
+class ChatListVIewModel(
+    private val addChatUseCase: AddChatUseCase,
+    private val setAddedChatListenerUseCase: SetAddedChatListenerUseCase,
+    private val setChatListListenerUseCase: SetChatListListenerUseCase,
+    private val chatCheckDotUseCase: SetChatCheckDotUseCase,
+    private val deleteChatListUseCase: DeleteChatListUseCase
+
+) : ViewModel() {
     private val chatListLiveData = MutableLiveData<List<Chat>>()
-    private val remoteRepository = RemoteRepository()
+
 
     fun getChatListLiveData(): MutableLiveData<List<Chat>> {
         return chatListLiveData
@@ -34,21 +40,8 @@ class ChatListVIewModel : ViewModel() {
     fun requestAddChat(
         myEmail: String, realMyEmail :String, targetEmail: String, targetRealEmail : String, myNickname: String, targetNickname: String,
         content: String, profileUri: String, targetProfileUri: String, timestamp: Long) {
-        val chat = Mapper.getInstance()!!.mapperToChat(
-            myEmail,
-            realMyEmail,
-            targetEmail,
-            targetRealEmail,
-            myNickname,
-            targetNickname,
-            content,
-            profileUri,
-            targetProfileUri,
-            timestamp,
-            isExit = false,
-            isRead = false
-        )
-        remoteRepository.requestAddChat(myEmail, targetEmail, chat)
+
+        addChatUseCase.execute(myEmail, realMyEmail, targetEmail, targetRealEmail, myNickname, targetNickname, content, profileUri, targetProfileUri, timestamp)
     }
 
     fun addChatLog(chat: Chat, recyclerView: RecyclerView, lifecycleCoroutineScope: LifecycleCoroutineScope) {
@@ -94,9 +87,11 @@ class ChatListVIewModel : ViewModel() {
 
 
     fun requestSetAddedChatListener(email: String, targetEmail: String, position: Int, sort : String, recyclerView: RecyclerView?, lifecycleScope: LifecycleCoroutineScope?){
-        remoteRepository.requestSetAddedChatListener(email, targetEmail, object : LongTaskCallback<Chat>{
+        setAddedChatListenerUseCase.execute(email, targetEmail, object :
+            LongTaskCallback<Chat> {
             override fun onResponse(result: Result<Chat>) {
                 if(result is Result.Success) {
+
                     if(sort == "chat_list")
                         setAddedChat(result.data, position)
                     else
@@ -106,8 +101,8 @@ class ChatListVIewModel : ViewModel() {
         })
     }
 
-    fun requestSetChatListListener(email: String, sort: String, chatRecyclerView: RecyclerView, lifecycleScope : LifecycleCoroutineScope, callback : LongTaskCallback<Boolean>){
-        remoteRepository.requestSetChatListListener(email, object  : LongTaskCallback<Chat>{
+    fun requestSetChatListListener(email: String, chatRecyclerView: RecyclerView, lifecycleScope : LifecycleCoroutineScope, callback : LongTaskCallback<Boolean>){
+        setChatListListenerUseCase.execute(email, object  : LongTaskCallback<Chat> {
             override fun onResponse(result: Result<Chat>) {
                 if(result is Result.Success) {
                     addChatLog(result.data, chatRecyclerView, lifecycleScope)
@@ -124,10 +119,10 @@ class ChatListVIewModel : ViewModel() {
 
         chat.content = String.format(context.getString(R.string.chat_remove_content), myNickname)
         chat.isExit = true
-        remoteRepository.requestRemoveChatList(targetEmail, myEmail, chat)
+        deleteChatListUseCase.execute(targetEmail, myEmail, chat)
     }
 
     fun requestUpdateCheckDot(myEmail : String, targetEmail : String){
-        remoteRepository.requestUpdateCheckDot(myEmail, targetEmail)
+        chatCheckDotUseCase.execute(myEmail, targetEmail)
     }
 }

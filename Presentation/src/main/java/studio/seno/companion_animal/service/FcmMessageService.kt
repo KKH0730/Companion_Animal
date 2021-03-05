@@ -1,13 +1,12 @@
 package studio.seno.companion_animal.service
 
 import android.content.Intent
-import android.util.Log
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import studio.seno.companion_animal.MainActivity
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.module.NotificationModule
-import studio.seno.datamodule.RemoteRepository
+import studio.seno.datamodule.repository.remote.NotificationRepositoryImpl
 import studio.seno.domain.model.NotificationData
 
 class FcmMessageService : FirebaseMessagingService() {
@@ -23,7 +22,7 @@ class FcmMessageService : FirebaseMessagingService() {
         val myProfileUri = remoteMessage.data["myProfileUri"].toString()
 
         if(remoteMessage.data["targetPath"] != "chat") {
-            RemoteRepository.getInstance()!!.uploadNotificationInfo( //notification 저장경로
+            NotificationRepositoryImpl().setNotificationInfo( //notification 저장경로
                 NotificationData(
                     title,
                     body, //content

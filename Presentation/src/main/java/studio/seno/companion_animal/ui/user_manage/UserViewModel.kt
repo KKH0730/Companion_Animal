@@ -4,16 +4,25 @@ import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import studio.seno.datamodule.RemoteRepository
-import studio.seno.datamodule.mapper.Mapper
-import studio.seno.domain.LongTaskCallback
-import studio.seno.domain.Result
+import studio.seno.domain.usecase.uploadUseCase.GetProfileImageUseCase
+import studio.seno.domain.usecase.uploadUseCase.SetProfileImageUseCase
+import studio.seno.domain.usecase.userMangerUseCase.*
+import studio.seno.domain.util.LongTaskCallback
+import studio.seno.domain.util.Result
 
-class UserViewModel() : ViewModel() {
+class UserViewModel(
+    private val checkEnableLoginUseCase: CheckEnableLoginUseCase,
+    private val findPasswordUseCase: FindPasswordUseCase,
+    private val registerUserUseCase: RegisterUserUseCase,
+    private val setProfileImageUseCase: SetProfileImageUseCase,
+    private val getProfileImageUseCase: GetProfileImageUseCase,
+    private val setUserInfoUseCase: SetUserInfoUseCase,
+    private val checkOverlapUserUseCase: CheckOverlapUserUseCase,
+    private val setProfileUriUseCase: SetProfileUriUseCase
+) : ViewModel() {
     private val findPasswordListData : MutableLiveData<Boolean> = MutableLiveData()
     private val uploadLiveData : MutableLiveData<Boolean> = MutableLiveData()
     private val overLapLiveData : MutableLiveData<Boolean> = MutableLiveData()
-    private val remoteRepository = RemoteRepository.getInstance()!!
 
 
 
@@ -33,12 +42,12 @@ class UserViewModel() : ViewModel() {
         return overLapLiveData
     }
 
-    fun requestCheckEnableLogin(email : String, password : String, callback : LongTaskCallback<Boolean>)  {
-        remoteRepository.requestCheckEnableLogin(email, password, callback)
+    fun checkEnableLogin(email : String, password : String, callback : LongTaskCallback<Boolean>)  {
+        checkEnableLoginUseCase.execute(email, password, callback)
     }
 
     fun requestSendFindEmail(emailAddress : String){
-        remoteRepository.requestSendFindEmail(emailAddress, object : LongTaskCallback<Boolean>{
+        findPasswordUseCase.execute(emailAddress, object : LongTaskCallback<Boolean> {
             override fun onResponse(result: Result<Boolean>) {
                 if(result is Result.Success)
                     findPasswordListData.value = result.data
@@ -48,16 +57,24 @@ class UserViewModel() : ViewModel() {
         })
     }
 
-    fun requestRegisterUser(email : String, password : String, callback: LongTaskCallback<Boolean>){
-        remoteRepository.requestRegisterUser(email, password, callback)
+    fun registerUser(email : String, password : String, callback: LongTaskCallback<Boolean>){
+        registerUserUseCase.execute(email, password, callback)
     }
 
-    fun requestLoadProfileUri(email: String, callback: LongTaskCallback<String>){
-        remoteRepository.requestLoadProfileUri(email, callback)
+    fun loadProfileUri(email: String, callback: LongTaskCallback<String>){
+        getProfileImageUseCase.execute(email, object  : LongTaskCallback<String>{
+            override fun onResponse(result: Result<String>) {
+                if(result is Result.Success)
+                    callback.onResponse(Result.Success(result.data))
+                else if(result is Result.Error) {
+                    Log.e("error", "UserViewModel loadProfileUri error: ${result.exception}")
+                }
+            }
+        })
     }
 
-    fun requestUploadInItProfileImage(imageUri : Uri, callback: LongTaskCallback<Boolean>){
-        remoteRepository.uploadInItProfileImage(imageUri, object : LongTaskCallback<Boolean>{
+    fun uploadProfileImage(imageUri : Uri, callback: LongTaskCallback<Boolean>){
+        setProfileImageUseCase.execute(imageUri, object : LongTaskCallback<Boolean> {
             override fun onResponse(result: Result<Boolean>) {
                 if(result is Result.Success) {
                     uploadLiveData.value = true
@@ -65,7 +82,7 @@ class UserViewModel() : ViewModel() {
 
                 } else if(result is Result.Error) {
                     uploadLiveData.value = false
-                    Log.e("error", "UserViewModel uploadInItProfileImage error: ${result.exception}")
+                    Log.e("error", "UserViewModel uploadProfileImage error: ${result.exception}")
                 }
             }
         })
@@ -73,12 +90,11 @@ class UserViewModel() : ViewModel() {
 
     fun requestUploadUserInfo(id : Long, email: String, nickname: String, follower: Long,
                         following: Long, feedCount: Long, token : String, profileUri : String){
-        val user = Mapper.getInstance()!!.mapperToUser(id, email, nickname, follower, following, feedCount, token, profileUri)
-        remoteRepository.uploadUserInfo(user)
+        setUserInfoUseCase.execute(id, email, nickname, follower, following, feedCount, token, profileUri)
     }
 
-    fun requestCheckOverlapEmail(email : String) {
-        remoteRepository.requestCheckOverlapEmail(email, object : LongTaskCallback<Boolean>{
+    fun requestCheckOverlapEmail(email: String) {
+        checkOverlapUserUseCase.execute(email, object : LongTaskCallback<Boolean> {
             override fun onResponse(result: Result<Boolean>) {
                 if(result is Result.Success)
                     overLapLiveData.value = result.data
@@ -88,4 +104,9 @@ class UserViewModel() : ViewModel() {
             }
         })
     }
+
+    fun updateRemoteProfileUri(profileUri : String){
+        setProfileUriUseCase.execute(profileUri)
+    }
+
 }

@@ -7,11 +7,9 @@ import android.widget.TextView
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.ui.comment.CommentAdapter
 import studio.seno.companion_animal.ui.comment.CommentListViewModel
-import studio.seno.companion_animal.ui.main_ui.MainViewModel
 import studio.seno.companion_animal.util.Constants
-import studio.seno.datamodule.RemoteRepository
-import studio.seno.domain.LongTaskCallback
-import studio.seno.domain.Result
+import studio.seno.domain.util.LongTaskCallback
+import studio.seno.domain.util.Result
 import studio.seno.domain.model.Comment
 import studio.seno.domain.model.Feed
 
@@ -38,7 +36,8 @@ class CommentModule(
             mCommentListViewModel.setCommentListLiveData(currentCommentList.toList())
 
         } else {
-            RemoteRepository.getInstance()!!.requestLoadProfileUri(myEmail, object : LongTaskCallback<String>{
+            mCommentListViewModel.loadProfileUri(myEmail, object :
+                LongTaskCallback<String> {
 
                     override fun onResponse(result: Result<String>) {
                         if(result is Result.Success) {
@@ -74,7 +73,8 @@ class CommentModule(
             currentCommentList.set(answerPosition, tempComment!!)
             mCommentListViewModel.setCommentListLiveData(currentCommentList)
         } else {
-            RemoteRepository.getInstance()!!.requestLoadProfileUri(myEmail, object :LongTaskCallback<String>{
+            mCommentListViewModel.loadProfileUri(myEmail, object :
+                LongTaskCallback<String> {
                 override fun onResponse(result: Result<String>) {
                     if(result is Result.Success) {
 

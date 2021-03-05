@@ -65,6 +65,7 @@ dependencies {
 
     implementation "androidx.activity:activity-ktx:1.2.0"
     implementation "org.jetbrains.anko:anko:$anko_version"
+    //implementation 'org.koin:koin-androidx-viewmodel:2.2.2'
 
     def nav_version = "2.3.3"
     implementation "androidx.navigation:navigation-fragment-ktx:$nav_version"
@@ -91,4 +92,10 @@ dependencies {
     implementation 'com.github.marcoscgdev:EasyLicensesDialog:2.0.0'
 
     implementation group: 'com.kakao.sdk', name: 'kakaolink', version: project.KAKAO_SDK_VERSION
+
+    // Koin AndroidX
+    implementation "org.koin:koin-androidx-scope:$koin_version"
+    implementation "org.koin:koin-androidx-viewmodel:$koin_version"
+    implementation "org.koin:koin-androidx-fragment:$koin_version"
+    implementation "org.koin:koin-androidx-ext:$koin_version"
 }

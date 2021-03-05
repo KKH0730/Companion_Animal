@@ -4,15 +4,17 @@ import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseAuth
-import studio.seno.datamodule.RemoteRepository
-import studio.seno.datamodule.mapper.Mapper
-import studio.seno.domain.LongTaskCallback
-import studio.seno.domain.Result
 import studio.seno.domain.model.Follow
+import studio.seno.domain.usecase.followUseCase.GetFollowUseCase
+import studio.seno.domain.usecase.followUseCase.SetFollowUseCase
+import studio.seno.domain.util.LongTaskCallback
+import studio.seno.domain.util.Result
 
-class FollowListViewModel() : ViewModel() {
+class FollowListViewModel(
+    private val setFollowUseCase: SetFollowUseCase,
+    private val getFollowUseCase: GetFollowUseCase
+) : ViewModel() {
     private var followListLiveData : MutableLiveData<List<Follow>> = MutableLiveData()
-    private val remoteRepository = RemoteRepository.getInstance()!!
 
 
     fun getFollowListLiveData() : MutableLiveData<List<Follow>> {
@@ -20,8 +22,8 @@ class FollowListViewModel() : ViewModel() {
     }
 
 
-    fun requestLoadFollower(){
-        remoteRepository.requestLoadFollow("follower", object : LongTaskCallback<List<Follow>>{
+    fun requestLoadFollower(fieldName : String){
+        getFollowUseCase.execute(fieldName, object : LongTaskCallback<List<Follow>> {
             override fun onResponse(result: Result<List<Follow>>) {
                 if(result is Result.Success){
                     followListLiveData.value = result.data
@@ -32,22 +34,17 @@ class FollowListViewModel() : ViewModel() {
         })
     }
 
-    fun requestLoadFollowing(){
-        remoteRepository.requestLoadFollow("following", object : LongTaskCallback<List<Follow>>{
-            override fun onResponse(result: Result<List<Follow>>) {
-                if(result is Result.Success){
-                    followListLiveData.value = result.data
-                } else if(result is Result.Error){
-                    Log.e("error", "FollowListViewModel load Following Error : ${result.exception}")
-                }
-            }
-        })
-    }
 
-    fun requestUpdateFollower(follow : Follow, flag : Boolean, myNickName : String, myProfileUri : String, isDelete : Boolean) {
-        val targetFollow = Mapper.getInstance()!!.mapperToFollow(follow.email, follow.nickname, follow.profileUri)
-        val myFollow = Mapper.getInstance()!!.mapperToFollow(FirebaseAuth.getInstance().currentUser?.email.toString(), myNickName, myProfileUri)
-        remoteRepository.requestUpdateFollower(follow.email, flag, myFollow, targetFollow)
+    fun requestUpdateFollow(follow : Follow, flag : Boolean, myNickName : String, myProfileUri : String, isDelete : Boolean) {
+        setFollowUseCase.execute(
+            follow.email,
+            follow.nickname,
+            follow.profileUri,
+            FirebaseAuth.getInstance().currentUser?.email.toString(),
+            myNickName,
+            myProfileUri,
+            flag
+        )
 
         if(isDelete){
             val tempList = followListLiveData.value?.toMutableList()

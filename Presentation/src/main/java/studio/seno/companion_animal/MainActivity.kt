@@ -4,30 +4,30 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import androidx.activity.viewModels
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.iid.FirebaseInstanceId
 import me.ibrahimsn.lib.OnItemSelectedListener
 import org.jetbrains.anko.startActivity
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import studio.seno.commonmodule.BaseActivity
 import studio.seno.companion_animal.databinding.ActivityMainBinding
+import studio.seno.companion_animal.ui.ReportActivity
 import studio.seno.companion_animal.ui.chat.ChatActivity
 import studio.seno.companion_animal.ui.feed.FeedDetailActivity
 import studio.seno.companion_animal.ui.main_ui.*
 import studio.seno.companion_animal.util.FinishActivityInterface
-import studio.seno.datamodule.LocalRepository
-import studio.seno.datamodule.RemoteRepository
-import studio.seno.domain.LongTaskCallback
-import studio.seno.domain.Result
-import studio.seno.domain.database.AppDatabase
+import studio.seno.datamodule.repository.local.LocalRepository
+import studio.seno.datamodule.database.AppDatabase
 import studio.seno.domain.model.Feed
 import studio.seno.domain.model.User
+import studio.seno.domain.util.LongTaskCallback
 import studio.seno.domain.util.PreferenceManager
+import studio.seno.domain.util.Result
 
 class MainActivity : BaseActivity() , DialogInterface.OnDismissListener, FinishActivityInterface {
-    private val mainViewModel : MainViewModel by viewModels()
+    private val mainViewModel : MainViewModel by viewModel()
     private lateinit var binding: ActivityMainBinding
     private lateinit var homeFragment: HomeFragment
     private lateinit var notificationFragment: NotificationFragment
@@ -58,18 +58,20 @@ class MainActivity : BaseActivity() , DialogInterface.OnDismissListener, FinishA
 
     //앱이 실행되면 회원정보를 Remote DB에서 Local DB에 저장
     private fun loadUserInfo(){
-            mainViewModel.requestUserData(FirebaseAuth.getInstance().currentUser?.email.toString(), object: LongTaskCallback<User>{
+            mainViewModel.requestUserInfo(FirebaseAuth.getInstance().currentUser?.email.toString(), object:
+                LongTaskCallback<User> {
                 override fun onResponse(result: Result<User>) {
                     if(result is Result.Success){
                         val user = result.data
 
-                        LocalRepository(applicationContext).getUserInfo(lifecycleScope, object : LongTaskCallback<User>{
+                        LocalRepository(applicationContext).getUserInfo(lifecycleScope, object :
+                            LongTaskCallback<User> {
                             override fun onResponse(result: Result<User>) {
                                 if(result is Result.Success){
                                     if(result.data == null)
-                                        LocalRepository(applicationContext).InsertUserInfo(lifecycleScope, user)
+                                        LocalRepository(applicationContext).insertUserInfo(lifecycleScope, user)
                                     else
-                                        LocalRepository(applicationContext).updateUserInfo(lifecycleScope, user)
+                                        LocalRepository(applicationContext).updateUserInfo(lifecycleScope, user, null)
 
                                 } else if(result is Result.Error) {
                                     Log.e("error", "timeline userInfoSet error : ${result.exception}")
@@ -104,7 +106,8 @@ class MainActivity : BaseActivity() , DialogInterface.OnDismissListener, FinishA
     private fun notificationClicked(){
         if(intent.getStringExtra("from") != null){
             if(intent.getStringExtra("from") == "notification") {
-                RemoteRepository.getInstance()!!.loadFeed(intent.getStringExtra("target_path")!!, object : LongTaskCallback<Feed>{
+                mainViewModel.getFeed(intent.getStringExtra("target_path")!!, object :
+                    LongTaskCallback<Feed> {
                     override fun onResponse(result: Result<Feed>) {
                         if(result is Result.Success){
                             if(result.data != null)
@@ -133,7 +136,7 @@ class MainActivity : BaseActivity() , DialogInterface.OnDismissListener, FinishA
             val path = intent.data?.getQueryParameter("path")
 
             if (path != null) {
-                RemoteRepository.getInstance()!!.loadFeed(path, object : LongTaskCallback<Feed>{
+                mainViewModel.getFeed(path, object : LongTaskCallback<Feed> {
                     override fun onResponse(result: Result<Feed>) {
                         if(result is Result.Success){
                             if(result.data != null)
