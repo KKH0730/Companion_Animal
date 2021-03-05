@@ -7,7 +7,7 @@ import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import studio.seno.domain.util.LongTaskCallback
 import studio.seno.domain.util.Result
-import studio.seno.domain.Repository.UploadRepository
+import studio.seno.domain.repository.UploadRepository
 
 class UploadRepositoryImpl : UploadRepository {
     private val storageRef: StorageReference = FirebaseStorage.getInstance()

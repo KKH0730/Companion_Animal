@@ -7,7 +7,7 @@ import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
-import studio.seno.domain.Repository.CommentRepository
+import studio.seno.domain.repository.CommentRepository
 import studio.seno.domain.model.Comment
 import studio.seno.domain.util.LongTaskCallback
 import studio.seno.domain.util.Result

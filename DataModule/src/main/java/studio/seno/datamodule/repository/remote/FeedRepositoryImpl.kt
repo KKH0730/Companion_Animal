@@ -12,7 +12,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
-import studio.seno.domain.Repository.FeedRepository
+import studio.seno.domain.repository.FeedRepository
 import studio.seno.domain.util.LongTaskCallback
 import studio.seno.domain.util.Result
 import studio.seno.domain.model.Feed

@@ -1,6 +1,6 @@
 package studio.seno.domain.usecase.userMangerUseCase
 
-import studio.seno.domain.Repository.UserManagerRepository
+import studio.seno.domain.repository.UserManagerRepository
 import studio.seno.domain.util.Mapper
 
 class SetUserInfoUseCase(private val userManagerRepository: UserManagerRepository) {

@@ -93,11 +93,13 @@ class UserViewModel(
         setUserInfoUseCase.execute(id, email, nickname, follower, following, feedCount, token, profileUri)
     }
 
-    fun requestCheckOverlapEmail(email: String) {
+    fun requestCheckOverlapEmail(email: String, callback: LongTaskCallback<Boolean>) {
         checkOverlapUserUseCase.execute(email, object : LongTaskCallback<Boolean> {
             override fun onResponse(result: Result<Boolean>) {
-                if(result is Result.Success)
+                if(result is Result.Success) {
                     overLapLiveData.value = result.data
+                    callback.onResponse(Result.Success(result.data))
+                }
 
                 else if(result is Result.Error)
                     Log.e("error", "UserViewModel checkOverlapEmail error : ${result.exception}")

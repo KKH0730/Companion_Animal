@@ -20,6 +20,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.kroegerama.imgpicker.BottomSheetImagePicker
 import com.kroegerama.imgpicker.ButtonType
 import com.marcoscg.easylicensesdialog.EasyLicensesDialogCompat
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.jetbrains.anko.support.v4.startActivity
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import studio.seno.companion_animal.R
@@ -203,8 +205,9 @@ class TimeLineFragment : Fragment(), View.OnClickListener,
                 binding.nickNameEdit.isEnabled = false
                 binding.infoModifyBtn.text = getString(R.string.info_modify)
 
-                localRepository.updateNickname(lifecycleScope, binding.nickNameEdit.text.toString())
                 mainViewModel.requestUpdateNickname(binding.nickNameEdit.text.toString())
+                localRepository.updateNickname(lifecycleScope, binding.nickNameEdit.text.toString())
+
             } else {
                 binding.nickNameEdit.isEnabled = true
                 binding.nickNameEdit.requestFocus()
@@ -323,23 +326,23 @@ class TimeLineFragment : Fragment(), View.OnClickListener,
 
                                     userViewModel.updateRemoteProfileUri(profileUri)
                                     LocalRepository(context!!).updateProfileUri(
-                                        lifecycleScope,
-                                        profileUri,
-                                        object : LongTaskCallback<User> {
-                                            override fun onResponse(result: Result<User>) {
-                                                if (result is Result.Success) {
-                                                    Glide.with(requireContext())
-                                                        .load(uris[0])
-                                                        .centerCrop()
-                                                        .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
-                                                        .into(binding.timelineProfileImageView)
+                                            lifecycleScope,
+                                            profileUri,
+                                            object : LongTaskCallback<User> {
+                                                override fun onResponse(result: Result<User>) {
+                                                    if (result is Result.Success) {
+                                                        Glide.with(requireContext())
+                                                            .load(uris[0])
+                                                            .centerCrop()
+                                                            .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
+                                                            .into(binding.timelineProfileImageView)
 
-                                                    CommonFunction.getInstance()!!
-                                                        .unlockTouch(activity?.window!!)
-                                                    binding.progressBar.visibility = View.GONE
+                                                        CommonFunction.getInstance()!!
+                                                            .unlockTouch(activity?.window!!)
+                                                        binding.progressBar.visibility = View.GONE
+                                                    }
                                                 }
-                                            }
-                                        })
+                                            })
 
                                 } else if (result is Result.Error) {
                                     Log.e(

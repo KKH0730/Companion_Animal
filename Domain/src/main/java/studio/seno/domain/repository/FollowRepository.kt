@@ -1,6 +1,5 @@
-package studio.seno.domain.Repository
+package studio.seno.domain.repository
 
-import com.google.firebase.firestore.FirebaseFirestore
 import studio.seno.domain.model.Follow
 import studio.seno.domain.util.LongTaskCallback
 

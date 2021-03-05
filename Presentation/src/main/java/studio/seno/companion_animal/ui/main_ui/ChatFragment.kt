@@ -150,14 +150,7 @@ class ChatFragment : Fragment() {
         chatListViewModel.requestSetChatListListener(
             CommonFunction.getInstance()!!.makeChatPath(user!!.email),
             binding.chatRecyclerView,
-            lifecycleScope,
-            object : LongTaskCallback<Boolean> {
-                override fun onResponse(result: Result<Boolean>) {
-                    if (result is Result.Success) {
-                        binding.progressBar.visibility = View.GONE
-                    }
-                }
-            }
+            lifecycleScope
         )
     }
 

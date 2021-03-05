@@ -1,6 +1,6 @@
 package studio.seno.domain.usecase.followUseCase
 
-import studio.seno.domain.Repository.FollowRepository
+import studio.seno.domain.repository.FollowRepository
 import studio.seno.domain.util.Mapper
 
 class SetFollowUseCase(private val followRepository: FollowRepository) {

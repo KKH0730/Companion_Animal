@@ -3,8 +3,8 @@ package studio.seno.companion_animal.module
 import org.koin.core.module.Module
 import org.koin.dsl.module
 import studio.seno.datamodule.repository.remote.*
-import studio.seno.domain.Repository.ReportRepository
-import studio.seno.domain.Repository.*
+import studio.seno.domain.repository.ReportRepository
+import studio.seno.domain.repository.*
 
 val repositoryModule: Module = module {
     single<FeedRepository> { FeedRepositoryImpl() }

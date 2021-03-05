@@ -101,12 +101,11 @@ class ChatListVIewModel(
         })
     }
 
-    fun requestSetChatListListener(email: String, chatRecyclerView: RecyclerView, lifecycleScope : LifecycleCoroutineScope, callback : LongTaskCallback<Boolean>){
+    fun requestSetChatListListener(email: String, chatRecyclerView: RecyclerView, lifecycleScope : LifecycleCoroutineScope){
         setChatListListenerUseCase.execute(email, object  : LongTaskCallback<Chat> {
             override fun onResponse(result: Result<Chat>) {
                 if(result is Result.Success) {
                     addChatLog(result.data, chatRecyclerView, lifecycleScope)
-                    callback.onResponse(Result.Success(true))
                 }
             }
         })

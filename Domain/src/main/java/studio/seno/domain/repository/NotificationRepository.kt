@@ -1,11 +1,7 @@
-package studio.seno.domain.Repository
+package studio.seno.domain.repository
 
-import com.google.firebase.firestore.DocumentSnapshot
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Query
 import studio.seno.domain.model.NotificationData
 import studio.seno.domain.util.LongTaskCallback
-import studio.seno.domain.util.Result
 
 interface NotificationRepository {
 

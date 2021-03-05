@@ -3,7 +3,7 @@ package studio.seno.datamodule.repository.remote
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
-import studio.seno.domain.Repository.FollowRepository
+import studio.seno.domain.repository.FollowRepository
 import studio.seno.domain.model.Follow
 import studio.seno.domain.util.LongTaskCallback
 import studio.seno.domain.util.Result

@@ -4,8 +4,8 @@ import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
-import studio.seno.domain.Repository.ChatRepository
 import studio.seno.domain.model.Chat
+import studio.seno.domain.repository.ChatRepository
 import studio.seno.domain.util.LongTaskCallback
 import studio.seno.domain.util.Result
 
@@ -60,9 +60,8 @@ class ChatRepositoryImpl : ChatRepository {
                 override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
                     val chatList = snapshot.children.toList()
                     val addedChat = chatList[chatList.size - 1].getValue(Chat::class.java)
-                    if (addedChat != null) {
+                    if (addedChat != null)
                         callback.onResponse(Result.Success(addedChat))
-                    }
                 }
 
                 override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {}

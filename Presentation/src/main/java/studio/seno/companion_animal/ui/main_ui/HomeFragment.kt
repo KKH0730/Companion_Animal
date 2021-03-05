@@ -3,6 +3,7 @@ package studio.seno.companion_animal.ui.main_ui
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.util.Log.e
 import android.view.LayoutInflater
 import android.view.View
@@ -134,7 +135,7 @@ class HomeFragment : Fragment(), View.OnClickListener{
         }
     }
 
-    fun loadFeedList(){
+    private fun loadFeedList(){
         //게시판 데이터 서버로부터 불러와서 viewmode의 livedata 업데이트
         feedListViewModel.clearFeedList()
         if(feedSort != null && feedSort == "feed_list")
@@ -257,7 +258,7 @@ class HomeFragment : Fragment(), View.OnClickListener{
 
 
 
-    fun showFilterDialog(){
+    private fun showFilterDialog(){
         val versionArray = arrayOf(
             getString(R.string.check_box1),
             getString(R.string.check_box2),
@@ -268,7 +269,7 @@ class HomeFragment : Fragment(), View.OnClickListener{
         val builder = AlertDialog.Builder(requireContext())
 
         builder.setTitle(getString(R.string.filter_title))
-            .setMultiChoiceItems(versionArray, checkArray) { dialog, which, isChecked ->
+            .setMultiChoiceItems(versionArray, checkArray) { _, which, isChecked ->
                 when (which) {
                     0 -> filter1 = isChecked
                     1 -> filter2 = isChecked
@@ -281,7 +282,7 @@ class HomeFragment : Fragment(), View.OnClickListener{
     }
 
 
-    fun setListener() {
+    private fun setListener() {
         FirebaseFirestore.getInstance()
             .collection("feed")
             .addSnapshotListener { value, error ->
@@ -307,10 +308,9 @@ class HomeFragment : Fragment(), View.OnClickListener{
                         )
 
                         when(element.type) {
-                            DocumentChange.Type.ADDED -> {}
-
-                            DocumentChange.Type.MODIFIED ->  { modifyItem(feed) }
-                            DocumentChange.Type.REMOVED -> {removeItem(feed)}
+                            DocumentChange.Type.ADDED -> {addFeedItem(feed)}
+                            DocumentChange.Type.MODIFIED ->  { modifyFeedItem(feed) }
+                            DocumentChange.Type.REMOVED -> {deleteFeedItem(feed)}
                         }
 
 
@@ -319,8 +319,17 @@ class HomeFragment : Fragment(), View.OnClickListener{
             }
     }
 
+    private fun addFeedItem(feed : Feed){
+        val tempList = feedListViewModel.getFeedListLiveData().value?.toMutableList()
+        tempList?.let {
+            it.add(feed)
+            feedListViewModel.setFeedListLiveData(it.toList())
+            Log.d("hi", "feed.content ${feed.getContent()}")
+        }
+    }
 
-    fun modifyItem(feed : Feed){
+
+    private fun modifyFeedItem(feed : Feed){
         val tempList = feedListViewModel.getFeedListLiveData().value?.toMutableList()
         for((position, item) in tempList?.withIndex()!!) {
             if(item.getTimestamp() == feed.getTimestamp()) {
@@ -331,7 +340,7 @@ class HomeFragment : Fragment(), View.OnClickListener{
         }
     }
 
-    fun removeItem(feed: Feed) {
+    private fun deleteFeedItem(feed: Feed) {
         val tempList = feedListViewModel.getFeedListLiveData().value?.toMutableList()
         for((position, item) in tempList?.withIndex()!!) {
             if(item.getTimestamp() == feed.getTimestamp()) {

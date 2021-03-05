@@ -4,7 +4,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
-import studio.seno.domain.Repository.SearchRepository
+import studio.seno.domain.repository.SearchRepository
 import studio.seno.domain.model.LastSearch
 import studio.seno.domain.util.LongTaskCallback
 import studio.seno.domain.util.Result

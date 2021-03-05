@@ -12,6 +12,7 @@ import android.widget.TextView
 import androidx.core.app.ActivityCompat.startActivityForResult
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.LifecycleCoroutineScope
+import androidx.lifecycle.lifecycleScope
 import com.google.firebase.auth.FirebaseAuth
 import com.kakao.message.template.ButtonObject
 import com.kakao.message.template.ContentObject

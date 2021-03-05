@@ -1,4 +1,4 @@
-package studio.seno.domain.Repository
+package studio.seno.domain.repository
 
 import androidx.recyclerview.widget.RecyclerView
 import studio.seno.domain.model.Feed

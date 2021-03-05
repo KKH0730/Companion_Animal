@@ -1,7 +1,7 @@
 package studio.seno.datamodule.repository.remote
 
 import com.google.firebase.firestore.FirebaseFirestore
-import studio.seno.domain.Repository.ReportRepository
+import studio.seno.domain.repository.ReportRepository
 import studio.seno.domain.model.Feed
 
 class ReportRepositoryImpl : ReportRepository {

@@ -13,6 +13,8 @@ import androidx.lifecycle.observe
 import androidx.recyclerview.widget.ItemTouchHelper
 import com.kroegerama.imgpicker.BottomSheetImagePicker
 import com.pchmn.materialchips.ChipView
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import studio.seno.commonmodule.CustomToast
 import studio.seno.companion_animal.R

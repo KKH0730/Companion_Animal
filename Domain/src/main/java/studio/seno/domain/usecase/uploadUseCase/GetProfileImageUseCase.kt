@@ -1,6 +1,6 @@
 package studio.seno.domain.usecase.uploadUseCase
 
-import studio.seno.domain.Repository.UploadRepository
+import studio.seno.domain.repository.UploadRepository
 import studio.seno.domain.util.LongTaskCallback
 
 class GetProfileImageUseCase(private val uploadRepository: UploadRepository) {

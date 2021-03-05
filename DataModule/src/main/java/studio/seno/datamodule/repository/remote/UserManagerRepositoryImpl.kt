@@ -3,7 +3,7 @@ package studio.seno.datamodule.repository.remote
 import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import studio.seno.domain.Repository.UserManagerRepository
+import studio.seno.domain.repository.UserManagerRepository
 import studio.seno.domain.model.User
 import studio.seno.domain.util.LongTaskCallback
 import studio.seno.domain.util.Result
@@ -64,8 +64,9 @@ class UserManagerRepositoryImpl : UserManagerRepository {
         var map = HashMap<String, String>()
         map[user.email] = user.email
         db.collection("user_list")
-            .document("user_email")
+            .document(user.email)
             .set(map)
+
     }
 
     override fun getUserInfo(email: String, callback: LongTaskCallback<User>) {
@@ -103,17 +104,14 @@ class UserManagerRepositoryImpl : UserManagerRepository {
 
     override fun checkOverlapUser(email : String, callback: LongTaskCallback<Boolean>) {
         db.collection("user_list")
-            .document("user_email")
+            .document(email)
             .get()
             .addOnSuccessListener {
-                if(it.data != null) {
-                    if(it?.data!![email] == null) {
-                        callback.onResponse(Result.Success(false))
-                    } else {
-                        callback.onResponse(Result.Success(true))
-                    }
+                if(it.exists()) {
+                    callback.onResponse(Result.Success(true))
+                } else {
+                    callback.onResponse(Result.Success(false))
                 }
-
             }.addOnFailureListener {
                 callback.onResponse(Result.Error(it))
             }

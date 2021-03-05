@@ -1,6 +1,6 @@
 package studio.seno.domain.usecase.commentUseCase
 
-import studio.seno.domain.Repository.CommentRepository
+import studio.seno.domain.repository.CommentRepository
 
 class SetCommentCountUseCase (private val commentRepository: CommentRepository){
     fun execute(

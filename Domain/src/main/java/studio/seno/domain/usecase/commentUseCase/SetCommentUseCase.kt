@@ -1,6 +1,6 @@
 package studio.seno.domain.usecase.commentUseCase
 
-import studio.seno.domain.Repository.CommentRepository
+import studio.seno.domain.repository.CommentRepository
 import studio.seno.domain.util.Mapper
 
 class SetCommentUseCase (private val commentRepository: CommentRepository){

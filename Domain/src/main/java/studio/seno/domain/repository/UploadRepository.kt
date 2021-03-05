@@ -1,4 +1,4 @@
-package studio.seno.domain.Repository
+package studio.seno.domain.repository
 
 import android.net.Uri
 import com.google.firebase.storage.StorageReference

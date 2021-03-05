@@ -1,4 +1,4 @@
-package studio.seno.domain.Repository
+package studio.seno.domain.repository
 
 import studio.seno.domain.model.Chat
 import studio.seno.domain.util.LongTaskCallback

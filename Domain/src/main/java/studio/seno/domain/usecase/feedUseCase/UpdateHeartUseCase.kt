@@ -1,6 +1,6 @@
 package studio.seno.domain.usecase.feedUseCase
 
-import studio.seno.domain.Repository.FeedRepository
+import studio.seno.domain.repository.FeedRepository
 import studio.seno.domain.model.Feed
 
 class UpdateHeartUseCase(private val repository: FeedRepository) {

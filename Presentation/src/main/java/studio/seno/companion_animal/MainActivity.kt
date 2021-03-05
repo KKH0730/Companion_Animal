@@ -8,6 +8,8 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.iid.FirebaseInstanceId
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import me.ibrahimsn.lib.OnItemSelectedListener
 import org.jetbrains.anko.startActivity
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -70,9 +72,9 @@ class MainActivity : BaseActivity() , DialogInterface.OnDismissListener, FinishA
                                 if(result is Result.Success){
                                     if(result.data == null)
                                         LocalRepository(applicationContext).insertUserInfo(lifecycleScope, user)
+
                                     else
                                         LocalRepository(applicationContext).updateUserInfo(lifecycleScope, user, null)
-
                                 } else if(result is Result.Error) {
                                     Log.e("error", "timeline userInfoSet error : ${result.exception}")
                                 }

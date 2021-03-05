@@ -1,6 +1,6 @@
 package studio.seno.domain.usecase.chatUseCase
 
-import studio.seno.domain.Repository.ChatRepository
+import studio.seno.domain.repository.ChatRepository
 import studio.seno.domain.util.Mapper
 
 class AddChatUseCase(private val chatRepository: ChatRepository) {

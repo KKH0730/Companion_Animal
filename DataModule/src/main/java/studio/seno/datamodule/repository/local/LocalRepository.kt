@@ -97,19 +97,11 @@ class LocalRepository(context: Context) {
         profileUri: String,
         callback: LongTaskCallback<User>
     ) {
-        //profileUri 업데이트
-        fun updateProfileUri(
-            lifecycleScope: LifecycleCoroutineScope,
-            profileUri: String,
-            db: AppDatabase,
-            callback: LongTaskCallback<User>?
-        ) {
-            lifecycleScope.launch(Dispatchers.IO) {
-                val user: User = db.userDao().getAll()[0]
-                user.profileUri = profileUri
+        lifecycleScope.launch(Dispatchers.IO) {
+            val user: User = db.userDao().getAll()[0]
+            user.profileUri = profileUri
 
-                updateUserInfo(lifecycleScope, user, callback)
-            }
+            updateUserInfo(lifecycleScope, user, callback)
         }
     }
 
