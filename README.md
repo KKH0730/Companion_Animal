@@ -12,8 +12,7 @@
 - 디자인 패턴 : ViewModel + LiveData를 이용한 MVVM 패턴 
 - 데이터 베이스 : SQLlite
 
-
-![1](https://user-images.githubusercontent.com/66052075/110236953-84771100-7f7c-11eb-8981-140db1bfa2a8.png)
+![1](https://user-images.githubusercontent.com/66052075/110237009-c7d17f80-7f7c-11eb-8a4a-2838cf94ef1a.png)
 ![2](https://user-images.githubusercontent.com/66052075/110236959-8e007900-7f7c-11eb-9537-41d9eb44cf90.png)
 ![3](https://user-images.githubusercontent.com/66052075/110236963-92c52d00-7f7c-11eb-9bc6-54cd45ba304b.png)
 ![4](https://user-images.githubusercontent.com/66052075/110236969-96f14a80-7f7c-11eb-8367-a3b51fc2c77b.png)
