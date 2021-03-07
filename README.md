@@ -11,7 +11,7 @@
 [개발환경] 안드로이드 스튜디오, git  
 
 [사용기술]
-- Kotlin(주) Java(부)
+- Kotlin
 - 서버: Firebase
 - 주요 라이브러리 및 API : Room, Retrofit2, Glide, Anko, Koin, AAC, 카카오 링크 공유 Api
 - 디자인 패턴 : ViewModel + LiveData를 이용한 MVVM 패턴 
