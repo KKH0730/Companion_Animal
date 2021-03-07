@@ -6,6 +6,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.ImageButton
@@ -230,6 +231,7 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
                         commentModule.findParentComment(answerPosition)!!, timestamp, modifyMode,
                         answerComment!!, answerPosition, commentPosition, binding.feedLayout.comment
                     )
+                    initVariable()
                 } else if (!modifyMode && curComment != null) {
                     commentModule.submitCommentAnswer(
                         curComment!!, timestamp, modifyMode, answerComment,
@@ -239,8 +241,18 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
                     LocalRepository.getInstance(this)!!.getUserInfo(lifecycleScope, object :
                         LongTaskCallback<User> {
                         override fun onResponse(result: Result<User>) {
-                            if(result is Result.Success)
-                                notificationModule.sendNotification(curComment!!.email, result.data.profileUri, binding.feedLayout.comment.text.toString(), timestamp, feed!!, lifecycleScope)
+                            if(result is Result.Success) {
+
+                                notificationModule.sendNotification(
+                                    curComment!!.email,
+                                    result.data.profileUri,
+                                    binding.feedLayout.comment.text.toString(),
+                                    timestamp,
+                                    feed!!,
+                                    lifecycleScope
+                                )
+                                initVariable()
+                            }
                         }
                     })
                 }
@@ -250,6 +262,7 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
                         curComment!!.timestamp, modifyMode, curComment, commentPosition,
                         binding.feedLayout.commentCount, binding.feedLayout.comment
                     )
+                    initVariable()
                 } else {
                     feed!!.setComment(feed!!.getComment() + 1)
                     commentModule.submitComment(
@@ -260,13 +273,21 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
                     LocalRepository.getInstance(this)!!.getUserInfo(lifecycleScope, object :
                         LongTaskCallback<User> {
                         override fun onResponse(result: Result<User>) {
-                            if(result is Result.Success)
-                                notificationModule.sendNotification(feed!!.getEmail()!!, result.data.profileUri, binding.feedLayout.comment.text.toString(), timestamp, feed!!, lifecycleScope)
+                            if(result is Result.Success) {
+                                notificationModule.sendNotification(
+                                    feed!!.getEmail()!!,
+                                    result.data.profileUri,
+                                    binding.feedLayout.comment.text.toString(),
+                                    timestamp,
+                                    feed!!,
+                                    lifecycleScope
+                                )
+                                initVariable()
+                            }
                         }
                     })
                 }
             }
-            initVariable()
         } else if(v?.id == R.id.profile_btn) {
             startActivity<ShowFeedActivity>(
                 "profileEmail" to feed?.getEmail(),
