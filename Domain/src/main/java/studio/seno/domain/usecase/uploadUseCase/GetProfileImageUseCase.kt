@@ -6,7 +6,7 @@ import studio.seno.domain.util.LongTaskCallback
 class GetProfileImageUseCase(private val uploadRepository: UploadRepository) {
     fun execute(
         email : String,
-        callback: LongTaskCallback<String>
+        callback: LongTaskCallback<Any>
     ) {
 
         uploadRepository.getRemoteProfileImage(email, callback)

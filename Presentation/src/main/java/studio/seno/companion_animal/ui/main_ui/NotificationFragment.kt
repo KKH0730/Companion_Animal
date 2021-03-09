@@ -10,6 +10,7 @@ import android.widget.ImageButton
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
 import org.jetbrains.anko.support.v4.startActivity
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -72,11 +73,11 @@ class NotificationFragment : Fragment() {
                 notificationListViewModel.requestUpdateCheckDot(item)
 
                 notificationListViewModel.getFeed(item.targetPath!!, object :
-                    LongTaskCallback<Feed> {
-                    override fun onResponse(result: Result<Feed>) {
+                    LongTaskCallback<Any> {
+                    override fun onResponse(result: Result<Any>) {
                         if(result is Result.Success){
                             if(result.data != null)
-                                startActivity<FeedDetailActivity>("feed" to result.data)
+                                startActivity<FeedDetailActivity>("feed" to result.data as Feed)
                             else
                                 startActivity<ReportActivity>()
 

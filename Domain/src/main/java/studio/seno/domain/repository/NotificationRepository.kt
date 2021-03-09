@@ -9,12 +9,12 @@ interface NotificationRepository {
         notificationData : NotificationData
     )
 
-    fun getNotification(callback : LongTaskCallback<List<NotificationData>>)
+    fun getNotification(callback : LongTaskCallback<Any>)
 
     fun setCheckDot(notificationData : NotificationData)
 
     fun deleteNotification(
         notificationData : NotificationData,
-        callback: LongTaskCallback<Boolean>
+        callback: LongTaskCallback<Any>
     )
 }

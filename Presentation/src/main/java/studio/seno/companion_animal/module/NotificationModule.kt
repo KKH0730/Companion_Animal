@@ -117,14 +117,14 @@ class NotificationModule(context: Context, title: String) {
             return
         }
 
-        UserManagerRepositoryImpl().getUserInfo(targetEmail, object : LongTaskCallback<User> {
-            override fun onResponse(result: Result<User>) {
+        UserManagerRepositoryImpl().getUserInfo(targetEmail, object : LongTaskCallback<Any> {
+            override fun onResponse(result: Result<Any>) {
                 if (result is Result.Success) {
                     var notificationModel: NotificationModel? = null
 
                     if (feed != null) {
                         notificationModel = NotificationModel(
-                            result.data.token,
+                            (result.data as User).token,
                             NotificationData(
                                 myNickname,
                                 content,
@@ -140,7 +140,7 @@ class NotificationModule(context: Context, title: String) {
                         )
                     } else {
                         notificationModel = NotificationModel(
-                            result.data.token,
+                            (result.data as User).token,
                             NotificationData(
                                 myNickname,
                                 content,

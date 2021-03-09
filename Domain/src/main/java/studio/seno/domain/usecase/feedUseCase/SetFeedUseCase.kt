@@ -1,5 +1,6 @@
 package studio.seno.domain.usecase.feedUseCase
 
+import androidx.lifecycle.LifecycleCoroutineScope
 import studio.seno.domain.repository.FeedRepository
 import studio.seno.domain.util.LongTaskCallback
 import studio.seno.domain.util.Mapper
@@ -14,7 +15,7 @@ class SetFeedUseCase (private val repository: FeedRepository) {
         localUri: List<String>,
         content: String,
         timestamp: Long,
-        callback: LongTaskCallback<Feed>
+        callback: LongTaskCallback<Any>
     ) {
         val feed = Mapper.getInstance()!!.mapperToFeed(
             0, email, nickname, sort, hashTags, localUri, content, timestamp

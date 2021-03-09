@@ -7,7 +7,7 @@ import studio.seno.domain.util.LongTaskCallback
 class DeleteNotificationUseCase(private val notificationRepository: NotificationRepository){
     fun execute(
         notificationData : NotificationData,
-        callback: LongTaskCallback<Boolean>
+        callback: LongTaskCallback<Any>
     ) {
         notificationRepository.deleteNotification(notificationData, callback)
     }

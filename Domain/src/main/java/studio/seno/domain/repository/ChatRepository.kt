@@ -8,7 +8,8 @@ interface ChatRepository {
     fun addChat(
         myEmail: String,
         targetEmail: String,
-        chat: Chat
+        chat: Chat,
+
     )
 
     fun setAddedChatListener(

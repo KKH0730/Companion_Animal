@@ -6,12 +6,12 @@ import studio.seno.domain.util.LongTaskCallback
 interface FollowRepository {
     fun checkFollow(
         targetEmail: String,
-        callback: LongTaskCallback<Boolean>
+        callback: LongTaskCallback<Any>
     )
 
     fun getFollow(
         fieldName: String,
-        callback: LongTaskCallback<List<Follow>>
+        callback: LongTaskCallback<Any>
     )
 
     fun setFollower(

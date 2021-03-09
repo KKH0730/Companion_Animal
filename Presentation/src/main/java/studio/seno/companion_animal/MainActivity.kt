@@ -61,10 +61,10 @@ class MainActivity : BaseActivity() , DialogInterface.OnDismissListener, FinishA
     //앱이 실행되면 회원정보를 Remote DB에서 Local DB에 저장
     private fun loadUserInfo(){
             mainViewModel.requestUserInfo(FirebaseAuth.getInstance().currentUser?.email.toString(), object:
-                LongTaskCallback<User> {
-                override fun onResponse(result: Result<User>) {
+                LongTaskCallback<Any> {
+                override fun onResponse(result: Result<Any>) {
                     if(result is Result.Success){
-                        val user = result.data
+                        val user = result.data as User
 
                         LocalRepository(applicationContext).getUserInfo(lifecycleScope, object :
                             LongTaskCallback<User> {
@@ -109,11 +109,11 @@ class MainActivity : BaseActivity() , DialogInterface.OnDismissListener, FinishA
         if(intent.getStringExtra("from") != null){
             if(intent.getStringExtra("from") == "notification") {
                 mainViewModel.getFeed(intent.getStringExtra("target_path")!!, object :
-                    LongTaskCallback<Feed> {
-                    override fun onResponse(result: Result<Feed>) {
+                    LongTaskCallback<Any> {
+                    override fun onResponse(result: Result<Any>) {
                         if(result is Result.Success){
                             if(result.data != null)
-                                startActivity<FeedDetailActivity>("feed" to result.data)
+                                startActivity<FeedDetailActivity>("feed" to result.data as Feed)
                             else
                                 startActivity<ReportActivity>()
                         } else if(result is Result.Error) {
@@ -138,11 +138,11 @@ class MainActivity : BaseActivity() , DialogInterface.OnDismissListener, FinishA
             val path = intent.data?.getQueryParameter("path")
 
             if (path != null) {
-                mainViewModel.getFeed(path, object : LongTaskCallback<Feed> {
-                    override fun onResponse(result: Result<Feed>) {
+                mainViewModel.getFeed(path, object : LongTaskCallback<Any> {
+                    override fun onResponse(result: Result<Any>) {
                         if(result is Result.Success){
                             if(result.data != null)
-                                startActivity<FeedDetailActivity>("feed" to result.data)
+                                startActivity<FeedDetailActivity>("feed" to result.data as Feed)
                             else
                                 startActivity<ReportActivity>()
                         }else if(result is Result.Error) {

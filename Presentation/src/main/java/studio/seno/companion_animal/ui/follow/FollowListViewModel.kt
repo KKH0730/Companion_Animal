@@ -23,10 +23,10 @@ class FollowListViewModel(
 
 
     fun requestLoadFollower(fieldName : String){
-        getFollowUseCase.execute(fieldName, object : LongTaskCallback<List<Follow>> {
-            override fun onResponse(result: Result<List<Follow>>) {
+        getFollowUseCase.execute(fieldName, object : LongTaskCallback<Any> {
+            override fun onResponse(result: Result<Any>) {
                 if(result is Result.Success){
-                    followListLiveData.value = result.data
+                    followListLiveData.value = result.data as List<Follow>
                 } else if(result is Result.Error){
                     Log.e("error", "FollowListViewModel load Follower Error : ${result.exception}")
                 }

@@ -211,10 +211,10 @@ class MakeFeedActivity : AppCompatActivity(), View.OnClickListener,
                     feedListViewModel.requestUploadFeed(
                         result.data.email, result.data.nickname, currentChecked!!,
                         hashTags, selectedImageAdapter.getItems(), binding.content.text.toString(),
-                        timestamp, object: LongTaskCallback<Feed> {
-                            override fun onResponse(result: Result<Feed>) {
+                        timestamp, object: LongTaskCallback<Any> {
+                            override fun onResponse(result: Result<Any>) {
                                 if(result is Result.Success) {
-                                    feed = result.data
+                                    feed = result.data as Feed
                                 }
                             }
 

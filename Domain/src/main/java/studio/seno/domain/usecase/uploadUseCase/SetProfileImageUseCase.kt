@@ -7,7 +7,7 @@ import studio.seno.domain.util.LongTaskCallback
 class SetProfileImageUseCase(private val uploadRepository: UploadRepository) {
     fun execute(
         imageUri : Uri,
-        callback: LongTaskCallback<Boolean>
+        callback: LongTaskCallback<Any>
     ) {
 
         uploadRepository.setRemoteProfileImage(imageUri, callback)

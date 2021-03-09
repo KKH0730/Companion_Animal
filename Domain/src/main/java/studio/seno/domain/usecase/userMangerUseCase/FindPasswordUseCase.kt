@@ -6,7 +6,7 @@ import studio.seno.domain.util.LongTaskCallback
 class FindPasswordUseCase(private val userManagerRepository: UserManagerRepository) {
     fun execute(
         emailAddress: String,
-        callback : LongTaskCallback<Boolean>
+        callback : LongTaskCallback<Any>
     ){
         userManagerRepository.sendFindEmail(emailAddress, callback)
     }

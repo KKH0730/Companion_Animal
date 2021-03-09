@@ -7,12 +7,12 @@ import studio.seno.domain.util.LongTaskCallback
 interface UploadRepository {
     fun setRemoteProfileImage(
         imageUri : Uri,
-        callback: LongTaskCallback<Boolean>
+        callback: LongTaskCallback<Any>
     )
 
     fun getRemoteProfileImage(
         email : String,
-        callback: LongTaskCallback<String>
+        callback: LongTaskCallback<Any>
     )
 
 

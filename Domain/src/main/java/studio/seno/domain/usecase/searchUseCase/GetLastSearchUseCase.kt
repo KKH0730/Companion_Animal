@@ -5,7 +5,7 @@ import studio.seno.domain.model.LastSearch
 import studio.seno.domain.util.LongTaskCallback
 
 class GetLastSearchUseCase (private val searchRepository: SearchRepository) {
-    fun execute(callback: LongTaskCallback<List<LastSearch>>) {
+    fun execute(callback: LongTaskCallback<Any>) {
         searchRepository.getLastSearch(callback)
     }
 }

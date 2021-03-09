@@ -5,6 +5,9 @@ import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import studio.seno.domain.util.LongTaskCallback
 import studio.seno.domain.util.Result
 import studio.seno.domain.repository.UploadRepository
@@ -16,33 +19,38 @@ class UploadRepositoryImpl : UploadRepository {
 
     override fun setRemoteProfileImage(
         imageUri: Uri,
-        callback: LongTaskCallback<Boolean>
+        callback: LongTaskCallback<Any>
     ) {
-        val email = auth.currentUser?.email.toString()
-        val profileUri = "$email/profile/profileImage"
+        CoroutineScope(Dispatchers.IO).launch {
+            val email = auth.currentUser?.email.toString()
+            val profileUri = "$email/profile/profileImage"
 
-        storageRef.child(profileUri).putFile(imageUri)
-            .addOnCompleteListener{
-                callback.onResponse(Result.Success(true))
-            }.addOnFailureListener{
-                callback.onResponse(Result.Error(it))
-            }
+            storageRef.child(profileUri).putFile(imageUri)
+                .addOnCompleteListener{
+                    sendCallback(true, false, callback)
+                }.addOnFailureListener{
+                    sendCallback(it, true, callback)
+                }
+        }
     }
 
     override fun getRemoteProfileImage(
         email: String,
-        callback: LongTaskCallback<String>
+        callback: LongTaskCallback<Any>
     ) {
-        val profileUri = "$email/profile/profileImage"
+        CoroutineScope(Dispatchers.IO).launch {
+            val profileUri = "$email/profile/profileImage"
 
-        storageRef.child(profileUri).downloadUrl
-            .addOnCompleteListener {
-                if(it.result != null) {
-                    callback.onResponse(Result.Success(it.result.toString()))
+            storageRef.child(profileUri).downloadUrl
+                .addOnCompleteListener {
+                    if(it.result != null) {
+                        sendCallback(it.result.toString(), false, callback)
+                        callback.onResponse(Result.Success(it.result.toString()))
+                    }
+                }.addOnFailureListener {
+                    sendCallback(it, true, callback)
                 }
-            }.addOnFailureListener {
-                callback.onResponse(Result.Error(it))
-            }
+        }
     }
 
     override fun setRemoteFeedImage(
@@ -130,5 +138,12 @@ class UploadRepositoryImpl : UploadRepository {
         }
     }
 
-
+    private fun sendCallback(any : Any, isError : Boolean, callback: LongTaskCallback<Any>?)  {
+        CoroutineScope(Dispatchers.Main).launch {
+            if(!isError)
+                callback?.onResponse(Result.Success(any))
+            else
+                callback?.onResponse(Result.Error(any as java.lang.Exception))
+        }
+    }
 }

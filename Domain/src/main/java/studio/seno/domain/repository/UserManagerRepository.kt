@@ -7,18 +7,18 @@ interface UserManagerRepository {
     fun checkEnableLogin(
         email: String,
         password: String,
-        callback : LongTaskCallback<Boolean>
+        callback : LongTaskCallback<Any>
     )
 
     fun sendFindEmail(
         emailAddress: String,
-        callback : LongTaskCallback<Boolean>
+        callback : LongTaskCallback<Any>
     )
 
     fun registerUser(
         email: String,
         password: String,
-        callback: LongTaskCallback<Boolean>
+        callback: LongTaskCallback<Any>
     )
 
 
@@ -28,7 +28,7 @@ interface UserManagerRepository {
 
     fun getUserInfo(
         email : String,
-        callback: LongTaskCallback<User>
+        callback: LongTaskCallback<Any>
     )
 
     fun setNickname(
@@ -41,7 +41,7 @@ interface UserManagerRepository {
 
     fun checkOverlapUser(
         email : String,
-        callback : LongTaskCallback<Boolean>
+        callback : LongTaskCallback<Any>
     )
 
 

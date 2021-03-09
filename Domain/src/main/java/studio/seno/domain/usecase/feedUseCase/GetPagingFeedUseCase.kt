@@ -1,5 +1,6 @@
 package studio.seno.domain.usecase.feedUseCase
 
+import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.recyclerview.widget.RecyclerView
 import studio.seno.domain.repository.FeedRepository
 import studio.seno.domain.util.LongTaskCallback
@@ -14,7 +15,7 @@ class GetPagingFeedUseCase (private val repository: FeedRepository) {
         sort: String,
         myEmail: String?,
         recyclerView: RecyclerView,
-        callback : LongTaskCallback<List<Feed>>
+        callback : LongTaskCallback<Any>
     ) {
         repository.getPagingFeed(
             f1,

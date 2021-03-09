@@ -1,6 +1,7 @@
 package studio.seno.companion_animal.ui.notification
 
 import android.util.Log
+import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import studio.seno.domain.util.LongTaskCallback
@@ -27,10 +28,10 @@ class NotificationListViewModel(
 
 
     fun requestLoadNotification() {
-        getNotificationUseCase.execute(object : LongTaskCallback<List<NotificationData>> {
-            override fun onResponse(result: Result<List<NotificationData>>) {
+        getNotificationUseCase.execute(object : LongTaskCallback<Any> {
+            override fun onResponse(result: Result<Any>) {
                 if(result is Result.Success) {
-                    notificationListLiveData.value = result.data
+                    notificationListLiveData.value = result.data as List<NotificationData>
                 }else if(result is Result.Error) {
                     Log.e("error","load notification : ${result.exception}")
                 }
@@ -44,8 +45,8 @@ class NotificationListViewModel(
 
     fun deleteNotification(notificationData : NotificationData){
         deleteNotificationUseCase.execute(notificationData, object :
-            LongTaskCallback<Boolean> {
-            override fun onResponse(result: Result<Boolean>) {
+            LongTaskCallback<Any> {
+            override fun onResponse(result: Result<Any>) {
                 if(result is Result.Success) {
                     val list = notificationListLiveData.value?.toMutableList()
                     if(list != null) {
@@ -62,7 +63,7 @@ class NotificationListViewModel(
     }
 
 
-    fun getFeed(path : String, callback: LongTaskCallback<Feed>){
+    fun getFeed(path : String, callback: LongTaskCallback<Any>){
         getFeedUseCase.execute(path, callback)
     }
 }

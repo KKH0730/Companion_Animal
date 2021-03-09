@@ -159,14 +159,14 @@ object BindingAdapter {
 
         UploadRepositoryImpl().getRemoteProfileImage(
             FirebaseAuth.getInstance().currentUser?.email.toString(),
-            object: LongTaskCallback<String> {
-                override fun onResponse(result: Result<String>) {
+            object: LongTaskCallback<Any> {
+                override fun onResponse(result: Result<Any>) {
                     if(result is Result.Success) {
                         if(result.data == null)
                             return
 
                         Glide.with(circleImageView.context)
-                            .load(Uri.parse(result.data))
+                            .load(Uri.parse(result.data as String))
                             .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
                             .centerCrop()
                             .into(circleImageView)
@@ -246,10 +246,10 @@ object BindingAdapter {
         try {
             if(category == "follower") {
                 FollowRepositoryImpl().checkFollow(targetEmail, object :
-                    LongTaskCallback<Boolean> {
-                    override fun onResponse(result: Result<Boolean>) {
+                    LongTaskCallback<Any> {
+                    override fun onResponse(result: Result<Any>) {
                         if(result is Result.Success) {
-                            if(result.data) {
+                            if(result.data as Boolean) {
                                 button.text = button.context.getString(R.string.follow_ing)
                                 button.setBackgroundColor(button.context.getColor(R.color.main_color))
                                 button.setTextColor(button.context.getColor(R.color.white))
@@ -279,12 +279,12 @@ object BindingAdapter {
     fun setRemoteProfileUri(circleImageView: CircleImageView, email: String) {
 
         UploadRepositoryImpl().getRemoteProfileImage(email, object:
-            LongTaskCallback<String> {
-                override fun onResponse(result: Result<String>) {
+            LongTaskCallback<Any> {
+                override fun onResponse(result: Result<Any>) {
                     if(result is Result.Success) {
 
                         Glide.with(circleImageView.context)
-                            .load(Uri.parse(result.data))
+                            .load(Uri.parse(result.data as String))
                             .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
                             .centerCrop()
                             .into(circleImageView)

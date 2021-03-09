@@ -7,7 +7,7 @@ import studio.seno.domain.util.LongTaskCallback
 class GetFollowUseCase(private val followRepository: FollowRepository) {
     fun execute(
         fieldName: String,
-        callback: LongTaskCallback<List<Follow>>
+        callback: LongTaskCallback<Any>
     ){
         followRepository.getFollow(fieldName, callback)
     }

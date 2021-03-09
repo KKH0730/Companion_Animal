@@ -38,10 +38,10 @@ class LastSearchListViewModel(
     }
 
     fun requestLoadLastSearch(){
-        getLastSearchUseCase.execute(object : LongTaskCallback<List<LastSearch>> {
-            override fun onResponse(result: Result<List<LastSearch>>) {
+        getLastSearchUseCase.execute(object : LongTaskCallback<Any> {
+            override fun onResponse(result: Result<Any>) {
                 if(result is Result.Success) {
-                    lastSearchListLiveData.value = result.data
+                    lastSearchListLiveData.value = result.data as List<LastSearch>
                 }else if(result is Result.Error) {
                     Log.e("error","LastSearchListViewModel load LastSearch Error : ${result.exception}")
                 }

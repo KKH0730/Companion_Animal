@@ -1,5 +1,6 @@
 package studio.seno.domain.repository
 
+import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.recyclerview.widget.RecyclerView
 import studio.seno.domain.model.Feed
 import studio.seno.domain.util.LongTaskCallback
@@ -7,7 +8,7 @@ import studio.seno.domain.util.LongTaskCallback
 interface FeedRepository {
     fun setFeed(
         feed: Feed,
-        callback: LongTaskCallback<Feed>
+        callback: LongTaskCallback<Any>
     )
 
     fun getPagingFeed(
@@ -18,17 +19,17 @@ interface FeedRepository {
         sort: String,
         myEmail: String?,
         recyclerView: RecyclerView,
-        callback : LongTaskCallback<List<Feed>>
+        callback : LongTaskCallback<Any>
     )
 
     fun getFeed(
         path: String,
-        callback: LongTaskCallback<Feed>
+        callback: LongTaskCallback<Any>
     )
 
     fun deleteFeed(
         feed: Feed,
-        callback: LongTaskCallback<Boolean>
+        callback: LongTaskCallback<Any>
     )
 
 

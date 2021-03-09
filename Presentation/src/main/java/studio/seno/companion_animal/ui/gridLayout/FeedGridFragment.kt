@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
 import com.google.firebase.auth.FirebaseAuth
 import org.jetbrains.anko.support.v4.startActivity
@@ -89,8 +90,8 @@ class FeedGridFragment : Fragment() {
                 "feed_timeline",
                 timeLineEmail,
                 binding.gridRecyclerview,
-                object : LongTaskCallback<List<Feed>> {
-                    override fun onResponse(result: Result<List<Feed>>) {
+                object : LongTaskCallback<Any> {
+                    override fun onResponse(result: Result<Any>) {
                         binding.progressBar.visibility = View.GONE
                         binding.gridRecyclerview.visibility = View.VISIBLE
                     }
@@ -103,12 +104,11 @@ class FeedGridFragment : Fragment() {
                 "feed_search",
                 null,
                 binding.gridRecyclerview,
-                object : LongTaskCallback<List<Feed>> {
-                override fun onResponse(result: Result<List<Feed>>) {
+                object : LongTaskCallback<Any> {
+                override fun onResponse(result: Result<Any>) {
                     binding.progressBar.visibility = View.GONE
                     binding.gridRecyclerview.visibility = View.VISIBLE
                     if(result is Result.Success) {
-
                         if(result.data == null) {
                             binding.noResultTextView.setText("\"" + keyword + "\"" + getString(R.string.no_result))
                             binding.noResultLayout.visibility = View.VISIBLE
@@ -116,11 +116,11 @@ class FeedGridFragment : Fragment() {
                     }
                 }
             })
-        } else if(feedSort == "feed_bookmark") {
+        } else if(feedSort == "feed_bookmark" || feedSort == "feed_timeline") {
             feedListViewModel.getPagingFeed(
                 null, null, null, null,"feed_bookmark", FirebaseAuth.getInstance().currentUser?.email.toString(),
-                binding.gridRecyclerview, object : LongTaskCallback<List<Feed>> {
-                    override fun onResponse(result: Result<List<Feed>>) {
+                binding.gridRecyclerview, object : LongTaskCallback<Any> {
+                    override fun onResponse(result: Result<Any>) {
                         binding.progressBar.visibility = View.GONE
                         binding.gridRecyclerview.visibility = View.VISIBLE
                     }

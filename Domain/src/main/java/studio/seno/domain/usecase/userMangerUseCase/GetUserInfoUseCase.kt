@@ -8,7 +8,7 @@ import studio.seno.domain.util.LongTaskCallback
 class GetUserInfoUseCase(private val userManagerRepository: UserManagerRepository) {
     fun execute(
         email : String,
-        callback: LongTaskCallback<User>
+        callback: LongTaskCallback<Any>
     ) {
         userManagerRepository.getUserInfo(email, callback)
     }

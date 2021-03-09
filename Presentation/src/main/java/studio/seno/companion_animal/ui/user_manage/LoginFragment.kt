@@ -95,10 +95,10 @@ class LoginFragment : Fragment(), View.OnClickListener {
                 viewModel.checkEnableLogin(
                     email,
                     password,
-                    object : LongTaskCallback<Boolean> {
-                    override fun onResponse(result: Result<Boolean>) {
+                    object : LongTaskCallback<Any> {
+                    override fun onResponse(result: Result<Any>) {
                         if(result is Result.Success) {
-                            if(result.data) {
+                            if(result.data as Boolean) {
                                 binding.loginBtn.stopAnimation(TransitionButton.StopAnimationStyle.EXPAND) {
                                     startActivity<MainActivity>()
                                     finishActivityInterface.finishCurrentActivity()

@@ -37,13 +37,13 @@ class CommentModule(
 
         } else {
             mCommentListViewModel.loadProfileUri(myEmail, object :
-                LongTaskCallback<String> {
+                LongTaskCallback<Any> {
 
-                    override fun onResponse(result: Result<String>) {
+                    override fun onResponse(result: Result<Any>) {
                         if(result is Result.Success) {
                             currentCommentList.add(Comment(
                                 Constants.PARENT, myEmail, myNickname,
-                                content, result.data, timestamp
+                                content, result.data as String, timestamp
                             ))
                             mCommentListViewModel.setCommentListLiveData(currentCommentList.toList())
                         }
@@ -74,14 +74,14 @@ class CommentModule(
             mCommentListViewModel.setCommentListLiveData(currentCommentList)
         } else {
             mCommentListViewModel.loadProfileUri(myEmail, object :
-                LongTaskCallback<String> {
-                override fun onResponse(result: Result<String>) {
+                LongTaskCallback<Any> {
+                override fun onResponse(result: Result<Any>) {
                     if(result is Result.Success) {
 
                         currentCommentList.add(findNextParentComment(commentPosition),
                             Comment(
                                 Constants.CHILD, myEmail, myNickname,
-                                content, result.data, answerTimestamp
+                                content, result.data as String, answerTimestamp
                             ))
                         mCommentListViewModel.setCommentListLiveData(currentCommentList)
                     } } })

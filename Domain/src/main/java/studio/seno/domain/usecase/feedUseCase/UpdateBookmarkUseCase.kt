@@ -1,5 +1,6 @@
 package studio.seno.domain.usecase.feedUseCase
 
+import androidx.lifecycle.LifecycleCoroutineScope
 import studio.seno.domain.repository.FeedRepository
 import studio.seno.domain.model.Feed
 

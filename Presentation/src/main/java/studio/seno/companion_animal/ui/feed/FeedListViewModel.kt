@@ -1,6 +1,7 @@
 package studio.seno.companion_animal.ui.feed
 
 import android.util.Log
+import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -42,18 +43,17 @@ class FeedListViewModel(
 
     //피드를 페이징하여 로드
     fun getPagingFeed(f1 : Boolean?, f2 : Boolean?, f3: Boolean?, keyword: String?, sort: String, myEmail: String?,
-                            recyclerView: RecyclerView, callback: LongTaskCallback<List<Feed>>?){
+                            recyclerView: RecyclerView, callback: LongTaskCallback<Any>?){
 
         getPagingFeedUseCase.execute(f1, f2, f3, keyword, sort, myEmail, recyclerView, object :
-            LongTaskCallback<List<Feed>> {
-            override fun onResponse(result: Result<List<Feed>>) {
+            LongTaskCallback<Any> {
+            override fun onResponse(result: Result<Any>) {
                 if(result is Result.Success) {
-                    val list = result.data
+                    if(result.data != null){
+                        val list = result.data as List<Feed>
 
 
-                    if(list != null) {
                         var tempList : MutableList<Feed>? = feedListLiveData.value?.toMutableList()
-
                         if(tempList != null)
                             for(element in list)
                                 tempList.add(element)
@@ -65,8 +65,8 @@ class FeedListViewModel(
                         else if(recyclerView.layoutManager is StaggeredGridLayoutManager)
                             feedListLiveData.value = tempList
                     }
-                    callback?.onResponse(result)
 
+                    callback?.onResponse(result)
                 }else if(result is Result.Error){
                     callback?.onResponse(Result.Error(result.exception))
                     Log.e("error", "load feed list error : ${result.exception}")
@@ -82,12 +82,12 @@ class FeedListViewModel(
 
 
     fun requestUploadFeed(email : String, nickname: String, sort:String, hashTags : List<String>,
-                          localUri: List<String>, content: String, timestamp: Long, callback : LongTaskCallback<Feed>
+                          localUri: List<String>, content: String, timestamp: Long, callback : LongTaskCallback<Any>
     ) {
         setFeedUseCase.execute(
             email, nickname, sort, hashTags, localUri, content, timestamp, object :
-                LongTaskCallback<Feed> {
-                override fun onResponse(result: Result<Feed>) {
+                LongTaskCallback<Any> {
+                override fun onResponse(result: Result<Any>) {
                     if (result is Result.Success) {
                         feedSaveStatus.value = true
 
@@ -103,10 +103,10 @@ class FeedListViewModel(
 
 
     fun requestDeleteFeed(feed: Feed){
-        deleteFeedUseCase.execute(feed, object : LongTaskCallback<Boolean> {
-            override fun onResponse(result: Result<Boolean>) {
+        deleteFeedUseCase.execute(feed, object : LongTaskCallback<Any> {
+            override fun onResponse(result: Result<Any>) {
                 if(result is Result.Success) {
-                    if(result.data) {
+                    if(result.data as Boolean) {
                         feedSaveStatus.value = true
                     } else {
                         Log.e("error", "requestDeleteFeed fail")
@@ -125,7 +125,7 @@ class FeedListViewModel(
         updateBookmarkUseCase.execute(feed, flag)
     }
 
-    fun requestCheckFollow(targetEmail: String,  callback: LongTaskCallback<Boolean>){
+    fun requestCheckFollow(targetEmail: String,  callback: LongTaskCallback<Any>){
         checkFollowUseCase.execute(targetEmail, callback)
     }
 

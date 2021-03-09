@@ -1,5 +1,6 @@
 package studio.seno.companion_animal.ui.main_ui
 
+import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseAuth
@@ -25,7 +26,7 @@ class MainViewModel(
         return userLiveData
     }
 
-    fun requestUserInfo(email : String, callback : LongTaskCallback<User>){
+    fun requestUserInfo(email : String, callback : LongTaskCallback<Any>){
         GetUserInfoUseCase.execute(email, callback)
     }
 
@@ -38,11 +39,11 @@ class MainViewModel(
     }
 
 
-    fun getFeed(path : String, callback: LongTaskCallback<Feed>){
+    fun getFeed(path : String, callback: LongTaskCallback<Any>){
         getFeedUseCase.execute(path, callback)
     }
 
-    fun checkFollow(targetEmail: String, callback : LongTaskCallback<Boolean>){
+    fun checkFollow(targetEmail: String, callback : LongTaskCallback<Any>){
         checkFollowUseCase.execute(targetEmail, callback)
     }
 

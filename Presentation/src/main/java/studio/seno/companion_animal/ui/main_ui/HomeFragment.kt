@@ -140,8 +140,8 @@ class HomeFragment : Fragment(), View.OnClickListener{
         feedListViewModel.clearFeedList()
         if(feedSort != null && feedSort == "feed_list")
             feedListViewModel.getPagingFeed(filter1, filter2, filter3, null, "feed_list",
-                null, binding.feedRecyclerView, object : LongTaskCallback<List<Feed>> {
-                    override fun onResponse(result: Result<List<Feed>>) {
+                null, binding.feedRecyclerView, object : LongTaskCallback<Any> {
+                    override fun onResponse(result: Result<Any>) {
                         if (result is Result.Success) {
                             binding.refreshLayout.isRefreshing = false
 
@@ -158,8 +158,8 @@ class HomeFragment : Fragment(), View.OnClickListener{
                 "feed_timeline",
                 timeLineEmail,
                 binding.feedRecyclerView,
-                object : LongTaskCallback<List<Feed>> {
-                    override fun onResponse(result: Result<List<Feed>>) {
+                object : LongTaskCallback<Any> {
+                    override fun onResponse(result: Result<Any>) {
                         binding.feedRecyclerView.scrollToPosition(feedPosition!!)
                     }
                 })

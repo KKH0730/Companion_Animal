@@ -92,10 +92,10 @@ class RegisterFragment : Fragment(), View.OnClickListener {
             if (email.isEmpty() || nickName.isEmpty() || password.isEmpty()) {
                 binding.registerBtn.stopAnimation(TransitionButton.StopAnimationStyle.SHAKE, null)
             } else {
-                viewModel.registerUser(email, password, object : LongTaskCallback<Boolean> {
-                    override fun onResponse(result: Result<Boolean>) {
+                viewModel.registerUser(email, password, object : LongTaskCallback<Any> {
+                    override fun onResponse(result: Result<Any>) {
                         if (result is Result.Success) {
-                            if (result.data) {
+                            if (result.data as Boolean) {
 
                                 var imageUri = Uri.parse(
                                     ContentResolver.SCHEME_ANDROID_RESOURCE
@@ -111,10 +111,10 @@ class RegisterFragment : Fragment(), View.OnClickListener {
                                         if (result is Result.Success) {
 
                                             viewModel.loadProfileUri(email, object :
-                                                LongTaskCallback<String> {
-                                                override fun onResponse(result: Result<String>) {
+                                                LongTaskCallback<Any> {
+                                                override fun onResponse(result: Result<Any>) {
                                                     if (result is Result.Success) {
-                                                        val uri = result.data
+                                                        val uri = result.data as String
 
                                                         FirebaseInstanceId.getInstance().instanceId.addOnSuccessListener { it ->
                                                             viewModel.requestUploadUserInfo(
@@ -143,10 +143,10 @@ class RegisterFragment : Fragment(), View.OnClickListener {
                                 })
 
                             } else {
-                                viewModel.requestCheckOverlapEmail(email, object : LongTaskCallback<Boolean> {
-                                    override fun onResponse(result: Result<Boolean>) {
+                                viewModel.requestCheckOverlapEmail(email, object : LongTaskCallback<Any> {
+                                    override fun onResponse(result: Result<Any>) {
                                         if(result is Result.Success) {
-                                            if(result.data)
+                                            if(result.data as Boolean)
                                                 CustomToast(
                                                     requireContext(),
                                                     getString(R.string.email_overlap)

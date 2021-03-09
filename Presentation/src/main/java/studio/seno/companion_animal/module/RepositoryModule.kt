@@ -1,5 +1,6 @@
 package studio.seno.companion_animal.module
 
+import androidx.lifecycle.LifecycleCoroutineScope
 import org.koin.core.module.Module
 import org.koin.dsl.module
 import studio.seno.datamodule.repository.remote.*

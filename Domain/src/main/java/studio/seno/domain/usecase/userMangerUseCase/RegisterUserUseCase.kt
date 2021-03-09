@@ -7,7 +7,7 @@ class RegisterUserUseCase(private val userManagerRepository: UserManagerReposito
     fun execute(
         email: String,
         password: String,
-        callback: LongTaskCallback<Boolean>
+        callback: LongTaskCallback<Any>
     ){
         userManagerRepository.registerUser(email, password, callback)
     }

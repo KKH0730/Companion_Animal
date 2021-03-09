@@ -98,12 +98,12 @@ class FeedModule (
     fun menuButtonEvent(feed: Feed, fm : FragmentManager){
         mFeedListViewModel.requestCheckFollow(
             feed.getEmail()!!,
-            object : LongTaskCallback<Boolean> {
-                override fun onResponse(result: Result<Boolean>) {
+            object : LongTaskCallback<Any> {
+                override fun onResponse(result: Result<Any>) {
                     var dialog: MenuDialog? = null
 
                     if (result is Result.Success) {
-                        if (result.data)
+                        if (result.data as Boolean)
                             dialog = MenuDialog.newInstance(feed.getEmail()!!, true)
                         else
                             dialog = MenuDialog.newInstance(feed.getEmail()!!, false)

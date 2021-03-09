@@ -7,7 +7,7 @@ class CheckEnableLoginUseCase(private val userManagerRepository: UserManagerRepo
     fun execute(
         email: String,
         password: String,
-        callback : LongTaskCallback<Boolean>
+        callback : LongTaskCallback<Any>
     ){
         userManagerRepository.checkEnableLogin(email, password, callback)
     }

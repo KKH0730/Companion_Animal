@@ -156,11 +156,11 @@ class TimeLineFragment : Fragment(), View.OnClickListener,
                 }
             })
         } else {
-            mainViewModel.requestUserInfo(profileEmail!!, object : LongTaskCallback<User> {
-                override fun onResponse(result: Result<User>) {
+            mainViewModel.requestUserInfo(profileEmail!!, object : LongTaskCallback<Any> {
+                override fun onResponse(result: Result<Any>) {
                     if (result is Result.Success) {
                         profileModule.userInfoSet(
-                            result.data,
+                            result.data as User,
                             binding.nickNameEdit,
                             binding.feedCount,
                             binding.followerBtn,
@@ -168,8 +168,8 @@ class TimeLineFragment : Fragment(), View.OnClickListener,
                             binding.timelineProfileImageView
                         )
 
-                        targetNickname = result.data.nickname
-                        targetProfileUri = result.data.profileUri
+                        targetNickname = (result.data as User).nickname
+                        targetProfileUri = (result.data as User).profileUri
                     } else if (result is Result.Error) {
                         Log.e("error", "timeline userInfoSet error : ${result.exception}")
                     }
@@ -178,10 +178,10 @@ class TimeLineFragment : Fragment(), View.OnClickListener,
 
             mainViewModel.checkFollow(
                 profileEmail!!,
-                object : LongTaskCallback<Boolean> {
-                    override fun onResponse(result: Result<Boolean>) {
+                object : LongTaskCallback<Any> {
+                    override fun onResponse(result: Result<Any>) {
                         if (result is Result.Success) {
-                            if (result.data == true) {
+                            if (result.data as Boolean) {
                                 setFollowButton(true)
                             } else {
                                 setFollowButton(false)
@@ -319,10 +319,10 @@ class TimeLineFragment : Fragment(), View.OnClickListener,
 
                     userViewModel.loadProfileUri(
                         FirebaseAuth.getInstance().currentUser?.email.toString(),
-                        object : LongTaskCallback<String> {
-                            override fun onResponse(result: Result<String>) {
+                        object : LongTaskCallback<Any> {
+                            override fun onResponse(result: Result<Any>) {
                                 if (result is Result.Success) {
-                                    val profileUri = result.data
+                                    val profileUri = result.data as String
 
                                     userViewModel.updateRemoteProfileUri(profileUri)
                                     LocalRepository(context!!).updateProfileUri(

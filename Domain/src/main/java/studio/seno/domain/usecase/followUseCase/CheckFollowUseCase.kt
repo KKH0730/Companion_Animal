@@ -6,7 +6,7 @@ import studio.seno.domain.util.LongTaskCallback
 class CheckFollowUseCase(private val followRepository: FollowRepository) {
     fun execute(
         targetEmail: String,
-        callback: LongTaskCallback<Boolean>
+        callback: LongTaskCallback<Any>
     ){
         followRepository.checkFollow(targetEmail, callback)
     }
