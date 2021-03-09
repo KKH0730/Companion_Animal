@@ -14,49 +14,48 @@ class FcmMessageService : FirebaseMessagingService() {
         val title = remoteMessage.data["title"].toString()
         val body = remoteMessage.data["body"].toString()
         val timestamp = remoteMessage.data["timestamp"]?.toLong()
-        val myPath = remoteMessage.data["myPath"].toString()
-        val targetPath = remoteMessage.data["targetPath"].toString()
-        val myEmail = remoteMessage.data["myEmail"].toString()
+        val notificationPath = remoteMessage.data["notificationPath"].toString()
+        val feedPath = remoteMessage.data["feedPath"].toString()
+        val email = remoteMessage.data["email"].toString()
         val chatPathEmail = remoteMessage.data["chatPathEmail"].toString()
-        val myNickname = remoteMessage.data["myNickname"].toString()
-        val myProfileUri = remoteMessage.data["myProfileUri"].toString()
+        val nickname = remoteMessage.data["nickname"].toString()
+        val profileUri = remoteMessage.data["profileUri"].toString()
 
-        if(remoteMessage.data["targetPath"] != "chat") {
+        if(remoteMessage.data["feedPath"] != "chat") {
             NotificationRepositoryImpl().setNotificationInfo( //notification 저장경로
                 NotificationData(
                     title,
                     body, //content
                     timestamp,
-                    myPath, //알림받은 피드의 경로
-                    targetPath,
+                    notificationPath, //알림받은 피드의 경로
+                    feedPath,
                     true,
-                    myEmail,
+                    email,
                     chatPathEmail,
-                    myNickname,
-                    myProfileUri
+                    nickname,
+                    profileUri
                 )
             )
         }
 
 
-
         var notificationModel = NotificationModule(applicationContext, title)
 
-        if(remoteMessage.data["myPath"] != "chat" && remoteMessage.data["targetPath"] != "chat") {
+        if(remoteMessage.data["feedPath"] != "chat" && remoteMessage.data["targetPath"] != "chat") {
             val intent = Intent(applicationContext, MainActivity::class.java)
-            intent.setAction(Intent.ACTION_MAIN)
+            intent.action = Intent.ACTION_MAIN
             intent.addCategory(Intent.CATEGORY_LAUNCHER)
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             intent.putExtra("from", "notification")
-            intent.putExtra("target_path", remoteMessage.data["targetPath"].toString())
+            intent.putExtra("target_path", remoteMessage.data["feedPath"].toString())
             notificationModel.makeNotification(title + applicationContext.getString(R.string.noti_title), body, intent, "noti")
         } else {
             val intent = Intent(applicationContext, MainActivity::class.java)
             intent.putExtra("from", "chat")
-            intent.putExtra("targetRealEmail", myEmail)
+            intent.putExtra("targetRealEmail", email)
             intent.putExtra("targetEmail", chatPathEmail)
-            intent.putExtra("targetNickname", myNickname)
-            intent.putExtra("targetProfileUri", myProfileUri)
+            intent.putExtra("targetNickname", nickname)
+            intent.putExtra("targetProfileUri", profileUri)
             notificationModel.makeNotification(title + applicationContext.getString(R.string.chat_title), body, intent, "chat")
         }
     }

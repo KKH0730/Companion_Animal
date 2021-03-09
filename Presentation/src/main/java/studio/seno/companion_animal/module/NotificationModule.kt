@@ -84,7 +84,7 @@ class NotificationModule(context: Context, title: String) {
         if (notificationBuilder != null) {
             notificationBuilder
                 .setLargeIcon(BitmapFactory.decodeResource(mContext.resources, R.drawable.logo))
-                .setSmallIcon(R.mipmap.ic_launcher)
+                .setSmallIcon(R.drawable.logo2)
                 .setContentTitle(title)
                 .setContentText(content)
                 .setAutoCancel(true)

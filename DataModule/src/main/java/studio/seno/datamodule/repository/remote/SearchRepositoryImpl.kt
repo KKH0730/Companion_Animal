@@ -21,7 +21,7 @@ class SearchRepositoryImpl : SearchRepository {
             db.collection("user")
                 .document(auth.currentUser?.email.toString())
                 .collection("search")
-                .document(auth.currentUser?.email.toString() + lastSearch.timestamp)
+                .document(lastSearch.timestamp.toString())
                 .set(lastSearch)
         }
     }

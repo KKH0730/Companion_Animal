@@ -18,7 +18,7 @@
         android:background="?attr/selectableItemBackground">
 
         <de.hdodenhof.circleimageview.CircleImageView
-            setProfileImage="@{model.notificationLiveData.myProfileUri}"
+            setProfileImage="@{model.notificationLiveData.profileUri}"
             android:id="@+id/circleImageView"
             android:layout_width="50dp"
             android:layout_height="50dp"

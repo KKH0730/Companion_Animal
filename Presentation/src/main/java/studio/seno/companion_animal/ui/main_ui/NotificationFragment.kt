@@ -72,7 +72,7 @@ class NotificationFragment : Fragment() {
             override fun onNotificationClicked(notificationLayout : ConstraintLayout, item: NotificationData) {
                 notificationListViewModel.requestUpdateCheckDot(item)
 
-                notificationListViewModel.getFeed(item.targetPath!!, object :
+                notificationListViewModel.getFeed(item.feedPath!!, object :
                     LongTaskCallback<Any> {
                     override fun onResponse(result: Result<Any>) {
                         if(result is Result.Success){

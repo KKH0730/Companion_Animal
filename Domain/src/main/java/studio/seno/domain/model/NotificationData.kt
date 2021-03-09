@@ -4,13 +4,13 @@ data class NotificationData(
     val title: String,
     val body : String,
     val timestamp : Long?,
-    val myPath : String?,
-    val targetPath : String?,
+    val notificationPath : String?,
+    val feedPath : String?,
     val check : Boolean = true,
-    val myEmail : String?,
+    val email : String?,
     val chatPathEmail : String?,
-    val myNickname : String?,
-    val myProfileUri : String?
+    val nickname : String?,
+    val profileUri : String?
 
 ) {
 }

@@ -22,7 +22,7 @@ class NotificationRepositoryImpl : NotificationRepository {
             db.collection("user")
                 .document(auth.currentUser?.email.toString())
                 .collection("notification")
-                .document(notificationData.myPath!!)
+                .document(notificationData.notificationPath!!)
                 .set(notificationData)
         }
     }
@@ -45,13 +45,13 @@ class NotificationRepositoryImpl : NotificationRepository {
                                 element.getString("title")!!,
                                 element.getString("body")!!,
                                 element.getLong("timestamp")!!,
-                                element.getString("myPath")!!,
-                                element.getString("targetPath")!!,
+                                element.getString("notificationPath")!!,
+                                element.getString("feedPath")!!,
                                 element.getBoolean("check")!!,
-                                element.getString("myEmail")!!,
+                                element.getString("email")!!,
                                 element.getString("chatPathEmail")!!,
-                                element.getString("myNickname")!!,
-                                element.getString("myProfileUri")
+                                element.getString("nickname")!!,
+                                element.getString("profileUri")
                             )
                             resultList.add(notiData)
                         }
@@ -70,7 +70,7 @@ class NotificationRepositoryImpl : NotificationRepository {
             db.collection("user")
                 .document(auth.currentUser?.email.toString())
                 .collection("notification")
-                .document(notificationData.myPath!!)
+                .document(notificationData.notificationPath!!)
                 .update("check",false)
         }
     }
@@ -83,7 +83,7 @@ class NotificationRepositoryImpl : NotificationRepository {
             db.collection("user")
                 .document(auth.currentUser?.email.toString())
                 .collection("notification")
-                .document(notificationData.myPath!!)
+                .document(notificationData.notificationPath!!)
                 .delete()
                 .addOnCompleteListener {
                     sendCallback(true, false, callback)
