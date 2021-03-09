@@ -50,9 +50,9 @@ class LoginFragment : Fragment(), View.OnClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        if(FirebaseAuth.getInstance().currentUser == null)
+        if(FirebaseAuth.getInstance().currentUser == null){
             initView()
-        else {
+        } else {
             startActivity<MainActivity>()
             finishActivityInterface.finishCurrentActivity()
         }
