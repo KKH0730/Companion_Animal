@@ -143,6 +143,8 @@ class MainActivity : BaseActivity() , DialogInterface.OnDismissListener, FinishA
                         if(result is Result.Success){
                             if(result.data != null)
                                 startActivity<FeedDetailActivity>("feed" to result.data)
+                            else
+                                startActivity<ReportActivity>()
                         }else if(result is Result.Error) {
                             Log.e("error", "MainActivity kakao share error: ${result.exception}")
                         }
