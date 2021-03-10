@@ -16,6 +16,7 @@
 - 주요 라이브러리 및 API : Room, Retrofit2, Glide, Anko, Koin, AAC, 카카오 링크 공유 Api
 - 디자인 패턴 : ViewModel + LiveData를 이용한 MVVM 패턴 
 - 데이터 베이스 : SQLlite
+- 포트폴리오 PPT 링크 : https://docs.google.com/presentation/d/14nRHyjXyikjq0bubYTxWkNlVNyRa2wughX1TU0lPPTw/edit?usp=sharing
 
 ![1](https://user-images.githubusercontent.com/66052075/110237177-b2108a00-7f7d-11eb-9ead-af58aabed9e9.png)
 ![2](https://user-images.githubusercontent.com/66052075/110237180-b63ca780-7f7d-11eb-852c-8fc3b1bddc80.png)
