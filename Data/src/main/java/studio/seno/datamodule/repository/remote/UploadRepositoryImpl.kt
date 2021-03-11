@@ -45,7 +45,6 @@ class UploadRepositoryImpl : UploadRepository {
                 .addOnCompleteListener {
                     if(it.result != null) {
                         sendCallback(it.result.toString(), false, callback)
-                        callback.onResponse(Result.Success(it.result.toString()))
                     }
                 }.addOnFailureListener {
                     sendCallback(it, true, callback)

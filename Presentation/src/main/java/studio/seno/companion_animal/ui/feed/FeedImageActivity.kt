@@ -9,7 +9,7 @@ import studio.seno.companion_animal.ui.main_ui.PagerAdapter
 import studio.seno.domain.model.Feed
 
 class FeedImageActivity : AppCompatActivity() {
-    private lateinit var binding : ActivityFeedImageBinding
+    private var binding : ActivityFeedImageBinding? = null
     private lateinit var feed : Feed
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -21,8 +21,14 @@ class FeedImageActivity : AppCompatActivity() {
         var pagerAdapter = PagerAdapter(supportFragmentManager, lifecycle)
         for (element in feed.getRemoteUri()) {
             pagerAdapter.addItem(FeedPagerFragment.newInstance(element, "FeedImageActivity"))
-            binding.viewpager.adapter = pagerAdapter
-            binding.indicator.setViewPager(binding.viewpager)
+            binding!!.viewpager.adapter = pagerAdapter
+            binding!!.indicator.setViewPager(binding!!.viewpager)
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        binding = null
     }
 }

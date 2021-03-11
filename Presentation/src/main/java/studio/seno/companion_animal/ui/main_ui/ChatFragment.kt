@@ -31,9 +31,9 @@ import studio.seno.domain.util.Result
 
 
 class ChatFragment : Fragment() {
-    private lateinit var  binding : FragmentChatBinding
+    private var  binding : FragmentChatBinding? = null
     private val chatListViewModel : ChatListVIewModel by viewModel()
-    private val chatAdapter = ChatAdapter("chat_list")
+    private var chatAdapter : ChatAdapter? = null
     private var user : User? = null
 
     companion object {
@@ -51,15 +51,11 @@ class ChatFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         binding = DataBindingUtil.inflate(layoutInflater, R.layout.fragment_chat, container, false)
-        return binding.root
+        return binding!!.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        binding.lifecycleOwner = viewLifecycleOwner
-        binding.chatListViewModel = chatListViewModel
-        binding.chatRecyclerView.adapter = chatAdapter
 
         init()
         setUserInfo()
@@ -67,8 +63,13 @@ class ChatFragment : Fragment() {
     }
 
     fun init(){
-        binding.header.findViewById<ImageButton>(R.id.back_btn).visibility = View.GONE
-        binding.header.findViewById<TextView>(R.id.title).text = getString(R.string.chat_title1)
+        binding!!.header.findViewById<ImageButton>(R.id.back_btn).visibility = View.GONE
+        binding!!.header.findViewById<TextView>(R.id.title).text = getString(R.string.chat_title1)
+        chatAdapter = ChatAdapter("chat_list")
+
+        binding!!.lifecycleOwner = viewLifecycleOwner
+        binding!!.chatListViewModel = chatListViewModel
+        binding!!.chatRecyclerView.adapter = chatAdapter
     }
 
 
@@ -90,7 +91,7 @@ class ChatFragment : Fragment() {
     }
 
     private fun setChatItemEvent(){
-        chatAdapter.setOnChatItemClickListener(object : OnChatItemClickListener{
+        chatAdapter!!.setOnChatItemClickListener(object : OnChatItemClickListener{
             override fun onChatItemClicked(chat: Chat, checkDotImage : ImageView) {
                 checkDotImage.visibility = View.GONE
 
@@ -149,14 +150,21 @@ class ChatFragment : Fragment() {
         chatListViewModel.clearChatList()
         chatListViewModel.requestSetChatListListener(
             CommonFunction.getInstance()!!.makeChatPath(user!!.email),
-            binding.chatRecyclerView,
+            binding!!.chatRecyclerView,
             lifecycleScope
         )
     }
 
     private fun observe(){
         chatListViewModel.getChatListLiveData().observe(this, {
-            chatAdapter.submitList(it)
+            chatAdapter!!.submitList(it)
         })
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+
+        binding = null
+        chatAdapter = null
     }
 }

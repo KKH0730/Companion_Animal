@@ -18,7 +18,7 @@ import studio.seno.domain.util.PreferenceManager
 
 
 class MenuDialog : BottomSheetDialogFragment(), View.OnClickListener {
-    private lateinit var binding: FragmentMenuDialogBinding
+    private var binding: FragmentMenuDialogBinding? = null
     private var email: String? = null
     private var following: Boolean = false
 
@@ -52,7 +52,7 @@ class MenuDialog : BottomSheetDialogFragment(), View.OnClickListener {
         dialog?.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         binding =
             DataBindingUtil.inflate(layoutInflater, R.layout.fragment_menu_dialog, container, false)
-        return binding.root
+        return binding!!.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -62,25 +62,25 @@ class MenuDialog : BottomSheetDialogFragment(), View.OnClickListener {
 
     private fun initView() {
 
-        binding.modifyBtn.setOnClickListener(this)
-        binding.deleteBtn.setOnClickListener(this)
-        binding.reportBtn.setOnClickListener(this)
-        binding.followBtn.setOnClickListener(this)
-        binding.unfollowBtn.setOnClickListener(this)
-        binding.reportBtn.setOnClickListener(this)
-        binding.menuTitle.text = getString(R.string.menu_setting)
+        binding!!.modifyBtn.setOnClickListener(this)
+        binding!!.deleteBtn.setOnClickListener(this)
+        binding!!.reportBtn.setOnClickListener(this)
+        binding!!.followBtn.setOnClickListener(this)
+        binding!!.unfollowBtn.setOnClickListener(this)
+        binding!!.reportBtn.setOnClickListener(this)
+        binding!!.menuTitle.text = getString(R.string.menu_setting)
 
         if (FirebaseAuth.getInstance().currentUser?.email.toString() != email) {
-            binding.modifyBtn.visibility = View.GONE
-            binding.deleteBtn.visibility = View.GONE
+            binding!!.modifyBtn.visibility = View.GONE
+            binding!!.deleteBtn.visibility = View.GONE
             if (following)
-                binding.followBtn.visibility = View.GONE
+                binding!!.followBtn.visibility = View.GONE
             else
-                binding.unfollowBtn.visibility = View.GONE
+                binding!!.unfollowBtn.visibility = View.GONE
 
         } else {
-            binding.followBtn.visibility = View.GONE
-            binding.unfollowBtn.visibility = View.GONE
+            binding!!.followBtn.visibility = View.GONE
+            binding!!.unfollowBtn.visibility = View.GONE
         }
 
     }
@@ -115,5 +115,11 @@ class MenuDialog : BottomSheetDialogFragment(), View.OnClickListener {
         val activity = activity
         if (activity is DialogInterface.OnDismissListener)
             activity.onDismiss(dialog)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        binding = null
     }
 }

@@ -13,6 +13,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
 import org.jetbrains.anko.support.v4.startActivity
+import org.koin.android.ext.android.bind
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import studio.seno.companion_animal.ui.ReportActivity
 import studio.seno.companion_animal.R
@@ -27,9 +28,9 @@ import studio.seno.domain.model.Feed
 import studio.seno.domain.model.NotificationData
 
 class NotificationFragment : Fragment() {
-    private lateinit var binding : FragmentNotificationBinding
+    private var binding : FragmentNotificationBinding? = null
     private val notificationListViewModel : NotificationListViewModel by viewModel()
-    private val notificationAdapter: NotificationAdapter =  NotificationAdapter()
+    private var notificationAdapter: NotificationAdapter? =  null
 
     companion object {
         @JvmStatic
@@ -46,15 +47,11 @@ class NotificationFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         binding = DataBindingUtil.inflate(layoutInflater, R.layout.fragment_notification, container, false)
-        return binding.root
+        return binding!!.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.lifecycleOwner = this
-        binding.model = notificationListViewModel
-        binding.notiRecyclerView.adapter = notificationAdapter
-
         init()
         itemEvent()
 
@@ -63,12 +60,18 @@ class NotificationFragment : Fragment() {
     }
 
     private fun init(){
-        binding.header.findViewById<ImageButton>(R.id.back_btn).visibility = View.GONE
-        binding.header.findViewById<TextView>(R.id.title).text = getString(R.string.notification_title)
+        binding!!.header.findViewById<ImageButton>(R.id.back_btn).visibility = View.GONE
+        binding!!.header.findViewById<TextView>(R.id.title).text = getString(R.string.notification_title)
+        notificationAdapter = NotificationAdapter()
+
+        binding!!.lifecycleOwner = this
+        binding!!.model = notificationListViewModel
+        binding!!.notiRecyclerView.adapter = notificationAdapter
+
     }
 
     private fun itemEvent(){
-        notificationAdapter.setOnNotificationListener(object : OnNotificationClickedListener{
+        notificationAdapter!!.setOnNotificationListener(object : OnNotificationClickedListener{
             override fun onNotificationClicked(notificationLayout : ConstraintLayout, item: NotificationData) {
                 notificationListViewModel.requestUpdateCheckDot(item)
 
@@ -97,7 +100,14 @@ class NotificationFragment : Fragment() {
 
     private fun observe(){
         notificationListViewModel.getNotificationListLiveData().observe(viewLifecycleOwner, {
-            notificationAdapter.submitList(it)
+            notificationAdapter!!.submitList(it)
         })
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+
+        binding = null
+        notificationAdapter = null
     }
 }

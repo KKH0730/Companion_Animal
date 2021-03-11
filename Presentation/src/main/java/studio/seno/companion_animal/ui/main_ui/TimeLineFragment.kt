@@ -44,14 +44,14 @@ import studio.seno.domain.model.User
 
 class TimeLineFragment : Fragment(), View.OnClickListener,
     BottomSheetImagePicker.OnImagesSelectedListener {
-    private lateinit var binding: FragmentTimeLineBinding
+    private var binding: FragmentTimeLineBinding? = null
     private lateinit var localRepository: LocalRepository
     private lateinit var finishActivityInterface : FinishActivityInterface
     private val mainViewModel: MainViewModel by viewModel()
     private val userViewModel : UserViewModel by viewModel()
     private var profileEmail : String? = null // Feed, follow, 댓글 등에서 프로필 클릭시 상대방의 프로필을 보여주기 위한 email
-    private var targetNickname : String? = null
-    private var targetProfileUri : String? = null
+    private var targetNickname : String? = null // Feed, follow, 댓글 등에서 프로필 클릭시 상대방의 프로필을 보여주기 위한 nickname
+    private var targetProfileUri : String? = null // Feed, follow, 댓글 등에서 프로필 클릭시 상대방의 프로필을 보여주기 위한 profileUri
     private val profileModule : ProfileModule by lazy {
         ProfileModule(profileEmail, mainViewModel)
     }
@@ -85,7 +85,7 @@ class TimeLineFragment : Fragment(), View.OnClickListener,
     ): View? {
         binding =
             DataBindingUtil.inflate(layoutInflater, R.layout.fragment_time_line, container, false)
-        return binding.root
+        return binding!!.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -109,32 +109,32 @@ class TimeLineFragment : Fragment(), View.OnClickListener,
         localRepository = LocalRepository.getInstance(requireContext())!!
 
         if(profileEmail != FirebaseAuth.getInstance().currentUser?.email) {
-            binding.infoModifyBtn.visibility = View.GONE
-            binding.bookmarkBtn.visibility = View.GONE
-            binding.header.findViewById<ImageButton>(R.id.add).visibility = View.GONE
-            binding.followBtn.visibility = View.VISIBLE
-            binding.messageBtn.visibility = View.VISIBLE
-            binding.followBtn.setOnClickListener(this)
-            binding.messageBtn.setOnClickListener(this)
+            binding!!.infoModifyBtn.visibility = View.GONE
+            binding!!.bookmarkBtn.visibility = View.GONE
+            binding!!.header.findViewById<ImageButton>(R.id.add).visibility = View.GONE
+            binding!!.followBtn.visibility = View.VISIBLE
+            binding!!.messageBtn.visibility = View.VISIBLE
+            binding!!.followBtn.setOnClickListener(this)
+            binding!!.messageBtn.setOnClickListener(this)
 
         } else {
-            binding.bookmarkBtn.setOnClickListener(this)
-            binding.timelineProfileImageView.setOnClickListener(this)
-            binding.header.findViewById<LinearLayout>(R.id.menu_set).visibility = View.VISIBLE
-            binding.header.findViewById<TextView>(R.id.title).text = getString(R.string.timeline_title)
-            binding.header.findViewById<ImageButton>(R.id.add).setOnClickListener(this)
-            binding.header.findViewById<ImageButton>(R.id.setting).setOnClickListener(this)
-            binding.infoModifyBtn.setOnClickListener(this)
+            binding!!.bookmarkBtn.setOnClickListener(this)
+            binding!!.timelineProfileImageView.setOnClickListener(this)
+            binding!!.header.findViewById<LinearLayout>(R.id.menu_set).visibility = View.VISIBLE
+            binding!!.header.findViewById<TextView>(R.id.title).text = getString(R.string.timeline_title)
+            binding!!.header.findViewById<ImageButton>(R.id.add).setOnClickListener(this)
+            binding!!.header.findViewById<ImageButton>(R.id.setting).setOnClickListener(this)
+            binding!!.infoModifyBtn.setOnClickListener(this)
         }
 
-        binding.header.findViewById<ImageButton>(R.id.back_btn).visibility = View.GONE
-        binding.header.findViewById<ImageButton>(R.id.search).visibility = View.GONE
-        binding.header.findViewById<ImageButton>(R.id.refresh).visibility = View.GONE
-        binding.header.findViewById<ImageButton>(R.id.scroll_up).visibility = View.GONE
-        binding.header.findViewById<ImageButton>(R.id.filter).visibility = View.GONE
-        binding.followerBtn.setOnClickListener(this)
-        binding.followingBtn.setOnClickListener(this)
-        binding.nickNameEdit.isEnabled = false
+        binding!!.header.findViewById<ImageButton>(R.id.back_btn).visibility = View.GONE
+        binding!!.header.findViewById<ImageButton>(R.id.search).visibility = View.GONE
+        binding!!.header.findViewById<ImageButton>(R.id.refresh).visibility = View.GONE
+        binding!!.header.findViewById<ImageButton>(R.id.scroll_up).visibility = View.GONE
+        binding!!.header.findViewById<ImageButton>(R.id.filter).visibility = View.GONE
+        binding!!.followerBtn.setOnClickListener(this)
+        binding!!.followingBtn.setOnClickListener(this)
+        binding!!.nickNameEdit.isEnabled = false
     }
 
     private fun userInfoSet() {
@@ -144,11 +144,11 @@ class TimeLineFragment : Fragment(), View.OnClickListener,
                     if (result is Result.Success) {
                         profileModule.userInfoSet(
                             result.data,
-                            binding.nickNameEdit,
-                            binding.feedCount,
-                            binding.followerBtn,
-                            binding.followingBtn,
-                            binding.timelineProfileImageView
+                            binding!!.nickNameEdit,
+                            binding!!.feedCount,
+                            binding!!.followerBtn,
+                            binding!!.followingBtn,
+                            binding!!.timelineProfileImageView
                         )
                     } else if (result is Result.Error) {
                         Log.e("error", "timeline userInfoSet error : ${result.exception}")
@@ -161,11 +161,11 @@ class TimeLineFragment : Fragment(), View.OnClickListener,
                     if (result is Result.Success) {
                         profileModule.userInfoSet(
                             result.data as User,
-                            binding.nickNameEdit,
-                            binding.feedCount,
-                            binding.followerBtn,
-                            binding.followingBtn,
-                            binding.timelineProfileImageView
+                            binding!!.nickNameEdit,
+                            binding!!.feedCount,
+                            binding!!.followerBtn,
+                            binding!!.followingBtn,
+                            binding!!.timelineProfileImageView
                         )
 
                         targetNickname = (result.data as User).nickname
@@ -201,18 +201,18 @@ class TimeLineFragment : Fragment(), View.OnClickListener,
         if (v?.id == R.id.add) {
             startActivity<MakeFeedActivity>()
         } else if (v?.id == R.id.info_modify_btn) {
-            if (binding.infoModifyBtn.text == getString(R.string.info_complete)) {
-                binding.nickNameEdit.isEnabled = false
-                binding.infoModifyBtn.text = getString(R.string.info_modify)
+            if (binding!!.infoModifyBtn.text == getString(R.string.info_complete)) {
+                binding!!.nickNameEdit.isEnabled = false
+                binding!!.infoModifyBtn.text = getString(R.string.info_modify)
 
-                mainViewModel.requestUpdateNickname(binding.nickNameEdit.text.toString())
-                localRepository.updateNickname(lifecycleScope, binding.nickNameEdit.text.toString())
+                mainViewModel.requestUpdateNickname(binding!!.nickNameEdit.text.toString())
+                localRepository.updateNickname(lifecycleScope, binding!!.nickNameEdit.text.toString())
 
             } else {
-                binding.nickNameEdit.isEnabled = true
-                binding.nickNameEdit.requestFocus()
-                binding.nickNameEdit.setSelection(binding.nickNameEdit.text.length)
-                binding.infoModifyBtn.text = getString(R.string.info_complete)
+                binding!!.nickNameEdit.isEnabled = true
+                binding!!.nickNameEdit.requestFocus()
+                binding!!.nickNameEdit.setSelection(binding!!.nickNameEdit.text.length)
+                binding!!.infoModifyBtn.text = getString(R.string.info_complete)
             }
 
         } else if (v?.id == R.id.timeline_profileImageView) {
@@ -236,7 +236,7 @@ class TimeLineFragment : Fragment(), View.OnClickListener,
             )
 
         } else if(v?.id == R.id.follow_btn) {
-            if(binding.followBtn.text == getString(R.string.follow_ing)) {
+            if(binding!!.followBtn.text == getString(R.string.follow_ing)) {
                 localRepository.getUserInfo(lifecycleScope, object : LongTaskCallback<User> {
                     override fun onResponse(result: Result<User>) {
                         if (result is Result.Success) {
@@ -254,7 +254,7 @@ class TimeLineFragment : Fragment(), View.OnClickListener,
                 })
 
 
-            } else if(binding.followBtn.text == getString(R.string.follow)){
+            } else if(binding!!.followBtn.text == getString(R.string.follow)){
                 localRepository.getUserInfo(lifecycleScope, object : LongTaskCallback<User> {
                     override fun onResponse(result: Result<User>) {
                         if (result is Result.Success) {
@@ -311,7 +311,7 @@ class TimeLineFragment : Fragment(), View.OnClickListener,
 
     override fun onImagesSelected(uris: List<Uri>, tag: String?) {
         CommonFunction.getInstance()!!.lockTouch(activity?.window!!)
-        binding.progressBar.visibility = View.VISIBLE
+        binding!!.progressBar.visibility = View.VISIBLE
 
         userViewModel.uploadProfileImage(uris[0], object : LongTaskCallback<Boolean> {
             override fun onResponse(result: Result<Boolean>) {
@@ -335,11 +335,11 @@ class TimeLineFragment : Fragment(), View.OnClickListener,
                                                             .load(uris[0])
                                                             .centerCrop()
                                                             .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
-                                                            .into(binding.timelineProfileImageView)
+                                                            .into(binding!!.timelineProfileImageView)
 
                                                         CommonFunction.getInstance()!!
                                                             .unlockTouch(activity?.window!!)
-                                                        binding.progressBar.visibility = View.GONE
+                                                        binding!!.progressBar.visibility = View.GONE
                                                     }
                                                 }
                                             })
@@ -360,14 +360,20 @@ class TimeLineFragment : Fragment(), View.OnClickListener,
 
     private fun setFollowButton(flag: Boolean){
         if(flag) {
-            context?.getColor(R.color.main_color)?.let { binding.followBtn.setBackgroundColor(it) }
-            context?.getColor(R.color.white)?.let { binding.followBtn.setTextColor(it) }
-            binding.followBtn.text = context?.getString(R.string.follow_ing)
+            context?.getColor(R.color.main_color)?.let { binding!!.followBtn.setBackgroundColor(it) }
+            context?.getColor(R.color.white)?.let { binding!!.followBtn.setTextColor(it) }
+            binding!!.followBtn.text = context?.getString(R.string.follow_ing)
         } else {
-            context?.getColor(R.color.white)?.let { binding.followBtn.setBackgroundColor(it) }
-            context?.getColor(R.color.black)?.let { binding.followBtn.setTextColor(it) }
-            binding.followBtn.text = context?.getString(R.string.follow)
+            context?.getColor(R.color.white)?.let { binding!!.followBtn.setBackgroundColor(it) }
+            context?.getColor(R.color.black)?.let { binding!!.followBtn.setTextColor(it) }
+            binding!!.followBtn.text = context?.getString(R.string.follow)
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+
+        binding = null
     }
 }
 

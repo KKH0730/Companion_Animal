@@ -15,7 +15,7 @@ import studio.seno.companion_animal.ui.main_ui.TimeLineFragment
 import studio.seno.domain.util.PreferenceManager
 
 class ShowFeedActivity : AppCompatActivity(), View.OnClickListener, DialogInterface.OnDismissListener {
-    private lateinit var binding : ActivityShowFeedBinding
+    private var binding : ActivityShowFeedBinding? = null
     private var homeFragment : HomeFragment? = null
     private var timeLineFragment : TimeLineFragment? = null
     private var feedGridFragment : FeedGridFragment? = null
@@ -43,13 +43,13 @@ class ShowFeedActivity : AppCompatActivity(), View.OnClickListener, DialogInterf
 
 
         if(feedSort == "feed_timeline")
-            binding.header.findViewById<TextView>(R.id.title).visibility = View.GONE
+            binding!!.header.findViewById<TextView>(R.id.title).visibility = View.GONE
         else if(feedSort == "feed_bookmark")
-            binding.header.findViewById<TextView>(R.id.title2).text = getString(R.string.showFeed_title2)
+            binding!!.header.findViewById<TextView>(R.id.title2).text = getString(R.string.showFeed_title2)
         else if(feedSort == "profile")
-            binding.header.visibility = View.GONE
+            binding!!.header.visibility = View.GONE
 
-        binding.header.findViewById<ImageButton>(R.id.back_btn).setOnClickListener(this)
+        binding!!.header.findViewById<ImageButton>(R.id.back_btn).setOnClickListener(this)
     }
 
     fun move(){
@@ -80,5 +80,11 @@ class ShowFeedActivity : AppCompatActivity(), View.OnClickListener, DialogInterf
         } else if(PreferenceManager.getString(applicationContext, "mode") == "unfollow") {
             homeFragment?.onDismissed("unfollow")
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        binding = null
     }
 }

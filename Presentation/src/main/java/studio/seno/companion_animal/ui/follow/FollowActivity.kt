@@ -25,18 +25,18 @@ import studio.seno.domain.util.LongTaskCallback
 import studio.seno.domain.util.Result
 
 class FollowActivity : AppCompatActivity(), View.OnClickListener {
-    private lateinit var binding: FragmentNotificationBinding
+    private var binding: FragmentNotificationBinding? = null
     private var category : String? = null
     private val followListViewModel: FollowListViewModel by viewModel()
-    private lateinit var followAdapter: FollowAdapter
+    private var followAdapter: FollowAdapter? = null
 
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.fragment_notification)
-        binding.lifecycleOwner = this
-        binding.followListModel = followListViewModel
+        binding!!.lifecycleOwner = this
+        binding!!.followListModel = followListViewModel
         init()
         followItemEvent()
 
@@ -54,17 +54,17 @@ class FollowActivity : AppCompatActivity(), View.OnClickListener {
         category = intent.getStringExtra("category")
         if (category != null)
             followAdapter = FollowAdapter(category!!)
-        binding.notiRecyclerView.adapter = followAdapter
+        binding!!.notiRecyclerView.adapter = followAdapter
 
-        binding.header.findViewById<ImageButton>(R.id.back_btn).setOnClickListener(this)
+        binding!!.header.findViewById<ImageButton>(R.id.back_btn).setOnClickListener(this)
         if (category == "follower")
-            binding.header.findViewById<TextView>(R.id.title2).text = getString(R.string.follower)
+            binding!!.header.findViewById<TextView>(R.id.title2).text = getString(R.string.follower)
         else
-            binding.header.findViewById<TextView>(R.id.title2).text = getString(R.string.following)
+            binding!!.header.findViewById<TextView>(R.id.title2).text = getString(R.string.following)
     }
 
     private fun followItemEvent() {
-        followAdapter.setOnFollowClickListener(object : OnFollowClickListener {
+        followAdapter!!.setOnFollowClickListener(object : OnFollowClickListener {
             override fun onProfileClicked(layout: ConstraintLayout, follow: Follow) {
                 startActivity<ShowFeedActivity>(
                     "profileEmail" to follow.email,
@@ -108,7 +108,7 @@ class FollowActivity : AppCompatActivity(), View.OnClickListener {
 
     private fun observe() {
         followListViewModel.getFollowListLiveData().observe(this, {
-            followAdapter.submitList(it)
+            followAdapter!!.submitList(it)
         })
     }
 
@@ -118,5 +118,10 @@ class FollowActivity : AppCompatActivity(), View.OnClickListener {
         }
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
 
+        binding = null
+        followAdapter = null
+    }
 }

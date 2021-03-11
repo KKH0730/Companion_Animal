@@ -6,6 +6,7 @@ import android.graphics.Rect
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.ImageButton
@@ -40,9 +41,9 @@ const val SOFT_KEYBOARD_HEIGHT_DP_THRESHOLD = 128
 
 class CommentActivity : AppCompatActivity(), View.OnClickListener,
     DialogInterface.OnDismissListener {
-    private lateinit var binding: ActivityCommentBinding
+    private var binding: ActivityCommentBinding? = null
     private val commentListViewModel: CommentListViewModel by viewModel()
-    private val commentAdapter = CommentAdapter()
+    private var commentAdapter : CommentAdapter? = CommentAdapter()
     private var answerMode = false
     private var modifyMode = false
     private var keybord = false
@@ -60,8 +61,8 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_comment)
-        binding.lifecycleOwner = this
-        binding.model = commentListViewModel
+        binding!!.lifecycleOwner = this
+        binding!!.model = commentListViewModel
 
         initView()
         LocalRepository.getInstance(this)!!.getUserInfo(lifecycleScope, object :
@@ -72,12 +73,12 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
                     Glide.with(this@CommentActivity)
                         .load(profileUri)
                         .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
-                        .into(binding.profileImageVIew)
+                        .into(binding!!.profileImageVIew)
 
                     notificationModule = NotificationModule(applicationContext, result.data.nickname)
                     commentModule = CommentModule(
                         commentListViewModel, feed, result.data.email, result.data.nickname,
-                        applicationContext, commentAdapter
+                        applicationContext, commentAdapter!!
                     )
 
                     checkKeyboardStatus()
@@ -89,8 +90,13 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
     }
 
     private fun initView() {
-        commentCountText = binding.header.findViewById(R.id.comment_count)
-        binding.header.findViewById<TextView>(R.id.comment_count).apply {
+
+        binding!!.lifecycleOwner = this
+        binding!!.model = commentListViewModel
+        binding!!.commentRecyclerView.adapter = commentAdapter
+
+        commentCountText = binding!!.header.findViewById(R.id.comment_count)
+        binding!!.header.findViewById<TextView>(R.id.comment_count).apply {
             visibility = View.VISIBLE
             text = intent.getIntExtra("commentCount", 0).toString()
         }
@@ -98,16 +104,15 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
         if (intent.getParcelableExtra<Feed>("feed") != null)
             commentListViewModel.requestLoadComment(feed.getEmail()!!, feed.getTimestamp())
 
-        binding.header.findViewById<TextView>(R.id.title2).text = getString(R.string.header_title)
-        binding.header.findViewById<ImageButton>(R.id.back_btn).setOnClickListener(this)
-        binding.commentBtn.setOnClickListener(this)
-        binding.showCommentBar.setOnClickListener(this)
-        binding.comment.addTextChangedListener(textWatcher)
-        binding.commentRecyclerView.adapter = commentAdapter
+        binding!!.header.findViewById<TextView>(R.id.title2).text = getString(R.string.header_title)
+        binding!!.header.findViewById<ImageButton>(R.id.back_btn).setOnClickListener(this)
+        binding!!.commentBtn.setOnClickListener(this)
+        binding!!.showCommentBar.setOnClickListener(this)
+        binding!!.comment.addTextChangedListener(textWatcher)
     }
 
     fun commentEvent() {
-        commentAdapter.setOnEventListener(object : OnCommentEventListener {
+        commentAdapter!!.setOnEventListener(object : OnCommentEventListener {
             override fun onReadAnswerClicked(readAnswer: Button, targetComment: Comment) {
                 if (targetComment.getChildren()!!.isNotEmpty())
                     commentModule.showComment(readAnswer, targetComment)
@@ -117,12 +122,12 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
             }
 
             override fun onWriteAnswerClicked(targetComment: Comment, position: Int) {
-                commentModule.setHint(binding.comment, binding.modeTitle, 1)
+                commentModule.setHint(binding!!.comment, binding!!.modeTitle, 1)
                 curComment = targetComment
                 commentPosition = position
                 answerMode = true
 
-                binding.modeLayout.visibility = View.VISIBLE
+                binding!!.modeLayout.visibility = View.VISIBLE
                 showCommentContainer()
 
             }
@@ -149,7 +154,7 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
 
     private fun observe() {
         commentListViewModel.getCommentListLiveData().observe(this, {
-            commentAdapter.submitList(it)
+            commentAdapter!!.submitList(it)
         })
     }
 
@@ -164,10 +169,10 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
         override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-            if(binding.comment.text.isEmpty())
-                binding.commentBtn.visibility = View.INVISIBLE
+            if(binding!!.comment.text.isEmpty())
+                binding!!.commentBtn.visibility = View.INVISIBLE
             else
-                binding.commentBtn.visibility = View.VISIBLE
+                binding!!.commentBtn.visibility = View.VISIBLE
         }
 
         override fun afterTextChanged(s: Editable?) {}
@@ -185,29 +190,29 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
                 if (modifyMode && answerComment != null) { //답글 수정 모드
                         commentModule.submitCommentAnswer(
                             commentModule.findParentComment(answerPosition)!!, answerComment!!.timestamp, modifyMode, answerComment!!, answerPosition,
-                            commentPosition, binding.comment
+                            commentPosition, binding!!.comment
                         )
                 } else if (!modifyMode && curComment != null) { //일반 답글 모드
                     commentModule.submitCommentAnswer(
                         curComment!!, timestamp, modifyMode, answerComment,
-                        answerPosition, commentPosition, binding.comment
+                        answerPosition, commentPosition, binding!!.comment
                     )
 
-                    notificationModule.sendNotification(curComment!!.email, profileUri, binding.comment.text.toString(), timestamp, feed, lifecycleScope)
+                    notificationModule.sendNotification(curComment!!.email, profileUri, binding!!.comment.text.toString(), timestamp, feed, lifecycleScope)
                 }
             } else {
                 if (modifyMode) { //댓글 수정 모드
                     commentModule.submitComment(
                         curComment!!.timestamp, modifyMode, curComment, commentPosition,
-                        binding.header.findViewById(R.id.comment_count), binding.comment
+                        binding!!.header.findViewById(R.id.comment_count), binding!!.comment
                     )
                 } else { // 일반 댓글 모드
                     commentModule.submitComment(
                         timestamp, modifyMode, curComment, commentPosition,
-                        binding.header.findViewById(R.id.comment_count), binding.comment
+                        binding!!.header.findViewById(R.id.comment_count), binding!!.comment
                     )
 
-                    notificationModule.sendNotification(feed.getEmail()!!, profileUri, binding.comment.text.toString(), timestamp, feed, lifecycleScope)
+                    notificationModule.sendNotification(feed.getEmail()!!, profileUri, binding!!.comment.text.toString(), timestamp, feed, lifecycleScope)
                 }
             }
             initVariable()
@@ -222,21 +227,21 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
         curComment = null
         answerComment = null
         modifyMode = false
-        CommonFunction.closeKeyboard(applicationContext, binding.comment)
-        binding.comment.setText("")
-        commentModule.setHint(binding.comment, binding.modeTitle, 0)
-        binding.modeLayout.visibility = View.INVISIBLE
+        CommonFunction.closeKeyboard(applicationContext, binding!!.comment)
+        binding!!.comment.setText("")
+        commentModule.setHint(binding!!.comment, binding!!.modeTitle, 0)
+        binding!!.modeLayout.visibility = View.INVISIBLE
     }
 
     private fun showCommentContainer(){
-        binding.commentContainer.visibility = View.VISIBLE
+        binding!!.commentContainer.visibility = View.VISIBLE
         CommonFunction.getInstance()!!.showKeyboard(this)
-        binding.comment.requestFocus()
+        binding!!.comment.requestFocus()
     }
 
     private fun checkKeyboardStatus(){
-        binding.rootView.viewTreeObserver.addOnGlobalLayoutListener {
-            keybord = isKeyboardShown(binding.rootView.rootView)
+        binding!!.rootView.viewTreeObserver.addOnGlobalLayoutListener {
+            keybord = isKeyboardShown(binding!!.rootView.rootView)
         }
     }
 
@@ -250,11 +255,11 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
     }
 
     override fun onBackPressed() {
-        if (binding.modeLayout.visibility == View.VISIBLE || keybord == true) {
+        if (binding!!.modeLayout.visibility == View.VISIBLE || keybord) {
             initVariable()
         } else {
-            if(binding.commentContainer.visibility == View.VISIBLE)
-                binding.commentContainer.visibility = View.GONE
+            if(binding!!.commentContainer.visibility == View.VISIBLE)
+                binding!!.commentContainer.visibility = View.GONE
             else {
                 setIntent()
                 finish()
@@ -265,22 +270,22 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
 
     override fun onDismiss(dialog: DialogInterface?) {
         if (PreferenceManager.getString(applicationContext, "mode") == "comment_modify") {
-            binding.modeLayout.visibility = View.VISIBLE
+            binding!!.modeLayout.visibility = View.VISIBLE
             modifyMode = true
-            commentModule.setHint(binding.comment, binding.modeTitle, 3)
+            commentModule.setHint(binding!!.comment, binding!!.modeTitle, 3)
             CommonFunction.showKeyboard(this)
         } else if (PreferenceManager.getString(applicationContext, "mode") == "comment_answer_modify"
         ) {
-            binding.modeLayout.visibility = View.VISIBLE
+            binding!!.modeLayout.visibility = View.VISIBLE
             modifyMode = true
-            commentModule.setHint(binding.comment, binding.modeTitle, 2)
+            commentModule.setHint(binding!!.comment, binding!!.modeTitle, 2)
             CommonFunction.showKeyboard(this)
         } else if (PreferenceManager.getString(applicationContext, "mode") == "comment_delete") {
             commentModule.deleteComment(
                 curComment, answerComment, commentPosition, answerPosition,
-                answerMode, binding.header.findViewById(R.id.comment_count)
+                answerMode, binding!!.header.findViewById(R.id.comment_count)
             )
-        } else {
+        }  else if(PreferenceManager.getString(applicationContext, "mode") == "report") {
             startActivity<ReportActivity>("feed" to feed)
         }
     }
@@ -288,8 +293,7 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
     override fun onDestroy() {
         super.onDestroy()
 
-        var intent = Intent(this, MainActivity::class.java)
-        intent.putExtra("commentCount", commentCountText.text.toString())
-        setResult(Constants.RESULT_OK, intent)
+        binding = null
+        commentAdapter = null
     }
 }

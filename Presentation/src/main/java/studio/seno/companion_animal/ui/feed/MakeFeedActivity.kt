@@ -13,10 +13,8 @@ import androidx.lifecycle.observe
 import androidx.recyclerview.widget.ItemTouchHelper
 import com.kroegerama.imgpicker.BottomSheetImagePicker
 import com.pchmn.materialchips.ChipView
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import studio.seno.commonmodule.CustomToast
+import studio.seno.companion_animal.base.CustomToast
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.ActivityMakeFeedBinding
 import studio.seno.companion_animal.module.CommonFunction
@@ -29,8 +27,8 @@ import java.sql.Timestamp
 
 class MakeFeedActivity : AppCompatActivity(), View.OnClickListener,
     BottomSheetImagePicker.OnImagesSelectedListener, RadioGroup.OnCheckedChangeListener {
-    private lateinit var binding: ActivityMakeFeedBinding
-    private lateinit var selectedImageAdapter: SelectedImageAdapter
+    private var binding: ActivityMakeFeedBinding? = null
+    private var selectedImageAdapter: SelectedImageAdapter? = null
     private val feedListViewModel: FeedListViewModel by viewModel()
     private val localRepository = LocalRepository(this)
     private var feed : Feed? = null
@@ -49,24 +47,24 @@ class MakeFeedActivity : AppCompatActivity(), View.OnClickListener,
         }
 
 
-        selectedImageAdapter.setOnDeleteItemListener(object :
+        selectedImageAdapter!!.setOnDeleteItemListener(object :
             OnItemDeleteListener {
             override fun onDeleted(position: Int) {
-                val deleteItem : String = selectedImageAdapter.getItem(position)
-                    selectedImageAdapter.removeItem(deleteItem)
-                selectedImageAdapter.notifyDataSetChanged()
+                val deleteItem : String = selectedImageAdapter!!.getItem(position)
+                    selectedImageAdapter!!.removeItem(deleteItem)
+                selectedImageAdapter!!.notifyDataSetChanged()
             }
         })
     }
 
     private fun init() {
         selectedImageAdapter = SelectedImageAdapter(applicationContext)
-        binding.cameraBtn.setOnClickListener(this)
-        binding.header.findViewById<ImageButton>(R.id.back_btn).setOnClickListener(this)
-        binding.header.findViewById<TextView>(R.id.title2).text = getString(R.string.ShowAnimal_title)
-        binding.radioGroup.setOnCheckedChangeListener(this)
-        binding.hashTagBtn.setOnClickListener(this)
-        binding.submitBtn.setOnClickListener(this)
+        binding!!.cameraBtn.setOnClickListener(this)
+        binding!!.header.findViewById<ImageButton>(R.id.back_btn).setOnClickListener(this)
+        binding!!.header.findViewById<TextView>(R.id.title2).text = getString(R.string.ShowAnimal_title)
+        binding!!.radioGroup.setOnCheckedChangeListener(this)
+        binding!!.hashTagBtn.setOnClickListener(this)
+        binding!!.submitBtn.setOnClickListener(this)
 
         feed = intent.getParcelableExtra<Feed>("feed")
         if(feed != null)
@@ -74,34 +72,30 @@ class MakeFeedActivity : AppCompatActivity(), View.OnClickListener,
     }
 
     fun setImageRecycler() {
-        binding.imageRecyclerView.adapter = selectedImageAdapter
-        val itemHelper = ItemTouchHelper(
-            ItemTouchHelperCallback(
-                selectedImageAdapter
-            )
-        )
-        itemHelper.attachToRecyclerView(binding.imageRecyclerView)
+        binding!!.imageRecyclerView.adapter = selectedImageAdapter
+        val itemHelper = ItemTouchHelper(ItemTouchHelperCallback(selectedImageAdapter!!))
+        itemHelper.attachToRecyclerView(binding!!.imageRecyclerView)
     }
 
     fun setModifyInfo(){
         for(element in feed!!.getLocalUri()) {
-            selectedImageAdapter.addItem(element)
+            selectedImageAdapter!!.addItem(element)
         }
 
 
         //반려동물 종류
         when(feed!!.getSort()) {
             "dog" -> {
-                binding.dog.isChecked = true
+                binding!!.dog.isChecked = true
                 currentChecked = "dog"
             }
             "cat" -> {
-                binding.cat.isChecked = true
+                binding!!.cat.isChecked = true
                 currentChecked = "cat"
             }
             else -> {
-                binding.etc.isChecked = true
-                binding.etcContent.setText(feed!!.getSort())
+                binding!!.etc.isChecked = true
+                binding!!.etcContent.setText(feed!!.getSort())
                 currentChecked = feed!!.getSort()
             }
         }
@@ -111,12 +105,12 @@ class MakeFeedActivity : AppCompatActivity(), View.OnClickListener,
         }
 
         //내용
-        binding.content.setText(feed!!.getContent())
+        binding!!.content.setText(feed!!.getContent())
 
         if(mode == "modify") {
-            binding.submitBtn.text = getString(R.string.modify)
+            binding!!.submitBtn.text = getString(R.string.modify)
         } else if(mode == "delete") {
-            binding.submitBtn.text = getString(R.string.delete)
+            binding!!.submitBtn.text = getString(R.string.delete)
         }
 
     }
@@ -124,12 +118,12 @@ class MakeFeedActivity : AppCompatActivity(), View.OnClickListener,
 
     override fun onImagesSelected(uris: List<Uri>, tag: String?) {
         for (element in uris) {
-            if (selectedImageAdapter.getItems().size == 10) {
+            if (selectedImageAdapter!!.getItems().size == 10) {
                 CustomToast(applicationContext, getString(R.string.ShowAnimal_toast2)).show()
                 break
             }
-            selectedImageAdapter.addItem(element.toString())
-            selectedImageAdapter.notifyDataSetChanged()
+            selectedImageAdapter!!.addItem(element.toString())
+            selectedImageAdapter!!.notifyDataSetChanged()
         }
     }
 
@@ -153,30 +147,30 @@ class MakeFeedActivity : AppCompatActivity(), View.OnClickListener,
                 return
             }
 
-            makeHashTag(binding.hashTagContent.text.toString().trim())
-            binding.hashTagContent.setText("")
-            binding.hashTagContent.hint = getString(R.string.ShowAnimal_hint1)
-            CommonFunction.getInstance()!!.closeKeyboard(applicationContext, binding.hashTagContent)
+            makeHashTag(binding!!.hashTagContent.text.toString().trim())
+            binding!!.hashTagContent.setText("")
+            binding!!.hashTagContent.hint = getString(R.string.ShowAnimal_hint1)
+            CommonFunction.getInstance()!!.closeKeyboard(applicationContext, binding!!.hashTagContent)
 
 
         } else if (v?.id == R.id.submit_btn) {
             if (currentChecked == null) {
                 CustomToast(applicationContext, getString(R.string.ShowAnimal_toast3)).show()
                 return
-            } else if (currentChecked == "etc" && binding.etcContent.text.isEmpty()) {
+            } else if (currentChecked == "etc" && binding!!.etcContent.text.isEmpty()) {
                 CustomToast(applicationContext, getString(R.string.ShowAnimal_toast4)).show()
                 return
-            } else if(selectedImageAdapter.getItems().size == 0) {
+            } else if(selectedImageAdapter!!.getItems().size == 0) {
                 CustomToast(applicationContext, getString(R.string.ShowAnimal_toast5)).show()
                 return
             }
 
             CommonFunction.getInstance()!!.lockTouch(window!!)
-            binding.progressBar.visibility = View.VISIBLE
+            binding!!.progressBar.visibility = View.VISIBLE
 
 
             if(currentChecked == "etc")
-                currentChecked = binding.etcContent.text.toString()
+                currentChecked = binding!!.etcContent.text.toString()
 
             if(feed == null && mode == "write") {
                 localRepository.updateFeedCount(lifecycleScope, true)
@@ -193,7 +187,7 @@ class MakeFeedActivity : AppCompatActivity(), View.OnClickListener,
             feedListViewModel.getFeedListSaveStatus().observe(this@MakeFeedActivity, {
                 if(it) {
                     CommonFunction.getInstance()!!.unlockTouch(window!!)
-                    binding.progressBar.visibility = View.GONE
+                    binding!!.progressBar.visibility = View.GONE
 
                     finish()
                 }
@@ -210,7 +204,7 @@ class MakeFeedActivity : AppCompatActivity(), View.OnClickListener,
 
                     feedListViewModel.requestUploadFeed(
                         result.data.email, result.data.nickname, currentChecked!!,
-                        hashTags, selectedImageAdapter.getItems(), binding.content.text.toString(),
+                        hashTags, selectedImageAdapter!!.getItems(), binding!!.content.text.toString(),
                         timestamp, object: LongTaskCallback<Any> {
                             override fun onResponse(result: Result<Any>) {
                                 if(result is Result.Success) {
@@ -242,11 +236,11 @@ class MakeFeedActivity : AppCompatActivity(), View.OnClickListener,
         chipView.setPadding(30, 0, 0, 0)
         chipView.setChipBackgroundColor(getColor(R.color.main_color))
         chipView.setLabelColor(getColor(R.color.white))
-        binding.hashTagContainer.addView(chipView)
+        binding!!.hashTagContainer.addView(chipView)
         hashTags.add(chipView.label)
 
         chipView.setOnDeleteClicked {
-            binding.hashTagContainer.removeView(chipView)
+            binding!!.hashTagContainer.removeView(chipView)
             hashTags.remove(chipView.label)
         }
     }
@@ -259,6 +253,13 @@ class MakeFeedActivity : AppCompatActivity(), View.OnClickListener,
         } else {
             currentChecked = "etc"
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        binding = null
+        selectedImageAdapter = null
     }
 }
 

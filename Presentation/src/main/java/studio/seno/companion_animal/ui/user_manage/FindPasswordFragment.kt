@@ -10,14 +10,14 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import studio.seno.commonmodule.CustomToast
+import studio.seno.companion_animal.base.CustomToast
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.FragmentFindPasswordBinding
 import studio.seno.companion_animal.module.CommonFunction
 
 
 class FindPasswordFragment : Fragment(){
-    private lateinit var binding : FragmentFindPasswordBinding
+    private var binding : FragmentFindPasswordBinding? = null
     private val viewModel : UserViewModel by viewModel()
 
     override fun onCreateView(
@@ -30,7 +30,7 @@ class FindPasswordFragment : Fragment(){
             container,
             false
         )
-        return binding.root
+        return binding!!.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -38,10 +38,10 @@ class FindPasswordFragment : Fragment(){
 
         init()
 
-        binding.sendEmail.setOnClickListener {
-            CommonFunction.closeKeyboard(requireContext(), binding.emailInput)
-            var emailAddress = binding.emailInput.text.toString().trim()
-            binding.progressBar.visibility = View.VISIBLE
+        binding!!.sendEmail.setOnClickListener {
+            CommonFunction.closeKeyboard(requireContext(), binding!!.emailInput)
+            var emailAddress = binding!!.emailInput.text.toString().trim()
+            binding!!.progressBar.visibility = View.VISIBLE
 
             if(emailAddress.isEmpty())
                 failSendEmail()
@@ -49,9 +49,9 @@ class FindPasswordFragment : Fragment(){
                 viewModel.requestSendFindEmail(emailAddress)
                 viewModel.getFindPasswordListData().observe(requireActivity(), {
                     if (it) {
-                        binding.progressBar.visibility = View.GONE
-                        binding.emailInput.isEnabled = false
-                        binding.sendEmail.isEnabled = false
+                        binding!!.progressBar.visibility = View.GONE
+                        binding!!.emailInput.isEnabled = false
+                        binding!!.sendEmail.isEnabled = false
                         CustomToast(requireContext(), getString(R.string.find_password_announcement2)).show()
                         findNavController().navigate(R.id.action_findPasswordFragment_to_loginFragment)
                     } else
@@ -62,14 +62,21 @@ class FindPasswordFragment : Fragment(){
     }
 
     private fun init(){
-        binding.header.findViewById<TextView>(R.id.title2).text = getString(R.string.find_password_title)
-        binding.header.findViewById<ImageButton>(R.id.back_btn).setOnClickListener {
+        binding!!.header.findViewById<TextView>(R.id.title2).text = getString(R.string.find_password_title)
+        binding!!.header.findViewById<ImageButton>(R.id.back_btn).setOnClickListener {
             findNavController().navigate(R.id.action_findPasswordFragment_to_loginFragment)
         }
     }
 
     private fun failSendEmail(){
-        binding.progressBar.visibility = View.GONE
+        binding!!.progressBar.visibility = View.GONE
         CustomToast(requireContext(), getString(R.string.find_password_announcement1)).show()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+
+        binding = null
+
     }
 }

@@ -3,15 +3,38 @@
     package="studio.seno.companion_animal">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+
 
     <application
-        android:name=".App"
+        android:name=".KoinApplication"
         android:allowBackup="true"
         android:icon="@drawable/logo2"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Companion_Animal">
+
+        <meta-data
+            android:name="com.google.firebase.messaging.default_display_name_string_id"
+            android:resource="@drawable/logo" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/logo" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_color"
+            android:resource="@color/colorAccent" />
+
+        <service
+            android:name=".service.FcmMessageService"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
         <activity
             android:name=".ui.chat.ChatActivity"
             android:windowSoftInputMode="adjustUnspecified|adjustPan"
@@ -46,25 +69,6 @@
             android:windowSoftInputMode="adjustUnspecified|adjustPan"
             android:screenOrientation="portrait"/>
 
-        <meta-data
-            android:name="com.google.firebase.messaging.default_display_name_string_id"
-            android:resource="@drawable/logo" />
-        <meta-data
-            android:name="com.google.firebase.messaging.default_notification_icon"
-            android:resource="@drawable/logo" />
-        <meta-data
-            android:name="com.google.firebase.messaging.default_notification_color"
-            android:resource="@color/colorAccent" />
-
-        <service
-            android:name=".service.FcmMessageService"
-            android:enabled="true"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT" />
-            </intent-filter>
-        </service>
-
         <activity
             android:name=".ui.comment.CommentActivity"
             android:screenOrientation="portrait"/>
@@ -74,7 +78,7 @@
             android:screenOrientation="portrait"/>
 
         <activity
-            android:name="studio.seno.commonmodule.BaseActivity"
+            android:name=".base.BaseActivity"
             android:screenOrientation="portrait"/>
 
         <activity

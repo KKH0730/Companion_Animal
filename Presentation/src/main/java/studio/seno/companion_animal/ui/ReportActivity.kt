@@ -6,7 +6,7 @@ import android.widget.ImageButton
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
-import studio.seno.commonmodule.CustomToast
+import studio.seno.companion_animal.base.CustomToast
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.ActivityReportBinding
 import studio.seno.datamodule.repository.remote.ReportRepositoryImpl
@@ -18,7 +18,7 @@ import studio.seno.domain.model.Feed
  */
 
 class ReportActivity : AppCompatActivity(), View.OnClickListener {
-    private lateinit var binding : ActivityReportBinding
+    private var binding : ActivityReportBinding? = null
     private var feed : Feed? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -29,19 +29,19 @@ class ReportActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     fun init(){
-        binding.header.findViewById<TextView>(R.id.title).visibility = View.GONE
-        binding.header.findViewById<TextView>(R.id.title).setOnClickListener(this)
-        binding.header.findViewById<ImageButton>(R.id.back_btn).setOnClickListener(this)
+        binding!!.header.findViewById<TextView>(R.id.title).visibility = View.GONE
+        binding!!.header.findViewById<TextView>(R.id.title).setOnClickListener(this)
+        binding!!.header.findViewById<ImageButton>(R.id.back_btn).setOnClickListener(this)
         if(intent.getParcelableExtra<Feed>("feed") != null)
             feed = intent.getParcelableExtra<Feed>("feed")
 
         if(feed == null)
-            binding.noFeedLayout.visibility = View.VISIBLE
+            binding!!.noFeedLayout.visibility = View.VISIBLE
         else {
-            binding.reportLayout1.setOnClickListener(this)
-            binding.reportLayout2.setOnClickListener(this)
-            binding.reportLayout3.setOnClickListener(this)
-            binding.reportLayout.visibility = View.VISIBLE
+            binding!!.reportLayout1.setOnClickListener(this)
+            binding!!.reportLayout2.setOnClickListener(this)
+            binding!!.reportLayout3.setOnClickListener(this)
+            binding!!.reportLayout.visibility = View.VISIBLE
         }
     }
 
@@ -61,5 +61,11 @@ class ReportActivity : AppCompatActivity(), View.OnClickListener {
             CustomToast(applicationContext, getString(R.string.report_toast)).show()
             finish()
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        binding = null
+
     }
 }

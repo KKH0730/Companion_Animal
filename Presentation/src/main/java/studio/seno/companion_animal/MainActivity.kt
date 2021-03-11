@@ -8,12 +8,10 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.iid.FirebaseInstanceId
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import me.ibrahimsn.lib.OnItemSelectedListener
 import org.jetbrains.anko.startActivity
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import studio.seno.commonmodule.BaseActivity
+import studio.seno.companion_animal.base.BaseActivity
 import studio.seno.companion_animal.databinding.ActivityMainBinding
 import studio.seno.companion_animal.ui.ReportActivity
 import studio.seno.companion_animal.ui.chat.ChatActivity
@@ -47,7 +45,6 @@ class MainActivity : BaseActivity() , DialogInterface.OnDismissListener, FinishA
         kakaoSharedClicked()
 
         supportFragmentManager.beginTransaction().replace(R.id.container, homeFragment).commit()
-
     }
 
     fun init(){
@@ -171,6 +168,4 @@ class MainActivity : BaseActivity() , DialogInterface.OnDismissListener, FinishA
     override fun finishCurrentActivity() {
         finish()
     }
-
-
 }

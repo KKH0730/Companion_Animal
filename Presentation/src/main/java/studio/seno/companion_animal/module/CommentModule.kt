@@ -1,6 +1,7 @@
 package studio.seno.companion_animal.module
 
 import android.content.Context
+import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
@@ -38,13 +39,14 @@ class CommentModule(
         } else {
             mCommentListViewModel.loadProfileUri(myEmail, object :
                 LongTaskCallback<Any> {
-
                     override fun onResponse(result: Result<Any>) {
                         if(result is Result.Success) {
+
                             currentCommentList.add(Comment(
                                 Constants.PARENT, myEmail, myNickname,
                                 content, result.data as String, timestamp
                             ))
+
                             mCommentListViewModel.setCommentListLiveData(currentCommentList.toList())
                         }
                     }

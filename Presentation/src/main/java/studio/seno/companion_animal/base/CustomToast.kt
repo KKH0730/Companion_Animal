@@ -1,9 +1,10 @@
-package studio.seno.commonmodule
+package studio.seno.companion_animal.base
 
 import android.content.Context
 import android.view.LayoutInflater
 import android.widget.TextView
 import android.widget.Toast
+import studio.seno.companion_animal.R
 
 
 class CustomToast(context : Context, content : String) : Toast(context){

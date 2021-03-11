@@ -93,9 +93,10 @@ class CommentListViewModel (
     fun loadProfileUri(email: String, callback: LongTaskCallback<Any>){
         getProfileImageUseCase.execute(email, object  : LongTaskCallback<Any>{
             override fun onResponse(result: Result<Any>) {
-                if(result is Result.Success)
+                if(result is Result.Success) {
                     callback.onResponse(Result.Success(result.data as String))
-                else if(result is Result.Error) {
+
+                } else if(result is Result.Error) {
                     Log.e("error", "UserViewModel loadProfileUri error: ${result.exception}")
                 }
             }

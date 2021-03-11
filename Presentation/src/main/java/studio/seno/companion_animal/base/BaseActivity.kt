@@ -1,8 +1,9 @@
-package studio.seno.commonmodule
+package studio.seno.companion_animal.base
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.View
+import studio.seno.companion_animal.R
+
 
 open class BaseActivity : AppCompatActivity() {
     private var backKeyPressedTime = 0L

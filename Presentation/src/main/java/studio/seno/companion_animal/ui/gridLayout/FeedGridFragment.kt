@@ -23,8 +23,8 @@ import studio.seno.domain.model.Feed
 
 class FeedGridFragment : Fragment() {
     private val feedListViewModel: FeedListViewModel by viewModel()
-    private lateinit var binding : FragmentFeedGridBinding
-    private val gridImageAdapter = GridImageAdapter()
+    private var binding : FragmentFeedGridBinding? = null
+    private var gridImageAdapter : GridImageAdapter? = null
     private var keyword : String? = null
     private var feedSort : String? = null
     private var timeLineEmail : String? = null
@@ -58,14 +58,11 @@ class FeedGridFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         binding = DataBindingUtil.inflate(layoutInflater, R.layout.fragment_feed_grid, container, false)
-        return binding.root
+        return binding!!.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        binding.lifecycleOwner = viewLifecycleOwner
-        binding.feedListViewModel = feedListViewModel
 
         init()
 
@@ -75,8 +72,13 @@ class FeedGridFragment : Fragment() {
     }
 
     private fun init(){
-        binding.gridRecyclerview.adapter = gridImageAdapter
-        binding.progressBar.visibility = View.VISIBLE
+
+        binding!!.progressBar.visibility = View.VISIBLE
+        gridImageAdapter = GridImageAdapter()
+
+        binding!!.lifecycleOwner = viewLifecycleOwner
+        binding!!.feedListViewModel = feedListViewModel
+        binding!!.gridRecyclerview.adapter = gridImageAdapter
     }
 
     private fun setFeedList() {
@@ -89,11 +91,11 @@ class FeedGridFragment : Fragment() {
                 null,
                 "feed_timeline",
                 timeLineEmail,
-                binding.gridRecyclerview,
+                binding!!.gridRecyclerview,
                 object : LongTaskCallback<Any> {
                     override fun onResponse(result: Result<Any>) {
-                        binding.progressBar.visibility = View.GONE
-                        binding.gridRecyclerview.visibility = View.VISIBLE
+                        binding!!.progressBar.visibility = View.GONE
+                        binding!!.gridRecyclerview.visibility = View.VISIBLE
                     }
                 }
             )
@@ -103,15 +105,15 @@ class FeedGridFragment : Fragment() {
                 keyword,
                 "feed_search",
                 null,
-                binding.gridRecyclerview,
+                binding!!.gridRecyclerview,
                 object : LongTaskCallback<Any> {
                 override fun onResponse(result: Result<Any>) {
-                    binding.progressBar.visibility = View.GONE
-                    binding.gridRecyclerview.visibility = View.VISIBLE
+                    binding!!.progressBar.visibility = View.GONE
+                    binding!!.gridRecyclerview.visibility = View.VISIBLE
                     if(result is Result.Success) {
                         if(result.data == null) {
-                            binding.noResultTextView.setText("\"" + keyword + "\"" + getString(R.string.no_result))
-                            binding.noResultLayout.visibility = View.VISIBLE
+                            binding!!.noResultTextView.setText("\"" + keyword + "\"" + getString(R.string.no_result))
+                            binding!!.noResultLayout.visibility = View.VISIBLE
                         }
                     }
                 }
@@ -119,10 +121,10 @@ class FeedGridFragment : Fragment() {
         } else if(feedSort == "feed_bookmark" || feedSort == "feed_timeline") {
             feedListViewModel.getPagingFeed(
                 null, null, null, null,"feed_bookmark", FirebaseAuth.getInstance().currentUser?.email.toString(),
-                binding.gridRecyclerview, object : LongTaskCallback<Any> {
+                binding!!.gridRecyclerview, object : LongTaskCallback<Any> {
                     override fun onResponse(result: Result<Any>) {
-                        binding.progressBar.visibility = View.GONE
-                        binding.gridRecyclerview.visibility = View.VISIBLE
+                        binding!!.progressBar.visibility = View.GONE
+                        binding!!.gridRecyclerview.visibility = View.VISIBLE
                     }
                 }
             )
@@ -131,7 +133,7 @@ class FeedGridFragment : Fragment() {
 
 
     private fun feedItemEvent(){
-        gridImageAdapter.setOnItemClickListener(object : OnSearchItemClickListener {
+        gridImageAdapter!!.setOnItemClickListener(object : OnSearchItemClickListener {
             override fun onSearchItemClicked(feed: Feed, position : Int) {
                 if(feedSort == "feed_timeline")
                     startActivity<ShowFeedActivity>(
@@ -149,11 +151,18 @@ class FeedGridFragment : Fragment() {
 
     private fun observe() {
         feedListViewModel.getFeedListLiveData().observe(viewLifecycleOwner, {
-            gridImageAdapter.submitList(it)
+            gridImageAdapter!!.submitList(it)
         })
     }
 
     override fun onResume() {
         super.onResume()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+
+        binding = null
+        gridImageAdapter = null
     }
 }

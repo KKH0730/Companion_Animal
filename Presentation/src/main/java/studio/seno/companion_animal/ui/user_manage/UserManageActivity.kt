@@ -1,7 +1,7 @@
 package studio.seno.companion_animal.ui.user_manage
 
 import android.os.Bundle
-import studio.seno.commonmodule.BaseActivity
+import studio.seno.companion_animal.base.BaseActivity
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.util.FinishActivityInterface
 

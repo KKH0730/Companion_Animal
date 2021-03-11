@@ -16,7 +16,7 @@ import studio.seno.companion_animal.databinding.FragmentFeedPagerBinding
 class FeedPagerFragment : Fragment() {
     private var imageUri: String? = null
     private var from : String? = null
-    private lateinit var binding : FragmentFeedPagerBinding
+    private var binding : FragmentFeedPagerBinding? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,7 +31,7 @@ class FeedPagerFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         binding = DataBindingUtil.inflate(layoutInflater, R.layout.fragment_feed_pager, container, false)
-        return binding.root
+        return binding!!.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -41,13 +41,13 @@ class FeedPagerFragment : Fragment() {
             Glide.with(this)
                 .load(Uri.parse(imageUri))
                 .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
-                .into(binding.imageview)
+                .into(binding!!.imageview)
         } else {
             Glide.with(this)
                 .load(Uri.parse(imageUri))
                 .centerCrop()
                 .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
-                .into(binding.imageview)
+                .into(binding!!.imageview)
         }
 
     }
@@ -61,5 +61,11 @@ class FeedPagerFragment : Fragment() {
                     putString("from", from)
                 }
             }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+
+        binding = null
     }
 }

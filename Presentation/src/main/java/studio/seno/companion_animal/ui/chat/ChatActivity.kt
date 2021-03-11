@@ -26,14 +26,14 @@ import studio.seno.domain.util.Result
 import java.sql.Timestamp
 
 class ChatActivity : AppCompatActivity(), View.OnClickListener {
-    private lateinit var binding : ActivityChattingBinding
+    private var binding : ActivityChattingBinding? = null
     private lateinit var targetEmail : String
     private lateinit var targetRealEmail : String
     private lateinit var targetProfileUri : String
     private lateinit var targetNickname : String
     private lateinit var notificationModule : NotificationModule
     private val chatListViewModel : ChatListVIewModel by viewModel()
-    private val chatAdapter = ChatAdapter("chat")
+    private var chatAdapter : ChatAdapter? = ChatAdapter("chat")
     private val commonFunction = CommonFunction.getInstance()!!
     private var user : User? = null
 
@@ -42,25 +42,24 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_chatting)
 
-        binding.chatListViewModel = chatListViewModel
-        binding.lifecycleOwner = this
-        binding.chatRecyclerview.adapter = chatAdapter
-
-
         init()
         setUserInfo()
         setRecyclerPositionListener()
     }
 
     private fun init(){
+        binding!!.chatListViewModel = chatListViewModel
+        binding!!.lifecycleOwner = this
+        binding!!.chatRecyclerview.adapter = chatAdapter
+
         targetEmail = intent.getStringExtra("targetEmail")
         targetRealEmail = intent.getStringExtra("targetRealEmail")
         targetProfileUri = intent.getStringExtra("targetProfileUri")
         targetNickname = intent.getStringExtra("targetNickname")
-        binding.content.addTextChangedListener(textWatcher)
-        binding.sendBtn.setOnClickListener(this)
-        binding.header.findViewById<ImageButton>(R.id.back_btn).setOnClickListener(this)
-        binding.header.findViewById<TextView>(R.id.title2).text = targetNickname
+        binding!!.content.addTextChangedListener(textWatcher)
+        binding!!.sendBtn.setOnClickListener(this)
+        binding!!.header.findViewById<ImageButton>(R.id.back_btn).setOnClickListener(this)
+        binding!!.header.findViewById<TextView>(R.id.title2).text = targetNickname
     }
 
     private fun setUserInfo(){
@@ -75,9 +74,9 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener {
                         .load(Uri.parse(user!!.profileUri))
                         .centerCrop()
                         .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
-                        .into(binding.profileImageVIew)
+                        .into(binding!!.profileImageVIew)
 
-                    chatListViewModel.requestSetAddedChatListener(commonFunction.makeChatPath(user!!.email), commonFunction.makeChatPath(targetEmail), 0, "chat_log", binding.chatRecyclerview, lifecycleScope)
+                    chatListViewModel.requestSetAddedChatListener(commonFunction.makeChatPath(user!!.email), commonFunction.makeChatPath(targetEmail), 0, "chat_log", binding!!.chatRecyclerview, lifecycleScope)
                     observe()
                 } else if(result is Result.Error) {
                     Log.e("error", "ChatActivity send_btn error : ${result.exception}")
@@ -88,14 +87,14 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener {
 
     private fun observe(){
         chatListViewModel.getChatListLiveData().observe(this, {
-            chatAdapter.submitList(it)
+            chatAdapter!!.submitList(it)
         })
     }
 
     private fun setRecyclerPositionListener(){
-        binding.chatRecyclerview.addOnLayoutChangeListener { v, _, _, _, bottom, _, _, _, oldBottom ->
+        binding!!.chatRecyclerview.addOnLayoutChangeListener { v, _, _, _, bottom, _, _, _, oldBottom ->
             if(bottom < oldBottom) {
-                v.postDelayed({ binding.chatRecyclerview.scrollToPosition(chatAdapter.itemCount) }, 100)
+                v.postDelayed({ binding!!.chatRecyclerview.scrollToPosition(chatAdapter!!.itemCount) }, 100)
             }
         }
     }
@@ -107,13 +106,13 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener {
             chatListViewModel.requestAddChat(
                 commonFunction.makeChatPath(user!!.email), user!!.email,
                 commonFunction.makeChatPath(targetEmail), targetRealEmail,
-                user!!.nickname, targetNickname, binding.content.text.toString(),
+                user!!.nickname, targetNickname, binding!!.content.text.toString(),
                 user!!.profileUri, targetProfileUri, Timestamp(System.currentTimeMillis()).time
             )
 
-            notificationModule.sendNotification(targetRealEmail, user!!.profileUri, binding.content.text.toString(), Timestamp(System.currentTimeMillis()).time, null, lifecycleScope)
-            commonFunction.closeKeyboard(this, binding.content)
-            binding.content.setText("")
+            notificationModule.sendNotification(targetRealEmail, user!!.profileUri, binding!!.content.text.toString(), Timestamp(System.currentTimeMillis()).time, null, lifecycleScope)
+            commonFunction.closeKeyboard(this, binding!!.content)
+            binding!!.content.setText("")
         }
     }
 
@@ -121,12 +120,19 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener {
         override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-            if(binding.content.text.isEmpty())
-                binding.sendBtn.visibility = View.INVISIBLE
+            if(binding!!.content.text.isEmpty())
+                binding!!.sendBtn.visibility = View.INVISIBLE
             else
-                binding.sendBtn.visibility = View.VISIBLE
+                binding!!.sendBtn.visibility = View.VISIBLE
         }
 
         override fun afterTextChanged(s: Editable?) {}
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        binding = null
+        chatAdapter = null
     }
 }

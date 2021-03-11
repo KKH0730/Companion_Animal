@@ -15,7 +15,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.royrodriguez.transitionbutton.TransitionButton
 import org.jetbrains.anko.support.v4.startActivity
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import studio.seno.commonmodule.CustomToast
+import studio.seno.companion_animal.base.CustomToast
 import studio.seno.companion_animal.MainActivity
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.FragmentLoginBinding
@@ -27,7 +27,7 @@ import studio.seno.domain.util.Result
 
 
 class LoginFragment : Fragment(), View.OnClickListener {
-    private lateinit var binding: FragmentLoginBinding
+    private var binding: FragmentLoginBinding? = null
     private val viewModel : UserViewModel by viewModel()
     private lateinit var finishActivityInterface : FinishActivityInterface
     private var key = false
@@ -44,7 +44,7 @@ class LoginFragment : Fragment(), View.OnClickListener {
             savedInstanceState: Bundle?
     ): View? {
         binding = DataBindingUtil.inflate(layoutInflater, R.layout.fragment_login, container, false)
-        return binding.root
+        return binding!!.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -61,20 +61,20 @@ class LoginFragment : Fragment(), View.OnClickListener {
 
     private fun initView() {
         val textModule = TextModule()
-        var ssb = SpannableStringBuilder(binding.findPasswordBtn.text.toString())
+        var ssb = SpannableStringBuilder(binding!!.findPasswordBtn.text.toString())
         ssb = textModule.setTextColorBold(ssb, requireContext(), R.color.red_error, 13, 20).apply {
-            binding.findPasswordBtn.text = ssb
+            binding!!.findPasswordBtn.text = ssb
         }
 
-        ssb = SpannableStringBuilder(binding.moveRegisterBtn.text.toString())
+        ssb = SpannableStringBuilder(binding!!.moveRegisterBtn.text.toString())
         ssb = textModule.setTextColorBold(ssb, requireContext(), R.color.red_error, 11, 20).apply {
-            binding.moveRegisterBtn.text = ssb
+            binding!!.moveRegisterBtn.text = ssb
         }
 
-        binding.findPasswordBtn.setOnClickListener(this)
-        binding.moveRegisterBtn.setOnClickListener(this)
-        binding.keyBtn.setOnClickListener(this)
-        binding.loginBtn.setOnClickListener(this)
+        binding!!.findPasswordBtn.setOnClickListener(this)
+        binding!!.moveRegisterBtn.setOnClickListener(this)
+        binding!!.keyBtn.setOnClickListener(this)
+        binding!!.loginBtn.setOnClickListener(this)
     }
 
     override fun onClick(v: View?) {
@@ -83,11 +83,11 @@ class LoginFragment : Fragment(), View.OnClickListener {
         } else if (v?.id == R.id.move_register_btn) {
             findNavController().navigate(R.id.action_loginFragment_to_registerFragment)
         } else if (v?.id == R.id.login_Btn) {
-            binding.loginBtn.startAnimation()
-            CommonFunction.closeKeyboard(requireContext(), binding.emailInput)
+            binding!!.loginBtn.startAnimation()
+            CommonFunction.closeKeyboard(requireContext(), binding!!.emailInput)
 
-            val email: String = binding.emailInput.text.toString().trim()
-            val password: String = binding.passInput.text.toString().trim()
+            val email: String = binding!!.emailInput.text.toString().trim()
+            val password: String = binding!!.passInput.text.toString().trim()
 
             if (email.isEmpty()  || password.isEmpty())
                 failLogin()
@@ -99,7 +99,7 @@ class LoginFragment : Fragment(), View.OnClickListener {
                     override fun onResponse(result: Result<Any>) {
                         if(result is Result.Success) {
                             if(result.data as Boolean) {
-                                binding.loginBtn.stopAnimation(TransitionButton.StopAnimationStyle.EXPAND) {
+                                binding!!.loginBtn.stopAnimation(TransitionButton.StopAnimationStyle.EXPAND) {
                                     startActivity<MainActivity>()
                                     finishActivityInterface.finishCurrentActivity()
                                 }
@@ -115,10 +115,10 @@ class LoginFragment : Fragment(), View.OnClickListener {
             }
         } else if(v?.id == R.id.key_btn) {
             if(key){
-                binding.passInput.transformationMethod = PasswordTransformationMethod.getInstance()
+                binding!!.passInput.transformationMethod = PasswordTransformationMethod.getInstance()
                 key = false
             } else {
-                binding.passInput.transformationMethod = null
+                binding!!.passInput.transformationMethod = null
                 key = true
             }
         }
@@ -126,6 +126,12 @@ class LoginFragment : Fragment(), View.OnClickListener {
 
     private fun failLogin(){
         CustomToast(requireContext(), getString(R.string.login_fail)).show()
-        binding.loginBtn.stopAnimation(TransitionButton.StopAnimationStyle.SHAKE, null)
+        binding!!.loginBtn.stopAnimation(TransitionButton.StopAnimationStyle.SHAKE, null)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+
+        binding = null
     }
 }

@@ -1,9 +1,8 @@
-package studio.seno.companion_animal.ui.main_ui
+    package studio.seno.companion_animal.ui.main_ui
 
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.util.Log.e
 import android.view.LayoutInflater
 import android.view.View
@@ -21,11 +20,11 @@ import com.kakao.message.template.*
 import org.jetbrains.anko.support.v4.intentFor
 import org.jetbrains.anko.support.v4.startActivity
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import studio.seno.commonmodule.CustomToast
 import studio.seno.companion_animal.R
-import studio.seno.companion_animal.ui.ReportActivity
+import studio.seno.companion_animal.base.CustomToast
 import studio.seno.companion_animal.databinding.FragmentHomeBinding
 import studio.seno.companion_animal.module.FeedModule
+import studio.seno.companion_animal.ui.ReportActivity
 import studio.seno.companion_animal.ui.comment.CommentActivity
 import studio.seno.companion_animal.ui.comment.CommentListViewModel
 import studio.seno.companion_animal.ui.feed.*
@@ -37,12 +36,12 @@ import studio.seno.domain.model.User
 import studio.seno.domain.util.LongTaskCallback
 import studio.seno.domain.util.Result
 
-/**
+    /**
  * HomeFragment는 FeedViewListModel과 연결.
  * FeedViewModel는 FeedListAdapter와 연결.
  */
 class HomeFragment : Fragment(), View.OnClickListener{
-    private lateinit var binding: FragmentHomeBinding
+    private var binding: FragmentHomeBinding? = null
     private val feedListViewModel: FeedListViewModel by viewModel()
     private val commentViewModel : CommentListViewModel by viewModel()
     private var filter1  = true
@@ -55,7 +54,7 @@ class HomeFragment : Fragment(), View.OnClickListener{
         FeedModule(feedListViewModel, commentViewModel)
     }
     private var targetFeed : Feed? = null
-    private val feedAdapter: FeedListAdapter by lazy { FeedListAdapter(parentFragmentManager, lifecycle, lifecycleScope) }
+    private var feedAdapter: FeedListAdapter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -83,22 +82,17 @@ class HomeFragment : Fragment(), View.OnClickListener{
         savedInstanceState: Bundle?
     ): View? {
         binding = DataBindingUtil.inflate(layoutInflater, R.layout.fragment_home, container, false)
-        return binding.root
+        return binding!!.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.lifecycleOwner = viewLifecycleOwner
-        binding.model = feedListViewModel
-        feedAdapter.stateRestorationPolicy = RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
-        binding.feedRecyclerView.adapter = feedAdapter
-
         init()
 
         feedItemEvent()
         if(feedSort == "feed_list") {
-            binding.refreshLayout.isEnabled = true
+            binding!!.refreshLayout.isEnabled = true
             refreshFeedList()
         }
         loadFeedList()
@@ -107,30 +101,37 @@ class HomeFragment : Fragment(), View.OnClickListener{
     }
 
     private fun init(){
-        binding.feedRecyclerView.itemAnimator = null
+        binding!!.lifecycleOwner = viewLifecycleOwner
+        binding!!.model = feedListViewModel
+        feedAdapter = FeedListAdapter(parentFragmentManager, lifecycle, lifecycleScope)
+
+        feedAdapter!!.stateRestorationPolicy = RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
+        binding!!.feedRecyclerView!!.adapter = feedAdapter
+        binding!!.feedRecyclerView.itemAnimator = null
+
 
         if(feedSort == "feed_list") {
-            binding.header.findViewById<ImageButton>(R.id.back_btn).visibility = View.GONE
-            binding.header.findViewById<TextView>(R.id.title).visibility = View.GONE
-            binding.header.findViewById<ImageView>(R.id.logo).visibility = View.VISIBLE
-            binding.header.findViewById<LinearLayout>(R.id.menu_set).visibility = View.VISIBLE
-            binding.header.findViewById<ImageButton>(R.id.setting).visibility = View.GONE
-            binding.header.findViewById<ConstraintLayout>(R.id.header_layout).layoutParams.height =
+            binding!!.header.findViewById<ImageButton>(R.id.back_btn).visibility = View.GONE
+            binding!!.header.findViewById<TextView>(R.id.title).visibility = View.GONE
+            binding!!.header.findViewById<ImageView>(R.id.logo).visibility = View.VISIBLE
+            binding!!.header.findViewById<LinearLayout>(R.id.menu_set).visibility = View.VISIBLE
+            binding!!.header.findViewById<ImageButton>(R.id.setting).visibility = View.GONE
+            binding!!.header.findViewById<ConstraintLayout>(R.id.header_layout).layoutParams.height =
                 requireActivity().applicationContext.resources.getDimension(R.dimen.header_layout_height).toInt()
 
         } else if(feedSort != null && feedSort == "feed_timeline")
-            binding.header.visibility = View.GONE
+            binding!!.header.visibility = View.GONE
 
-        binding.refreshLayout.isEnabled = false
-        binding.header.findViewById<ImageButton>(R.id.add).setOnClickListener(this)
-        binding.header.findViewById<ImageButton>(R.id.search).setOnClickListener(this)
-        binding.header.findViewById<ImageButton>(R.id.refresh).setOnClickListener(this)
-        binding.header.findViewById<ImageButton>(R.id.scroll_up).setOnClickListener(this)
-        binding.header.findViewById<ImageButton>(R.id.filter).setOnClickListener(this)
+        binding!!.refreshLayout.isEnabled = false
+        binding!!.header.findViewById<ImageButton>(R.id.add).setOnClickListener(this)
+        binding!!.header.findViewById<ImageButton>(R.id.search).setOnClickListener(this)
+        binding!!.header.findViewById<ImageButton>(R.id.refresh).setOnClickListener(this)
+        binding!!.header.findViewById<ImageButton>(R.id.scroll_up).setOnClickListener(this)
+        binding!!.header.findViewById<ImageButton>(R.id.filter).setOnClickListener(this)
     }
 
     private fun refreshFeedList(){
-        binding.refreshLayout.setOnRefreshListener {
+        binding!!.refreshLayout.setOnRefreshListener {
             loadFeedList()
         }
     }
@@ -140,10 +141,10 @@ class HomeFragment : Fragment(), View.OnClickListener{
         feedListViewModel.clearFeedList()
         if(feedSort != null && feedSort == "feed_list")
             feedListViewModel.getPagingFeed(filter1, filter2, filter3, null, "feed_list",
-                null, binding.feedRecyclerView, object : LongTaskCallback<Any> {
+                null, binding!!.feedRecyclerView, object : LongTaskCallback<Any> {
                     override fun onResponse(result: Result<Any>) {
                         if (result is Result.Success) {
-                            binding.refreshLayout.isRefreshing = false
+                                binding?.refreshLayout?.isRefreshing = false
 
                         } else if (result is Result.Error) {
                             e("error", "feed refresh error : ${result.exception}")
@@ -157,10 +158,10 @@ class HomeFragment : Fragment(), View.OnClickListener{
                 null,
                 "feed_timeline",
                 timeLineEmail,
-                binding.feedRecyclerView,
+                binding!!.feedRecyclerView,
                 object : LongTaskCallback<Any> {
                     override fun onResponse(result: Result<Any>) {
-                        binding.feedRecyclerView.scrollToPosition(feedPosition!!)
+                        binding!!.feedRecyclerView.scrollToPosition(feedPosition!!)
                     }
                 })
         }
@@ -168,13 +169,13 @@ class HomeFragment : Fragment(), View.OnClickListener{
 
     private fun observe() {
         feedListViewModel.getFeedListLiveData().observe(requireActivity(), {
-            feedAdapter.submitList(it)
+            feedAdapter?.submitList(it)
         })
     }
 
     private fun feedItemEvent() {
         //댓글작성 버튼클릭
-        feedAdapter.setOnItemClickListener(object : OnItemClickListener {
+        feedAdapter?.setOnItemClickListener(object : OnItemClickListener {
             override fun onDetailClicked(feed : Feed, position : Int) {
                 startActivity<FeedDetailActivity>("feed" to feed,)
             }
@@ -231,7 +232,7 @@ class HomeFragment : Fragment(), View.OnClickListener{
         } else if(v?.id == R.id.refresh) {
             loadFeedList()
         } else if(v?.id == R.id.scroll_up) {
-            binding.feedRecyclerView.smoothScrollToPosition(0)
+            binding!!.feedRecyclerView.smoothScrollToPosition(0)
         } else if(v?.id == R.id.filter) {
             showFilterDialog()
         }
@@ -324,7 +325,6 @@ class HomeFragment : Fragment(), View.OnClickListener{
         tempList?.let {
             it.add(feed)
             feedListViewModel.setFeedListLiveData(it.toList())
-            Log.d("hi", "feed.content ${feed.getContent()}")
         }
     }
 
@@ -356,6 +356,13 @@ class HomeFragment : Fragment(), View.OnClickListener{
         if(requestCode == Constants.FEED_MAKE_QEQUEST && resultCode == Constants.RESULT_OK) {
             loadFeedList()
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+
+        binding = null
+        feedAdapter = null
     }
 }
 
