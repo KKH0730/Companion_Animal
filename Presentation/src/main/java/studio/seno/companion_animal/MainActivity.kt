@@ -1,5 +1,6 @@
 package studio.seno.companion_animal
 
+import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
@@ -12,6 +13,7 @@ import me.ibrahimsn.lib.OnItemSelectedListener
 import org.jetbrains.anko.startActivity
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import studio.seno.companion_animal.base.BaseActivity
+import studio.seno.companion_animal.base.CustomToast
 import studio.seno.companion_animal.databinding.ActivityMainBinding
 import studio.seno.companion_animal.ui.ReportActivity
 import studio.seno.companion_animal.ui.chat.ChatActivity
@@ -43,7 +45,6 @@ class MainActivity : BaseActivity() , DialogInterface.OnDismissListener, FinishA
         navigateView()
         notificationClicked()
         kakaoSharedClicked()
-
         supportFragmentManager.beginTransaction().replace(R.id.container, homeFragment).commit()
     }
 
@@ -168,4 +169,5 @@ class MainActivity : BaseActivity() , DialogInterface.OnDismissListener, FinishA
     override fun finishCurrentActivity() {
         finish()
     }
+    
 }

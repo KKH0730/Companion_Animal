@@ -1,6 +1,7 @@
 package studio.seno.companion_animal.ui.feed
 
 
+import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
@@ -136,6 +137,7 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
         binding!!.feedLayout.shareBtn.setOnClickListener(this)
         binding!!.feedLayout.comment.addTextChangedListener(textWatcher)
     }
+
 
     fun commentItemEvent() {
         commentAdapter!!.setOnEventListener(object : OnCommentEventListener {
@@ -402,5 +404,9 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
 
         binding = null
         commentAdapter = null
+    }
+
+    fun testToast(context: Context){
+        CustomToast(context, "test").show()
     }
 }
