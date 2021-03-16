@@ -37,10 +37,6 @@ import studio.seno.domain.model.User
 import studio.seno.domain.util.LongTaskCallback
 import studio.seno.domain.util.Result
 
-/**
- * HomeFragment는 FeedViewListModel과 연결.
- * FeedViewModel는 FeedListAdapter와 연결.
- */
 class HomeFragment : Fragment(), View.OnClickListener {
     private var binding: FragmentHomeBinding? = null
     private val feedListViewModel: FeedListViewModel by viewModel()
