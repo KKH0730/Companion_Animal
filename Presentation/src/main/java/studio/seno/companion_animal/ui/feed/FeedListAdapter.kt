@@ -12,9 +12,11 @@ import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import dagger.hilt.android.AndroidEntryPoint
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.FeedItemBinding
 import studio.seno.domain.model.Feed
+import javax.inject.Inject
 
 class FeedListAdapter(
     fm: FragmentManager,

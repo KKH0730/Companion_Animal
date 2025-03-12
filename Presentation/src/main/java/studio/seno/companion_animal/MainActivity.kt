@@ -1,35 +1,35 @@
 package studio.seno.companion_animal
 
-import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import androidx.activity.viewModels
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.iid.FirebaseInstanceId
+import com.google.firebase.messaging.FirebaseMessaging
+import dagger.hilt.android.AndroidEntryPoint
 import me.ibrahimsn.lib.OnItemSelectedListener
-import org.jetbrains.anko.startActivity
-import org.koin.androidx.viewmodel.ext.android.viewModel
 import studio.seno.companion_animal.base.BaseActivity
-import studio.seno.companion_animal.base.CustomToast
 import studio.seno.companion_animal.databinding.ActivityMainBinding
+import studio.seno.companion_animal.extension.startActivity
 import studio.seno.companion_animal.ui.ReportActivity
 import studio.seno.companion_animal.ui.chat.ChatActivity
 import studio.seno.companion_animal.ui.feed.FeedDetailActivity
 import studio.seno.companion_animal.ui.main_ui.*
 import studio.seno.companion_animal.util.FinishActivityInterface
-import studio.seno.datamodule.repository.local.LocalRepository
 import studio.seno.datamodule.database.AppDatabase
+import studio.seno.datamodule.repository.local.LocalRepository
 import studio.seno.domain.model.Feed
 import studio.seno.domain.model.User
 import studio.seno.domain.util.LongTaskCallback
 import studio.seno.domain.util.PreferenceManager
 import studio.seno.domain.util.Result
 
+@AndroidEntryPoint
 class MainActivity : BaseActivity() , DialogInterface.OnDismissListener, FinishActivityInterface {
-    private val mainViewModel : MainViewModel by viewModel()
+    private val mainViewModel : MainViewModel by viewModels()
     private lateinit var binding: ActivityMainBinding
     private lateinit var homeFragment: HomeFragment
     private lateinit var notificationFragment: NotificationFragment
@@ -53,7 +53,7 @@ class MainActivity : BaseActivity() , DialogInterface.OnDismissListener, FinishA
         homeFragment = HomeFragment.newInstance("feed_list", 0, FirebaseAuth.getInstance().currentUser?.email.toString())
         notificationFragment = NotificationFragment.newInstance()
         chatFragment = ChatFragment.newInstance()
-        timeLineFragment = TimeLineFragment.newInstance(FirebaseAuth.getInstance().currentUser?.email.toString())
+        timeLineFragment = TimeLineFragment.newInstance(FirebaseAuth.getInstance().currentUser?.email.toString(), true)
     }
 
     //앱이 실행되면 회원정보를 Remote DB에서 Local DB에 저장
@@ -82,10 +82,7 @@ class MainActivity : BaseActivity() , DialogInterface.OnDismissListener, FinishA
                 }
             })
 
-        FirebaseInstanceId.getInstance().instanceId.addOnSuccessListener {
-            mainViewModel.requestUpdateToken(it.token)
-        }
-
+        FirebaseMessaging.getInstance().token.addOnSuccessListener { mainViewModel.requestUpdateToken(it) }
     }
 
     private fun navigateView(){
@@ -111,21 +108,23 @@ class MainActivity : BaseActivity() , DialogInterface.OnDismissListener, FinishA
                     override fun onResponse(result: Result<Any>) {
                         if(result is Result.Success){
                             if(result.data != null)
-                                startActivity<FeedDetailActivity>("feed" to result.data as Feed)
+                                startActivity(FeedDetailActivity::class.java) {
+                                    putExtra("feed", result.data as Feed)
+                                }
                             else
-                                startActivity<ReportActivity>()
+                                startActivity(ReportActivity::class.java)
                         } else if(result is Result.Error) {
                             Log.e("error", "MainActivity notification intent error: ${result.exception}")
                         }
                     }
                 })
             } else if(intent.getStringExtra("from") == "chat") {
-                startActivity<ChatActivity>(
-                    "targetEmail" to intent.getStringExtra("targetRealEmail"),
-                    "targetProfileUri" to intent.getStringExtra("targetEmail"),
-                    "targetNickname" to intent.getStringExtra("targetNickname"),
-                    "targetRealEmail" to intent.getStringExtra("targetProfileUri"),
-                )
+                startActivity(ChatActivity::class.java) {
+                    putExtra("targetEmail", intent.getStringExtra("targetRealEmail"))
+                    putExtra("targetProfileUri", intent.getStringExtra("targetEmail"))
+                    putExtra("targetNickname", intent.getStringExtra("targetNickname"))
+                    putExtra("targetRealEmail", intent.getStringExtra("targetProfileUri"))
+                }
             }
         }
     }
@@ -140,9 +139,11 @@ class MainActivity : BaseActivity() , DialogInterface.OnDismissListener, FinishA
                     override fun onResponse(result: Result<Any>) {
                         if(result is Result.Success){
                             if(result.data != null)
-                                startActivity<FeedDetailActivity>("feed" to result.data as Feed)
+                                startActivity(FeedDetailActivity::class.java) {
+                                    putExtra("feed", result.data as Feed)
+                                }
                             else
-                                startActivity<ReportActivity>()
+                                startActivity(ReportActivity::class.java)
                         }else if(result is Result.Error) {
                             Log.e("error", "MainActivity kakao share error: ${result.exception}")
                         }

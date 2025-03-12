@@ -15,8 +15,9 @@ import studio.seno.domain.model.Comment
 import studio.seno.domain.util.LongTaskCallback
 import studio.seno.domain.util.Result
 import java.util.*
+import javax.inject.Inject
 
-class CommentRepositoryImpl : CommentRepository {
+class CommentRepositoryImpl @Inject constructor() : CommentRepository {
     private val auth = FirebaseAuth.getInstance()
     private val db = FirebaseFirestore.getInstance()
     private val storageRef: StorageReference = FirebaseStorage.getInstance()

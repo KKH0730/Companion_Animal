@@ -12,25 +12,19 @@ import android.widget.TextView
 import androidx.core.app.ActivityCompat.startActivityForResult
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.LifecycleCoroutineScope
-import androidx.lifecycle.lifecycleScope
 import com.google.firebase.auth.FirebaseAuth
-import com.kakao.message.template.ButtonObject
-import com.kakao.message.template.ContentObject
-import com.kakao.message.template.FeedTemplate
-import com.kakao.message.template.LinkObject
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.ui.MenuDialog
 import studio.seno.companion_animal.ui.comment.CommentListViewModel
-import studio.seno.companion_animal.ui.feed.*
+import studio.seno.companion_animal.ui.feed.FeedListAdapter
+import studio.seno.companion_animal.ui.feed.FeedListViewModel
+import studio.seno.companion_animal.ui.feed.MakeFeedActivity
 import studio.seno.companion_animal.util.Constants
 import studio.seno.datamodule.repository.local.LocalRepository
-import studio.seno.datamodule.api.LinkShareApi
-import studio.seno.domain.util.LongTaskCallback
-import studio.seno.domain.util.Result
 import studio.seno.domain.model.Feed
 import studio.seno.domain.model.User
+import studio.seno.domain.util.LongTaskCallback
+import studio.seno.domain.util.Result
 import java.sql.Timestamp
 
 class FeedModule (
@@ -230,29 +224,29 @@ class FeedModule (
     }
 
     fun sendShareLink(feed: Feed, context : Context, lifecycleScope: LifecycleCoroutineScope) {
-        val params = FeedTemplate
-            .newBuilder(
-                ContentObject.newBuilder(
-                    context.getString(R.string.kakao_title),
-                    feed.getRemoteUri()[0],
-                    LinkObject.newBuilder().setMobileWebUrl("https://www.naver.com")
-                        .setAndroidExecutionParams("path=${feed.getEmail()}${feed.getTimestamp()}")
-                        .build()
-                )
-                    .setDescrption(context.getString(R.string.kakao_description))
-                    .build()
-            )
-            .addButton(
-                ButtonObject(
-                    context.getString(R.string.kakao_description2), LinkObject.newBuilder()
-                        .setMobileWebUrl("https://www.naver.com")
-                        .setAndroidExecutionParams("path=${feed.getEmail()}${feed.getTimestamp()}")
-                        .build()
-                )
-            )
-            .build()
-        lifecycleScope.launch(Dispatchers.IO){
-            LinkShareApi().sendShareLink(context, params, HashMap())
-        }
+//        val params = FeedTemplate
+//            .newBuilder(
+//                ContentObject.newBuilder(
+//                    context.getString(R.string.kakao_title),
+//                    feed.getRemoteUri()[0],
+//                    LinkObject.newBuilder().setMobileWebUrl("https://www.naver.com")
+//                        .setAndroidExecutionParams("path=${feed.getEmail()}${feed.getTimestamp()}")
+//                        .build()
+//                )
+//                    .setDescrption(context.getString(R.string.kakao_description))
+//                    .build()
+//            )
+//            .addButton(
+//                ButtonObject(
+//                    context.getString(R.string.kakao_description2), LinkObject.newBuilder()
+//                        .setMobileWebUrl("https://www.naver.com")
+//                        .setAndroidExecutionParams("path=${feed.getEmail()}${feed.getTimestamp()}")
+//                        .build()
+//                )
+//            )
+//            .build()
+//        lifecycleScope.launch(Dispatchers.IO){
+//            LinkShareApi().sendShareLink(context, params, HashMap())
+//        }
     }
 }

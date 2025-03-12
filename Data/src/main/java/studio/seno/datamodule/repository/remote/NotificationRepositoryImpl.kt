@@ -12,8 +12,9 @@ import studio.seno.domain.repository.NotificationRepository
 import studio.seno.domain.model.NotificationData
 import studio.seno.domain.util.LongTaskCallback
 import studio.seno.domain.util.Result
+import javax.inject.Inject
 
-class NotificationRepositoryImpl : NotificationRepository {
+class NotificationRepositoryImpl @Inject constructor() : NotificationRepository {
     private val auth = FirebaseAuth.getInstance()
     private val db = FirebaseFirestore.getInstance()
 

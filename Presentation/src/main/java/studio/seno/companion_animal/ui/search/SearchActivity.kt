@@ -5,13 +5,14 @@ import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.TextView
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.observe
-import org.jetbrains.anko.startActivity
-import org.koin.androidx.viewmodel.ext.android.viewModel
+import dagger.hilt.android.AndroidEntryPoint
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.ActivitySearchBinding
+import studio.seno.companion_animal.extension.startActivity
 import studio.seno.companion_animal.module.CommonFunction
 import studio.seno.companion_animal.ui.feed.FeedDetailActivity
 import studio.seno.companion_animal.ui.feed.FeedListViewModel
@@ -21,10 +22,11 @@ import studio.seno.domain.model.Feed
 import studio.seno.domain.model.LastSearch
 import java.sql.Timestamp
 
+@AndroidEntryPoint
 class SearchActivity : AppCompatActivity(), View.OnClickListener {
     private var binding: ActivitySearchBinding? = null
-    private val listViewModel: LastSearchListViewModel by viewModel()
-    private val feedListViewModel: FeedListViewModel by viewModel()
+    private val listViewModel: LastSearchListViewModel by viewModels()
+    private val feedListViewModel: FeedListViewModel by viewModels()
     private var lastSearchAdapter: LastSearchAdapter? = null
     private val gridImageAdapter: GridImageAdapter by lazy { GridImageAdapter() }
     private lateinit var feedGridFragment : FeedGridFragment
@@ -77,7 +79,9 @@ class SearchActivity : AppCompatActivity(), View.OnClickListener {
 
         gridImageAdapter.setOnItemClickListener(object : OnSearchItemClickListener {
             override fun onSearchItemClicked(feed: Feed, position : Int) {
-                startActivity<FeedDetailActivity>("feed" to feed)
+                startActivity(FeedDetailActivity::class.java) {
+                    putExtra("feed", feed)
+                }
             }
         })
     }

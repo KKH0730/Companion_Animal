@@ -3,14 +3,17 @@ package studio.seno.companion_animal.ui.comment
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
 import studio.seno.domain.util.LongTaskCallback
 import studio.seno.domain.util.Result
 import studio.seno.domain.model.Comment
 import studio.seno.domain.usecase.commentUseCase.*
 import studio.seno.domain.usecase.uploadUseCase.GetProfileImageUseCase
 import java.util.*
+import javax.inject.Inject
 
-class CommentListViewModel (
+@HiltViewModel
+class CommentListViewModel @Inject constructor(
     private val getProfileImageUseCase: GetProfileImageUseCase,
     private val setCommentUseCase: SetCommentUseCase,
     private val getCommentAnswerUseCase: GetCommentAnswerUseCase,

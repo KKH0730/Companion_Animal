@@ -6,27 +6,27 @@ import android.graphics.Rect
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
-import org.jetbrains.anko.startActivity
-import org.koin.androidx.viewmodel.ext.android.viewModel
+import dagger.hilt.android.AndroidEntryPoint
 import studio.seno.companion_animal.MainActivity
 import studio.seno.companion_animal.R
-import studio.seno.companion_animal.ui.ReportActivity
 import studio.seno.companion_animal.databinding.ActivityCommentBinding
+import studio.seno.companion_animal.extension.startActivity
 import studio.seno.companion_animal.module.CommentModule
 import studio.seno.companion_animal.module.CommonFunction
 import studio.seno.companion_animal.module.NotificationModule
 import studio.seno.companion_animal.ui.MenuDialog
+import studio.seno.companion_animal.ui.ReportActivity
 import studio.seno.companion_animal.util.Constants
 import studio.seno.datamodule.repository.local.LocalRepository
 import studio.seno.domain.model.Comment
@@ -39,10 +39,11 @@ import java.sql.Timestamp
 
 const val SOFT_KEYBOARD_HEIGHT_DP_THRESHOLD = 128
 
+@AndroidEntryPoint
 class CommentActivity : AppCompatActivity(), View.OnClickListener,
     DialogInterface.OnDismissListener {
     private var binding: ActivityCommentBinding? = null
-    private val commentListViewModel: CommentListViewModel by viewModel()
+    private val commentListViewModel: CommentListViewModel by viewModels()
     private var commentAdapter : CommentAdapter? = CommentAdapter()
     private var answerMode = false
     private var modifyMode = false
@@ -53,7 +54,14 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
     private var answerComment: Comment? = null
     private var answerPosition = 0
     private var commentPosition = 0
-    private val feed: Feed by lazy { intent.getParcelableExtra<Feed>("feed") }
+    private val feed: Feed by lazy {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            intent.getParcelableExtra("feed", Feed::class.java)
+        } else {
+            @Suppress("DEPRECATION")
+            intent.getParcelableExtra("feed")
+        } ?: throw IllegalArgumentException("Feed not provided")
+    }
     private lateinit var commentModule : CommentModule
     private lateinit var notificationModule : NotificationModule
 
@@ -286,7 +294,9 @@ class CommentActivity : AppCompatActivity(), View.OnClickListener,
                 answerMode, binding!!.header.findViewById(R.id.comment_count)
             )
         }  else if(PreferenceManager.getString(applicationContext, "mode") == "report") {
-            startActivity<ReportActivity>("feed" to feed)
+            this@CommentActivity.startActivity(ReportActivity::class.java) {
+                putExtra("feed", feed)
+            }
         }
     }
 

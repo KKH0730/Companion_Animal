@@ -2,8 +2,9 @@ package studio.seno.domain.usecase.followUseCase
 
 import studio.seno.domain.repository.FollowRepository
 import studio.seno.domain.util.Mapper
+import javax.inject.Inject
 
-class SetFollowUseCase(private val followRepository: FollowRepository) {
+class SetFollowUseCase @Inject constructor(private val followRepository: FollowRepository) {
     fun execute(
         targetEmail : String,
         targetNickname: String,

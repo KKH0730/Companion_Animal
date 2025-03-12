@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
 import studio.seno.domain.util.LongTaskCallback
 import studio.seno.domain.util.Result
 import studio.seno.domain.model.Feed
@@ -12,8 +13,10 @@ import studio.seno.domain.usecase.feedUseCase.GetFeedUseCase
 import studio.seno.domain.usecase.notificationUseCase.DeleteNotificationUseCase
 import studio.seno.domain.usecase.notificationUseCase.GetNotificationUseCase
 import studio.seno.domain.usecase.notificationUseCase.SetCheckDotUseCase
+import javax.inject.Inject
 
-class NotificationListViewModel(
+@HiltViewModel
+class NotificationListViewModel @Inject constructor(
     private val getFeedUseCase: GetFeedUseCase,
     private val getNotificationUseCase: GetNotificationUseCase,
     private val deleteNotificationUseCase: DeleteNotificationUseCase,
@@ -53,7 +56,7 @@ class NotificationListViewModel(
                         list.remove(notificationData)
                         list.toList()
                     }
-                    notificationListLiveData.value = list
+                    notificationListLiveData.value = list ?: listOf()
 
                 } else if(result is Result.Error) {
                     Log.e("error", "deleteNotification error : ${result.exception}")

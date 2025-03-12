@@ -13,6 +13,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
@@ -20,12 +21,10 @@ import com.google.firebase.auth.FirebaseAuth
 import com.kroegerama.imgpicker.BottomSheetImagePicker
 import com.kroegerama.imgpicker.ButtonType
 import com.marcoscg.easylicensesdialog.EasyLicensesDialogCompat
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import org.jetbrains.anko.support.v4.startActivity
-import org.koin.androidx.viewmodel.ext.android.viewModel
+import dagger.hilt.android.AndroidEntryPoint
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.FragmentTimeLineBinding
+import studio.seno.companion_animal.extension.startActivity
 import studio.seno.companion_animal.module.CommonFunction
 import studio.seno.companion_animal.module.ProfileModule
 import studio.seno.companion_animal.ui.chat.ChatActivity
@@ -41,15 +40,16 @@ import studio.seno.domain.util.LongTaskCallback
 import studio.seno.domain.util.Result
 import studio.seno.domain.model.User
 
-
+@AndroidEntryPoint
 class TimeLineFragment : Fragment(), View.OnClickListener,
     BottomSheetImagePicker.OnImagesSelectedListener {
     private var binding: FragmentTimeLineBinding? = null
     private lateinit var localRepository: LocalRepository
     private lateinit var finishActivityInterface : FinishActivityInterface
-    private val mainViewModel: MainViewModel by viewModel()
-    private val userViewModel : UserViewModel by viewModel()
+    private val mainViewModel: MainViewModel by viewModels()
+    private val userViewModel : UserViewModel by viewModels()
     private var profileEmail : String? = null // Feed, follow, 댓글 등에서 프로필 클릭시 상대방의 프로필을 보여주기 위한 email
+    private var isBottomTap: Boolean = false
     private var targetNickname : String? = null // Feed, follow, 댓글 등에서 프로필 클릭시 상대방의 프로필을 보여주기 위한 nickname
     private var targetProfileUri : String? = null // Feed, follow, 댓글 등에서 프로필 클릭시 상대방의 프로필을 보여주기 위한 profileUri
     private val profileModule : ProfileModule by lazy {
@@ -68,14 +68,16 @@ class TimeLineFragment : Fragment(), View.OnClickListener,
         super.onCreate(savedInstanceState)
         arguments?.let {
             profileEmail = it.getString("profileEmail")
+            isBottomTap = it.getBoolean("isBottomTap")
         }
     }
 
     companion object {
         @JvmStatic
-        fun newInstance(profileEmail: String?) =
+        fun newInstance(profileEmail: String?, isBottomTap: Boolean) =
             TimeLineFragment().apply { arguments = Bundle().apply {
                 putString("profileEmail", profileEmail)
+                putBoolean("isBottomTap", isBottomTap)
             } }
     }
 
@@ -108,25 +110,8 @@ class TimeLineFragment : Fragment(), View.OnClickListener,
     private fun init() {
         localRepository = LocalRepository.getInstance(requireContext())!!
 
-        if(profileEmail != FirebaseAuth.getInstance().currentUser?.email) {
-            binding!!.infoModifyBtn.visibility = View.GONE
-            binding!!.bookmarkBtn.visibility = View.GONE
-            binding!!.header.findViewById<ImageButton>(R.id.add).visibility = View.GONE
-            binding!!.followBtn.visibility = View.VISIBLE
-            binding!!.messageBtn.visibility = View.VISIBLE
-            binding!!.followBtn.setOnClickListener(this)
-            binding!!.messageBtn.setOnClickListener(this)
-
-        } else {
-            binding!!.bookmarkBtn.setOnClickListener(this)
-            binding!!.timelineProfileImageView.setOnClickListener(this)
-            binding!!.header.findViewById<LinearLayout>(R.id.menu_set).visibility = View.VISIBLE
-            binding!!.header.findViewById<TextView>(R.id.title).text = getString(R.string.timeline_title)
-            binding!!.header.findViewById<ImageButton>(R.id.add).setOnClickListener(this)
-            binding!!.header.findViewById<ImageButton>(R.id.setting).setOnClickListener(this)
-            binding!!.infoModifyBtn.setOnClickListener(this)
-        }
-
+        binding!!.header.findViewById<ImageButton>(R.id.back_btn).setOnClickListener { requireActivity().finish() }
+        Log.d("test","profileEmail : $profileEmail, fire : ${FirebaseAuth.getInstance().currentUser?.email}")
         binding!!.header.findViewById<ImageButton>(R.id.back_btn).visibility = View.GONE
         binding!!.header.findViewById<ImageButton>(R.id.search).visibility = View.GONE
         binding!!.header.findViewById<ImageButton>(R.id.refresh).visibility = View.GONE
@@ -135,6 +120,30 @@ class TimeLineFragment : Fragment(), View.OnClickListener,
         binding!!.followerBtn.setOnClickListener(this)
         binding!!.followingBtn.setOnClickListener(this)
         binding!!.nickNameEdit.isEnabled = false
+
+        if(profileEmail != FirebaseAuth.getInstance().currentUser?.email) {
+            binding!!.infoModifyBtn.visibility = View.GONE
+            binding!!.bookmarkBtn.visibility = View.GONE
+            binding!!.header.findViewById<ImageButton>(R.id.add).visibility = View.GONE
+            binding!!.followBtn.visibility = View.VISIBLE
+            binding!!.messageBtn.visibility = View.VISIBLE
+            binding!!.followBtn.setOnClickListener(this)
+            binding!!.messageBtn.setOnClickListener(this)
+            binding!!.header.findViewById<ImageButton>(R.id.back_btn).visibility = View.VISIBLE
+
+        } else {
+            binding!!.bookmarkBtn.setOnClickListener(this)
+            binding!!.timelineProfileImageView.setOnClickListener(this)
+            binding!!.header.findViewById<LinearLayout>(R.id.menu_set).visibility = View.VISIBLE
+            if (isBottomTap) {
+                binding!!.header.findViewById<TextView>(R.id.title).text = getString(R.string.timeline_title)
+            } else {
+                binding!!.header.findViewById<ImageButton>(R.id.back_btn).visibility = View.VISIBLE
+            }
+            binding!!.header.findViewById<ImageButton>(R.id.add).setOnClickListener(this)
+            binding!!.header.findViewById<ImageButton>(R.id.setting).setOnClickListener(this)
+            binding!!.infoModifyBtn.setOnClickListener(this)
+        }
     }
 
     private fun userInfoSet() {
@@ -199,7 +208,7 @@ class TimeLineFragment : Fragment(), View.OnClickListener,
 
     override fun onClick(v: View?) {
         if (v?.id == R.id.add) {
-            startActivity<MakeFeedActivity>()
+            requireContext().startActivity(MakeFeedActivity::class.java)
         } else if (v?.id == R.id.info_modify_btn) {
             if (binding!!.infoModifyBtn.text == getString(R.string.info_complete)) {
                 binding!!.nickNameEdit.isEnabled = false
@@ -226,14 +235,18 @@ class TimeLineFragment : Fragment(), View.OnClickListener,
                 .show(childFragmentManager, null)
 
         } else if (v?.id == R.id.follower_btn) {
-            startActivity<FollowActivity>("category" to "follower")
+            requireContext().startActivity(FollowActivity::class.java) {
+                putExtra("category", "follower")
+            }
         } else if (v?.id == R.id.following_btn) {
-            startActivity<FollowActivity>("category" to "following")
+            requireContext().startActivity(FollowActivity::class.java) {
+                putExtra("category", "following")
+            }
         } else if(v?.id == R.id.bookmark_btn) {
-            startActivity<ShowFeedActivity>(
-                "feedSort" to "feed_bookmark",
-                "feedPosition" to 0
-            )
+            requireContext().startActivity(ShowFeedActivity::class.java) {
+                putExtra("feedSort", "feed_bookmark")
+                putExtra("feedPosition", 0)
+            }
 
         } else if(v?.id == R.id.follow_btn) {
             if(binding!!.followBtn.text == getString(R.string.follow_ing)) {
@@ -272,12 +285,12 @@ class TimeLineFragment : Fragment(), View.OnClickListener,
                 })
             }
         } else if(v?.id == R.id.message_btn) {
-            startActivity<ChatActivity>(
-                "targetEmail" to profileEmail,
-                "targetProfileUri" to targetProfileUri,
-                "targetNickname" to targetNickname,
-                "targetRealEmail" to profileEmail
-            )
+            requireContext().startActivity(ChatActivity::class.java) {
+                putExtra("targetEmail", profileEmail)
+                putExtra("targetProfileUri", targetProfileUri)
+                putExtra("targetNickname", targetNickname)
+                putExtra("targetRealEmail", profileEmail)
+            }
         } else if(v?.id == R.id.setting) {
             makeAlertDialog()
         }
@@ -298,7 +311,7 @@ class TimeLineFragment : Fragment(), View.OnClickListener,
                 }
                 1 -> {
                     FirebaseAuth.getInstance().signOut()
-                    startActivity<UserManageActivity>()
+                    requireContext().startActivity(UserManageActivity::class.java)
                     finishActivityInterface.finishCurrentActivity()
                 }
             }

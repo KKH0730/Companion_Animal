@@ -8,14 +8,17 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.google.firebase.auth.FirebaseAuth
+import dagger.hilt.android.lifecycle.HiltViewModel
 import studio.seno.domain.util.LongTaskCallback
 import studio.seno.domain.util.Result
 import studio.seno.domain.model.Feed
 import studio.seno.domain.usecase.feedUseCase.*
 import studio.seno.domain.usecase.followUseCase.CheckFollowUseCase
 import studio.seno.domain.usecase.followUseCase.SetFollowUseCase
+import javax.inject.Inject
 
-class FeedListViewModel(
+@HiltViewModel
+class FeedListViewModel @Inject constructor(
     private val setFeedUseCase: SetFeedUseCase,
     private val deleteFeedUseCase: DeleteFeedUseCase,
     private val updateHeartUseCase: UpdateHeartUseCase,

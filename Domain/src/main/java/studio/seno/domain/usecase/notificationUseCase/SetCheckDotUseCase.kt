@@ -2,8 +2,9 @@ package studio.seno.domain.usecase.notificationUseCase
 
 import studio.seno.domain.repository.NotificationRepository
 import studio.seno.domain.model.NotificationData
+import javax.inject.Inject
 
-class SetCheckDotUseCase(private val notificationRepository: NotificationRepository){
+class SetCheckDotUseCase @Inject constructor(private val notificationRepository: NotificationRepository){
     fun execute(notificationData : NotificationData) {
         notificationRepository.setCheckDot(notificationData)
     }

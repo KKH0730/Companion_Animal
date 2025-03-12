@@ -11,8 +11,9 @@ import kotlinx.coroutines.launch
 import studio.seno.domain.util.LongTaskCallback
 import studio.seno.domain.util.Result
 import studio.seno.domain.repository.UploadRepository
+import javax.inject.Inject
 
-class UploadRepositoryImpl : UploadRepository {
+class UploadRepositoryImpl @Inject constructor() : UploadRepository {
     private val storageRef: StorageReference = FirebaseStorage.getInstance()
         .getReferenceFromUrl("gs://companion-animal-f0bfa.appspot.com/")
     private val auth = FirebaseAuth.getInstance()

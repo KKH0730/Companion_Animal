@@ -10,8 +10,9 @@ import studio.seno.domain.repository.FollowRepository
 import studio.seno.domain.model.Follow
 import studio.seno.domain.util.LongTaskCallback
 import studio.seno.domain.util.Result
+import javax.inject.Inject
 
-class FollowRepositoryImpl : FollowRepository {
+class FollowRepositoryImpl @Inject constructor() : FollowRepository {
     private val auth = FirebaseAuth.getInstance()
     private val db = FirebaseFirestore.getInstance()
 

@@ -8,13 +8,14 @@ import android.util.Log
 import android.view.View
 import android.widget.ImageButton
 import android.widget.TextView
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
-import org.koin.androidx.viewmodel.ext.android.viewModel
+import dagger.hilt.android.AndroidEntryPoint
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.ActivityChattingBinding
 import studio.seno.companion_animal.module.CommonFunction
@@ -25,6 +26,7 @@ import studio.seno.domain.util.LongTaskCallback
 import studio.seno.domain.util.Result
 import java.sql.Timestamp
 
+@AndroidEntryPoint
 class ChatActivity : AppCompatActivity(), View.OnClickListener {
     private var binding : ActivityChattingBinding? = null
     private lateinit var targetEmail : String
@@ -32,7 +34,7 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener {
     private lateinit var targetProfileUri : String
     private lateinit var targetNickname : String
     private lateinit var notificationModule : NotificationModule
-    private val chatListViewModel : ChatListVIewModel by viewModel()
+    private val chatListViewModel : ChatListVIewModel by viewModels()
     private var chatAdapter : ChatAdapter? = ChatAdapter("chat")
     private val commonFunction = CommonFunction.getInstance()!!
     private var user : User? = null
@@ -52,10 +54,10 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener {
         binding!!.lifecycleOwner = this
         binding!!.chatRecyclerview.adapter = chatAdapter
 
-        targetEmail = intent.getStringExtra("targetEmail")
-        targetRealEmail = intent.getStringExtra("targetRealEmail")
-        targetProfileUri = intent.getStringExtra("targetProfileUri")
-        targetNickname = intent.getStringExtra("targetNickname")
+        targetEmail = intent.getStringExtra("targetEmail") ?: ""
+        targetRealEmail = intent.getStringExtra("targetRealEmail") ?: ""
+        targetProfileUri = intent.getStringExtra("targetProfileUri") ?: ""
+        targetNickname = intent.getStringExtra("targetNickname") ?: ""
         binding!!.content.addTextChangedListener(textWatcher)
         binding!!.sendBtn.setOnClickListener(this)
         binding!!.header.findViewById<ImageButton>(R.id.back_btn).setOnClickListener(this)

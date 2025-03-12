@@ -7,6 +7,7 @@ import android.view.View
 import android.widget.ImageButton
 import android.widget.TextView
 import androidx.databinding.DataBindingUtil
+import dagger.hilt.android.AndroidEntryPoint
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.ActivityShowFeedBinding
 import studio.seno.companion_animal.ui.gridLayout.FeedGridFragment
@@ -14,6 +15,7 @@ import studio.seno.companion_animal.ui.main_ui.HomeFragment
 import studio.seno.companion_animal.ui.main_ui.TimeLineFragment
 import studio.seno.domain.util.PreferenceManager
 
+@AndroidEntryPoint
 class ShowFeedActivity : AppCompatActivity(), View.OnClickListener, DialogInterface.OnDismissListener {
     private var binding : ActivityShowFeedBinding? = null
     private var homeFragment : HomeFragment? = null
@@ -60,7 +62,7 @@ class ShowFeedActivity : AppCompatActivity(), View.OnClickListener, DialogInterf
             feedGridFragment = FeedGridFragment.newInstance(null, "feed_bookmark", null)
             supportFragmentManager.beginTransaction().replace(R.id.container, feedGridFragment!!).commit()
         } else if(feedSort == "profile") {
-            timeLineFragment = TimeLineFragment.newInstance(profileEmail)
+            timeLineFragment = TimeLineFragment.newInstance(profileEmail, false)
             supportFragmentManager.beginTransaction().replace(R.id.container, timeLineFragment!!).commit()
         }
     }

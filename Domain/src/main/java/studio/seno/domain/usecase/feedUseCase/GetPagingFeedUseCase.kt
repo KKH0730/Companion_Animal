@@ -5,8 +5,9 @@ import androidx.recyclerview.widget.RecyclerView
 import studio.seno.domain.repository.FeedRepository
 import studio.seno.domain.util.LongTaskCallback
 import studio.seno.domain.model.Feed
+import javax.inject.Inject
 
-class GetPagingFeedUseCase (private val repository: FeedRepository) {
+class GetPagingFeedUseCase @Inject constructor(private val repository: FeedRepository) {
     fun execute(
         f1 : Boolean?,
         f2 : Boolean?,

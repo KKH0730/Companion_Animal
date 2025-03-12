@@ -10,10 +10,8 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.firebase.auth.FirebaseAuth
-import org.jetbrains.anko.support.v4.startActivity
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.FragmentMenuDialogBinding
-import studio.seno.companion_animal.ui.feed.MakeFeedActivity
 import studio.seno.domain.util.PreferenceManager
 
 

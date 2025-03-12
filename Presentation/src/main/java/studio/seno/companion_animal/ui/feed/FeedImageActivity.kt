@@ -10,16 +10,21 @@ import studio.seno.domain.model.Feed
 
 class FeedImageActivity : AppCompatActivity() {
     private var binding : ActivityFeedImageBinding? = null
-    private lateinit var feed : Feed
+    private var feed : Feed? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_feed_image)
 
-        feed = intent.getParcelableExtra("feed")
+        feed = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            intent.getParcelableExtra("feed", Feed::class.java)
+        } else {
+            @Suppress("DEPRECATION")
+            intent.getParcelableExtra("feed")
+        }
 
-        var pagerAdapter = PagerAdapter(supportFragmentManager, lifecycle)
-        for (element in feed.getRemoteUri()) {
+        val pagerAdapter = PagerAdapter(supportFragmentManager, lifecycle)
+        for (element in feed?.getRemoteUri() ?: listOf()) {
             pagerAdapter.addItem(FeedPagerFragment.newInstance(element, "FeedImageActivity"))
             binding!!.viewpager.adapter = pagerAdapter
             binding!!.indicator.setViewPager(binding!!.viewpager)

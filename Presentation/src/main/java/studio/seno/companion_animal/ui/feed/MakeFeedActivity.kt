@@ -6,18 +6,19 @@ import android.view.View
 import android.widget.ImageButton
 import android.widget.RadioGroup
 import android.widget.TextView
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
 import androidx.recyclerview.widget.ItemTouchHelper
 import com.kroegerama.imgpicker.BottomSheetImagePicker
-import com.pchmn.materialchips.ChipView
-import org.koin.androidx.viewmodel.ext.android.viewModel
+import dagger.hilt.android.AndroidEntryPoint
 import studio.seno.companion_animal.base.CustomToast
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.ActivityMakeFeedBinding
 import studio.seno.companion_animal.module.CommonFunction
+import studio.seno.companion_animal.ui.ChipView
 import studio.seno.datamodule.repository.local.LocalRepository
 import studio.seno.domain.util.LongTaskCallback
 import studio.seno.domain.util.Result
@@ -25,11 +26,12 @@ import studio.seno.domain.model.Feed
 import studio.seno.domain.model.User
 import java.sql.Timestamp
 
+@AndroidEntryPoint
 class MakeFeedActivity : AppCompatActivity(), View.OnClickListener,
     BottomSheetImagePicker.OnImagesSelectedListener, RadioGroup.OnCheckedChangeListener {
     private var binding: ActivityMakeFeedBinding? = null
     private var selectedImageAdapter: SelectedImageAdapter? = null
-    private val feedListViewModel: FeedListViewModel by viewModel()
+    private val feedListViewModel: FeedListViewModel by viewModels()
     private val localRepository = LocalRepository(this)
     private var feed : Feed? = null
     private var mode = "write"
@@ -66,9 +68,13 @@ class MakeFeedActivity : AppCompatActivity(), View.OnClickListener,
         binding!!.hashTagBtn.setOnClickListener(this)
         binding!!.submitBtn.setOnClickListener(this)
 
-        feed = intent.getParcelableExtra<Feed>("feed")
+        feed = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            intent.getParcelableExtra("feed", Feed::class.java)
+        } else {
+            intent.getParcelableExtra<Feed>("feed")
+        }
         if(feed != null)
-            mode = intent.getStringExtra("mode")
+            mode = intent.getStringExtra("mode") ?: ""
     }
 
     fun setImageRecycler() {
@@ -231,18 +237,18 @@ class MakeFeedActivity : AppCompatActivity(), View.OnClickListener,
             sb.append(str)
         }
 
-        chipView.label = sb.toString()
-        chipView.setDeletable(true)
+        chipView.setLabel(sb.toString())
+//        chipView.setDeletable(true)
         chipView.setPadding(30, 0, 0, 0)
         chipView.setChipBackgroundColor(getColor(R.color.main_color))
         chipView.setLabelColor(getColor(R.color.white))
         binding!!.hashTagContainer.addView(chipView)
-        hashTags.add(chipView.label)
-
-        chipView.setOnDeleteClicked {
-            binding!!.hashTagContainer.removeView(chipView)
-            hashTags.remove(chipView.label)
-        }
+//        hashTags.add(chipView.label)
+//
+//        chipView.setOnDeleteClicked {
+//            binding!!.hashTagContainer.removeView(chipView)
+//            hashTags.remove(chipView.label)
+//        }
     }
 
     override fun onCheckedChanged(group: RadioGroup?, checkedId: Int) {

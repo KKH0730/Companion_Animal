@@ -1,8 +1,9 @@
 package studio.seno.domain.usecase.chatUseCase
 
 import studio.seno.domain.repository.ChatRepository
+import javax.inject.Inject
 
-class SetChatCheckDotUseCase (private val chatRepository: ChatRepository) {
+class SetChatCheckDotUseCase @Inject constructor(private val chatRepository: ChatRepository) {
     fun execute(
         myEmail: String,
         targetEmail: String

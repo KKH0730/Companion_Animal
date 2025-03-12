@@ -11,13 +11,14 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
 import com.google.firebase.auth.FirebaseAuth
-import org.jetbrains.anko.support.v4.startActivity
-import org.koin.androidx.viewmodel.ext.android.viewModel
+import dagger.hilt.android.AndroidEntryPoint
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.FragmentChatBinding
+import studio.seno.companion_animal.extension.startActivity
 import studio.seno.companion_animal.module.CommonFunction
 import studio.seno.companion_animal.ui.chat.ChatActivity
 import studio.seno.companion_animal.ui.chat.ChatAdapter
@@ -29,10 +30,10 @@ import studio.seno.domain.model.User
 import studio.seno.domain.util.LongTaskCallback
 import studio.seno.domain.util.Result
 
-
+@AndroidEntryPoint
 class ChatFragment : Fragment() {
     private var  binding : FragmentChatBinding? = null
-    private val chatListViewModel : ChatListVIewModel by viewModel()
+    private val chatListViewModel : ChatListVIewModel by viewModels()
     private var chatAdapter : ChatAdapter? = null
     private var user : User? = null
 
@@ -96,21 +97,21 @@ class ChatFragment : Fragment() {
                 checkDotImage.visibility = View.GONE
 
                 if(chat.email == CommonFunction.getInstance()!!.makeChatPath(FirebaseAuth.getInstance().currentUser?.email.toString())) {
-                    startActivity<ChatActivity>(
-                        "targetEmail" to chat.targetEmail,
-                        "targetProfileUri" to chat.targetProfileUri,
-                        "targetNickname" to chat.targetNickname,
-                        "targetRealEmail" to chat.targetRealEmail
-                    )
+                    requireContext().startActivity(ChatActivity::class.java) {
+                        putExtra("targetEmail", chat.targetEmail)
+                        putExtra("targetProfileUri", chat.targetProfileUri)
+                        putExtra("targetNickname", chat.targetNickname)
+                        putExtra("targetRealEmail", chat.targetRealEmail)
+                    }
 
                     chatListViewModel.requestUpdateCheckDot(chat.email!!, chat.targetEmail!!)
                 } else {
-                    startActivity<ChatActivity>(
-                        "targetEmail" to chat.email,
-                        "targetProfileUri" to chat.profileUri,
-                        "targetNickname" to chat.nickname,
-                        "targetRealEmail" to chat.realEmail
-                    )
+                    requireContext().startActivity(ChatActivity::class.java) {
+                        putExtra("targetEmail", chat.email)
+                        putExtra("targetProfileUri", chat.profileUri)
+                        putExtra("targetNickname", chat.nickname)
+                        putExtra("targetRealEmail", chat.realEmail)
+                    }
 
                    chatListViewModel.requestUpdateCheckDot(chat.targetEmail!!, chat.email!!)
                 }
@@ -157,6 +158,7 @@ class ChatFragment : Fragment() {
 
     private fun observe(){
         chatListViewModel.getChatListLiveData().observe(this, {
+            binding?.tvEmpty?.visibility = if (it.isEmpty()) View.VISIBLE else View.GONE
             chatAdapter!!.submitList(it)
         })
     }

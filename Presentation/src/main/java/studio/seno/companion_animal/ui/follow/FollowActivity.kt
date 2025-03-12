@@ -6,17 +6,16 @@ import android.view.View
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import org.jetbrains.anko.startActivity
-import org.koin.androidx.viewmodel.ext.android.viewModel
+import dagger.hilt.android.AndroidEntryPoint
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.FragmentNotificationBinding
+import studio.seno.companion_animal.extension.startActivity
 import studio.seno.companion_animal.ui.feed.ShowFeedActivity
 import studio.seno.datamodule.repository.local.LocalRepository
 import studio.seno.domain.model.Follow
@@ -24,10 +23,11 @@ import studio.seno.domain.model.User
 import studio.seno.domain.util.LongTaskCallback
 import studio.seno.domain.util.Result
 
+@AndroidEntryPoint
 class FollowActivity : AppCompatActivity(), View.OnClickListener {
     private var binding: FragmentNotificationBinding? = null
     private var category : String? = null
-    private val followListViewModel: FollowListViewModel by viewModel()
+    private val followListViewModel: FollowListViewModel by viewModels()
     private var followAdapter: FollowAdapter? = null
 
 
@@ -66,10 +66,10 @@ class FollowActivity : AppCompatActivity(), View.OnClickListener {
     private fun followItemEvent() {
         followAdapter!!.setOnFollowClickListener(object : OnFollowClickListener {
             override fun onProfileClicked(layout: ConstraintLayout, follow: Follow) {
-                startActivity<ShowFeedActivity>(
-                    "profileEmail" to follow.email,
-                    "feedSort" to "profile"
-                )
+                startActivity(ShowFeedActivity::class.java) {
+                    putExtra("profileEmail", follow.email)
+                    putExtra("feedSort", "profile")
+                }
             }
 
             override fun onButtonClicked(button: Button, category: String, follow: Follow) {

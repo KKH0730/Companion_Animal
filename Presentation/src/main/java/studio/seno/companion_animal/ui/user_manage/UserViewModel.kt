@@ -4,13 +4,16 @@ import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
 import studio.seno.domain.usecase.uploadUseCase.GetProfileImageUseCase
 import studio.seno.domain.usecase.uploadUseCase.SetProfileImageUseCase
 import studio.seno.domain.usecase.userMangerUseCase.*
 import studio.seno.domain.util.LongTaskCallback
 import studio.seno.domain.util.Result
+import javax.inject.Inject
 
-class UserViewModel(
+@HiltViewModel
+class UserViewModel @Inject constructor(
     private val checkEnableLoginUseCase: CheckEnableLoginUseCase,
     private val findPasswordUseCase: FindPasswordUseCase,
     private val registerUserUseCase: RegisterUserUseCase,

@@ -1,25 +1,28 @@
 package studio.seno.companion_animal.ui.main_ui
 
-import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseAuth
-import studio.seno.domain.util.LongTaskCallback
-import studio.seno.domain.model.Feed
+import dagger.hilt.android.lifecycle.HiltViewModel
 import studio.seno.domain.model.User
 import studio.seno.domain.usecase.feedUseCase.GetFeedUseCase
 import studio.seno.domain.usecase.followUseCase.CheckFollowUseCase
 import studio.seno.domain.usecase.followUseCase.SetFollowUseCase
-import studio.seno.domain.usecase.userMangerUseCase.*
+import studio.seno.domain.usecase.userMangerUseCase.GetUserInfoUseCase
+import studio.seno.domain.usecase.userMangerUseCase.SetNicknameUseCase
+import studio.seno.domain.usecase.userMangerUseCase.SetTokenUseCase
+import studio.seno.domain.util.LongTaskCallback
+import javax.inject.Inject
 
-class MainViewModel(
+@HiltViewModel
+class MainViewModel @Inject constructor(
     private val getFeedUseCase: GetFeedUseCase,
     private val GetUserInfoUseCase: GetUserInfoUseCase,
     private val setNicknameUseCase: SetNicknameUseCase,
     private val setTokenUseCase: SetTokenUseCase,
     private val checkFollowUseCase: CheckFollowUseCase,
     private val setFollowUseCase: SetFollowUseCase
-    ) : ViewModel() {
+) : ViewModel() {
     private val userLiveData : MutableLiveData<User> = MutableLiveData()
 
     fun getUserLiveData() : MutableLiveData<User>{

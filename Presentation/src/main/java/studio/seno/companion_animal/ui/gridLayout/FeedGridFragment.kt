@@ -6,13 +6,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.lifecycleScope
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
 import com.google.firebase.auth.FirebaseAuth
-import org.jetbrains.anko.support.v4.startActivity
-import org.koin.androidx.viewmodel.ext.android.viewModel
+import dagger.hilt.android.AndroidEntryPoint
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.FragmentFeedGridBinding
+import studio.seno.companion_animal.extension.startActivity
 import studio.seno.companion_animal.ui.feed.FeedDetailActivity
 import studio.seno.companion_animal.ui.feed.FeedListViewModel
 import studio.seno.companion_animal.ui.feed.ShowFeedActivity
@@ -21,8 +21,9 @@ import studio.seno.domain.util.LongTaskCallback
 import studio.seno.domain.util.Result
 import studio.seno.domain.model.Feed
 
+@AndroidEntryPoint
 class FeedGridFragment : Fragment() {
-    private val feedListViewModel: FeedListViewModel by viewModel()
+    private val feedListViewModel: FeedListViewModel by viewModels()
     private var binding : FragmentFeedGridBinding? = null
     private var gridImageAdapter : GridImageAdapter? = null
     private var keyword : String? = null
@@ -136,14 +137,16 @@ class FeedGridFragment : Fragment() {
         gridImageAdapter!!.setOnItemClickListener(object : OnSearchItemClickListener {
             override fun onSearchItemClicked(feed: Feed, position : Int) {
                 if(feedSort == "feed_timeline")
-                    startActivity<ShowFeedActivity>(
-                        "feedSort" to "feed_timeline",
-                        "feedPosition" to position,
-                        "timeLineEmail" to timeLineEmail
-                    )
+                    requireContext().startActivity(ShowFeedActivity::class.java) {
+                        putExtra("feedSort" , "feed_timeline")
+                        putExtra("feedPosition" , position)
+                        putExtra("timeLineEmail" , timeLineEmail)
+                    }
 
                 else if(feedSort == "feed_bookmark" || feedSort == "feed_search")
-                    startActivity<FeedDetailActivity>("feed" to feed)
+                    requireContext().startActivity(FeedDetailActivity::class.java) {
+                        putExtra("feed", feed)
+                    }
             }
         })
     }

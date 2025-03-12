@@ -1,28 +1,17 @@
 package studio.seno.companion_animal.ui.chat
 
-import android.net.Uri
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.ChildEventListener
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.FirebaseDatabase
-import org.jetbrains.anko.sdk27.coroutines.onClick
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.ChatItemBinding
 import studio.seno.companion_animal.databinding.ChatListItemBinding
 import studio.seno.companion_animal.module.CommonFunction
-import studio.seno.companion_animal.util.Constants
 import studio.seno.domain.model.Chat
 
 class ChatAdapter(type: String) : ListAdapter<Chat, RecyclerView.ViewHolder>(

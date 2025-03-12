@@ -1,9 +1,11 @@
 package studio.seno.companion_animal
 
+import android.content.Context
 import android.graphics.Point
 import android.net.Uri
 import android.text.SpannableStringBuilder
 import android.util.Log
+import android.view.WindowManager
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.LinearLayout
@@ -19,12 +21,11 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.google.firebase.auth.FirebaseAuth
 import com.makeramen.roundedimageview.RoundedImageView
-import com.pchmn.materialchips.ChipView
 import de.hdodenhof.circleimageview.CircleImageView
 import me.relex.circleindicator.CircleIndicator3
-import org.jetbrains.anko.windowManager
 import studio.seno.companion_animal.module.CommonFunction
 import studio.seno.companion_animal.module.TextModule
+import studio.seno.companion_animal.ui.ChipView
 import studio.seno.companion_animal.ui.feed.FeedPagerFragment
 import studio.seno.companion_animal.ui.main_ui.PagerAdapter
 import studio.seno.datamodule.repository.remote.FollowRepositoryImpl
@@ -92,14 +93,14 @@ object BindingAdapter {
     @JvmStatic
     fun setHeartButton(imageButton: ImageButton, map: Map<String, String>) {
         imageButton.isSelected =
-            map[FirebaseAuth.getInstance().currentUser.email.toString()] != null
+            map[FirebaseAuth.getInstance().currentUser?.email.toString()] != null
     }
 
     @BindingAdapter("setBookmarkButton")
     @JvmStatic
     fun setBookmarkButton(imageButton: ImageButton, map: Map<String, String>) {
         imageButton.isSelected =
-            map[FirebaseAuth.getInstance().currentUser.email.toString()] != null
+            map[FirebaseAuth.getInstance().currentUser?.email.toString()] != null
     }
 
 
@@ -116,7 +117,7 @@ object BindingAdapter {
                     chipView.setChipBackgroundColor(linearLayout.context.getColor(R.color.main_color))
                     chipView.setLabelColor(linearLayout.context.getColor(R.color.white))
                     chipView.setPadding(20, 0, 0, 0)
-                    chipView.label = element
+                    chipView.setLabel(element)
                     linearLayout.addView(chipView)
                 }
             }
@@ -219,7 +220,8 @@ object BindingAdapter {
     @JvmStatic
     fun setGridImage(imageView: RoundedImageView, uri: List<String>) {
         try {
-            var display = imageView.context.windowManager.defaultDisplay
+            val windowManager = imageView.context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+            val display = windowManager.defaultDisplay
             val size = Point()
             display.getRealSize(size)
             val width = size.x

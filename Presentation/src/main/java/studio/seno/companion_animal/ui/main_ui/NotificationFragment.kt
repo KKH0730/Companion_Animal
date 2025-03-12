@@ -2,7 +2,6 @@ package studio.seno.companion_animal.ui.main_ui
 
 import android.os.Bundle
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,26 +9,27 @@ import android.widget.ImageButton
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.lifecycleScope
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
-import org.jetbrains.anko.support.v4.startActivity
-import org.koin.android.ext.android.bind
-import org.koin.androidx.viewmodel.ext.android.viewModel
-import studio.seno.companion_animal.ui.ReportActivity
+import dagger.hilt.android.AndroidEntryPoint
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.FragmentNotificationBinding
+import studio.seno.companion_animal.extension.startActivity
+import studio.seno.companion_animal.ui.ReportActivity
 import studio.seno.companion_animal.ui.feed.FeedDetailActivity
 import studio.seno.companion_animal.ui.notification.NotificationAdapter
 import studio.seno.companion_animal.ui.notification.NotificationListViewModel
 import studio.seno.companion_animal.ui.notification.OnNotificationClickedListener
-import studio.seno.domain.util.LongTaskCallback
-import studio.seno.domain.util.Result
 import studio.seno.domain.model.Feed
 import studio.seno.domain.model.NotificationData
+import studio.seno.domain.util.LongTaskCallback
+import studio.seno.domain.util.Result
 
+@AndroidEntryPoint
 class NotificationFragment : Fragment() {
     private var binding : FragmentNotificationBinding? = null
-    private val notificationListViewModel : NotificationListViewModel by viewModel()
+    private val notificationListViewModel : NotificationListViewModel by viewModels()
     private var notificationAdapter: NotificationAdapter? =  null
 
     companion object {
@@ -80,9 +80,11 @@ class NotificationFragment : Fragment() {
                     override fun onResponse(result: Result<Any>) {
                         if(result is Result.Success){
                             if(result.data != null)
-                                startActivity<FeedDetailActivity>("feed" to result.data as Feed)
+                                requireContext().startActivity(FeedDetailActivity::class.java) {
+                                    putExtra("feed", result.data as Feed)
+                                }
                             else
-                                startActivity<ReportActivity>()
+                                requireContext().startActivity(ReportActivity::class.java)
 
                             notificationLayout.setBackgroundColor(requireActivity().applicationContext.getColor(R.color.white))
                         } else if(result is Result.Error) {
@@ -100,6 +102,7 @@ class NotificationFragment : Fragment() {
 
     private fun observe(){
         notificationListViewModel.getNotificationListLiveData().observe(viewLifecycleOwner, {
+            binding?.tvEmpty?.visibility = if (it.isEmpty()) View.VISIBLE else View.GONE
             notificationAdapter!!.submitList(it)
         })
     }

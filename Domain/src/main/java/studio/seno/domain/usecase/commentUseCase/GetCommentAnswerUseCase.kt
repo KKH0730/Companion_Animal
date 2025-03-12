@@ -2,8 +2,9 @@ package studio.seno.domain.usecase.commentUseCase
 
 import studio.seno.domain.repository.CommentRepository
 import studio.seno.domain.util.Mapper
+import javax.inject.Inject
 
-class GetCommentAnswerUseCase (private val commentRepository: CommentRepository){
+class GetCommentAnswerUseCase @Inject constructor(private val commentRepository: CommentRepository){
     fun execute(
         feedEmail: String,
         feedTimeStamp: Long,

@@ -12,25 +12,25 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
-import com.google.firebase.iid.FirebaseInstanceId
-import com.royrodriguez.transitionbutton.TransitionButton
-import org.jetbrains.anko.support.v4.startActivity
-import org.koin.androidx.viewmodel.ext.android.viewModel
+import com.google.firebase.messaging.FirebaseMessaging
+import dagger.hilt.android.AndroidEntryPoint
 import studio.seno.companion_animal.base.CustomToast
 import studio.seno.companion_animal.MainActivity
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.FragmentRegisterBinding
+import studio.seno.companion_animal.extension.startActivity
 import studio.seno.companion_animal.module.CommonFunction
 import studio.seno.companion_animal.module.TextModule
 import studio.seno.companion_animal.util.FinishActivityInterface
 import studio.seno.domain.util.LongTaskCallback
 import studio.seno.domain.util.Result
 
-
+@AndroidEntryPoint
 class RegisterFragment : Fragment(), View.OnClickListener {
     private var binding: FragmentRegisterBinding? = null
-    private val viewModel : UserViewModel by viewModel()
+    private val viewModel : UserViewModel by viewModels()
     private var key = false
 
 
@@ -79,7 +79,6 @@ class RegisterFragment : Fragment(), View.OnClickListener {
             findNavController().navigate(R.id.action_registerFragment_to_loginFragment)
 
         else if (v?.id == R.id.register_Btn) {
-            binding!!.registerBtn.startAnimation()
             CommonFunction.closeKeyboard(requireContext(), binding!!.emailInput)
 
             val email: String = binding!!.emailInput.text.toString().trim()
@@ -88,9 +87,7 @@ class RegisterFragment : Fragment(), View.OnClickListener {
 
 
 
-            if (email.isEmpty() || nickName.isEmpty() || password.isEmpty()) {
-                binding!!.registerBtn.stopAnimation(TransitionButton.StopAnimationStyle.SHAKE, null)
-            } else {
+            if (email.isNotEmpty() && nickName.isNotEmpty() && password.isNotEmpty()) {
                 viewModel.registerUser(email, password, object : LongTaskCallback<Any> {
                     override fun onResponse(result: Result<Any>) {
                         if (result is Result.Success) {
@@ -115,7 +112,7 @@ class RegisterFragment : Fragment(), View.OnClickListener {
                                                     if (result is Result.Success) {
                                                         val uri = result.data as String
 
-                                                        FirebaseInstanceId.getInstance().instanceId.addOnSuccessListener { it ->
+                                                        FirebaseMessaging.getInstance().token.addOnSuccessListener {
                                                             viewModel.requestUploadUserInfo(
                                                                 0L,
                                                                 email,
@@ -123,16 +120,12 @@ class RegisterFragment : Fragment(), View.OnClickListener {
                                                                 0L,
                                                                 0L,
                                                                 0L,
-                                                                it.token,
+                                                                it,
                                                                 uri
                                                             )
 
-                                                            binding!!.registerBtn.stopAnimation(
-                                                                TransitionButton.StopAnimationStyle.EXPAND
-                                                            ) {
-                                                                startActivity<MainActivity>()
-                                                                finishActivityInterface.finishCurrentActivity()
-                                                            }
+                                                            requireContext().startActivity(MainActivity::class.java)
+                                                            finishActivityInterface.finishCurrentActivity()
                                                         }
                                                     }
                                                 }
@@ -156,11 +149,6 @@ class RegisterFragment : Fragment(), View.OnClickListener {
                                                     getString(R.string.register_error)
                                                 ).show()
                                         }
-
-                                        binding!!.registerBtn.stopAnimation(
-                                            TransitionButton.StopAnimationStyle.SHAKE,
-                                            null
-                                        )
                                     }
                                 })
                             }

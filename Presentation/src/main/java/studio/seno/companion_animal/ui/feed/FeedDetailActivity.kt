@@ -11,20 +11,20 @@ import android.view.View
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
-import org.jetbrains.anko.intentFor
-import org.jetbrains.anko.startActivity
-import org.koin.androidx.viewmodel.ext.android.viewModel
+import dagger.hilt.android.AndroidEntryPoint
 import studio.seno.companion_animal.base.CustomToast
 import studio.seno.companion_animal.MainActivity
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.ui.ReportActivity
 import studio.seno.companion_animal.databinding.ActivityFeedDetailBinding
+import studio.seno.companion_animal.extension.startActivity
 import studio.seno.companion_animal.module.CommentModule
 import studio.seno.companion_animal.module.CommonFunction
 import studio.seno.companion_animal.module.FeedModule
@@ -43,14 +43,15 @@ import studio.seno.domain.util.PreferenceManager
 import studio.seno.domain.util.Result
 import java.sql.Timestamp
 
+@AndroidEntryPoint
 class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
     DialogInterface.OnDismissListener {
     private var feed: Feed? = null
     private var binding: ActivityFeedDetailBinding? = null
     private lateinit var feedViewModel: FeedViewModel
-    private val feedListViewModel: FeedListViewModel by viewModel()
-    private val commentViewModel: CommentListViewModel by viewModel()
-    private val commentListViewModel: CommentListViewModel by viewModel()
+    private val feedListViewModel: FeedListViewModel by viewModels()
+    private val commentViewModel: CommentListViewModel by viewModels()
+    private val commentListViewModel: CommentListViewModel by viewModels()
     private val feedModule: FeedModule by lazy { FeedModule(feedListViewModel, commentViewModel) }
     private lateinit var notificationModule : NotificationModule
     private var curComment: Comment? = null
@@ -92,7 +93,7 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
 
     fun init() {
         feedViewModel = ViewModelProvider(this, object : ViewModelProvider.Factory {
-            override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
                 return FeedViewModel(
                     lifecycle,
                     supportFragmentManager,
@@ -220,7 +221,9 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
         } else if (v?.id == R.id.feed_menu2) {
             feedModule.menuButtonEvent(feed!!, supportFragmentManager)
         } else if(v?.id == R.id.image_btn){
-            startActivity<FeedImageActivity>("feed" to feed)
+            startActivity(FeedImageActivity::class.java) {
+                putExtra("feed", feed)
+            }
         }  else if (v?.id == R.id.comment_btn) {
             val timestamp = Timestamp(System.currentTimeMillis()).time
 
@@ -288,10 +291,10 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
                 }
             }
         } else if(v?.id == R.id.profile_btn) {
-            startActivity<ShowFeedActivity>(
-                "profileEmail" to feed?.getEmail(),
-                "feedSort" to "profile"
-            )
+            startActivity(ShowFeedActivity::class.java) {
+                putExtra("profileEmail", feed?.getEmail())
+                putExtra("feedSort", "profile")
+            }
         } else if(v?.id == R.id.share_btn){
             feed?.let { feedModule.sendShareLink(it, this, lifecycleScope) }
         }
@@ -337,20 +340,19 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
             )
 
         } else if(PreferenceManager.getString(applicationContext, "mode") == "feed_modify"){
-            startActivityForResult(
-                intentFor<MakeFeedActivity>(
-                    "feed" to feed,
-                    "mode" to "modify"
-                ), Constants.FEED_MODIFY_REQUEST
-            )
-        } else if(PreferenceManager.getString(applicationContext, "mode") == "feed_delete"){
-            startActivityForResult(
-                intentFor<MakeFeedActivity>(
-                    "feed" to feed,
-                    "mode" to "delete"
-                ), Constants.FEED_DELETE_REQUEST
-            )
+            val intent = Intent(this, MakeFeedActivity::class.java).apply {
+                putExtra("feed", feed)
+                putExtra("mode", "modify")
+            }
 
+            startActivityForResult(intent, Constants.FEED_MODIFY_REQUEST)
+        } else if(PreferenceManager.getString(applicationContext, "mode") == "feed_delete"){
+            val intent = Intent(this, MakeFeedActivity::class.java).apply {
+                putExtra("feed", feed)
+                putExtra("mode", "delete")
+            }
+
+            startActivityForResult(intent, Constants.FEED_DELETE_REQUEST)
             finish()
         } else if(PreferenceManager.getString(applicationContext, "mode") == "follow") {
             feedModule.onDismiss(
@@ -368,7 +370,9 @@ class FeedDetailActivity : AppCompatActivity(), View.OnClickListener,
             )
             CustomToast(applicationContext, getString(R.string.unfollow_toast)).show()
         } else if(PreferenceManager.getString(applicationContext, "mode") == "report") {
-            startActivity<ReportActivity>("feed" to feed)
+            startActivity(ReportActivity::class.java) {
+                putExtra("feed", feed)
+            }
         }
     }
 

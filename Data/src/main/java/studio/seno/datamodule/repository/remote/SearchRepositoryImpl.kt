@@ -11,8 +11,9 @@ import studio.seno.domain.repository.SearchRepository
 import studio.seno.domain.model.LastSearch
 import studio.seno.domain.util.LongTaskCallback
 import studio.seno.domain.util.Result
+import javax.inject.Inject
 
-class SearchRepositoryImpl : SearchRepository {
+class SearchRepositoryImpl @Inject constructor() : SearchRepository {
     private val auth = FirebaseAuth.getInstance()
     private val db = FirebaseFirestore.getInstance()
 

@@ -14,8 +14,6 @@ class ProfileModule(
     private val email : String?,
     private val mainViewModel: MainViewModel
 ) {
-
-
     fun userInfoSet(user : User, nickNameEdit: EditText, feedCount : TextView, followerBtn : TextView, followingBtn : TextView, profileImageView : CircleImageView){
         if(email != null) {
             nickNameEdit.setText(user.nickname)

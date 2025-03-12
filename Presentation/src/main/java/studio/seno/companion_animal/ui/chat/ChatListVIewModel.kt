@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.auth.FirebaseAuth
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import studio.seno.companion_animal.R
@@ -13,8 +14,10 @@ import studio.seno.domain.model.Chat
 import studio.seno.domain.usecase.chatUseCase.*
 import studio.seno.domain.util.LongTaskCallback
 import studio.seno.domain.util.Result
+import javax.inject.Inject
 
-class ChatListVIewModel(
+@HiltViewModel
+class ChatListVIewModel @Inject constructor(
     private val addChatUseCase: AddChatUseCase,
     private val setAddedChatListenerUseCase: SetAddedChatListenerUseCase,
     private val setChatListListenerUseCase: SetChatListListenerUseCase,
@@ -34,7 +37,7 @@ class ChatListVIewModel(
     }
 
     fun clearChatList(){
-        chatListLiveData.value = null
+        chatListLiveData.value = listOf()
     }
 
     fun requestAddChat(

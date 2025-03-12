@@ -12,18 +12,17 @@ import android.widget.*
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.FirebaseFirestore
-import com.kakao.message.template.*
-import org.jetbrains.anko.support.v4.intentFor
-import org.jetbrains.anko.support.v4.startActivity
-import org.koin.androidx.viewmodel.ext.android.viewModel
+import dagger.hilt.android.AndroidEntryPoint
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.base.CustomToast
 import studio.seno.companion_animal.databinding.FragmentHomeBinding
+import studio.seno.companion_animal.extension.startActivity
 import studio.seno.companion_animal.module.FeedModule
 import studio.seno.companion_animal.ui.ReportActivity
 import studio.seno.companion_animal.ui.comment.CommentActivity
@@ -37,10 +36,11 @@ import studio.seno.domain.model.User
 import studio.seno.domain.util.LongTaskCallback
 import studio.seno.domain.util.Result
 
+@AndroidEntryPoint
 class HomeFragment : Fragment(), View.OnClickListener {
     private var binding: FragmentHomeBinding? = null
-    private val feedListViewModel: FeedListViewModel by viewModel()
-    private val commentViewModel: CommentListViewModel by viewModel()
+    private val feedListViewModel: FeedListViewModel by viewModels()
+    private val commentViewModel: CommentListViewModel by viewModels()
     private var filter1 = true
     private var filter2 = true
     private var filter3 = true
@@ -175,11 +175,15 @@ class HomeFragment : Fragment(), View.OnClickListener {
         //댓글작성 버튼클릭
         feedAdapter?.setOnItemClickListener(object : OnItemClickListener {
             override fun onDetailClicked(feed: Feed, position: Int) {
-                startActivity<FeedDetailActivity>("feed" to feed)
+                requireContext().startActivity(FeedDetailActivity::class.java) {
+                    putExtra("feed", feed)
+                }
             }
 
             override fun onImageBtnClicked(feed: Feed) {
-                startActivity<FeedImageActivity>("feed" to feed)
+                requireContext().startActivity(FeedImageActivity::class.java) {
+                    putExtra("feed", feed)
+                }
             }
 
             override fun onCommentBtnClicked(
@@ -213,12 +217,10 @@ class HomeFragment : Fragment(), View.OnClickListener {
                 feed: Feed,
                 position: Int
             ) {
-                startActivity<CommentActivity>(
-                    "commentCount" to Integer.valueOf(
-                        commentCountTextView.text.toString()
-                    ),
-                    "feed" to feed,
-                )
+                requireContext().startActivity(CommentActivity::class.java) {
+                    putExtra("commentCount", Integer.valueOf(commentCountTextView.text.toString()))
+                    putExtra("feed", feed)
+                }
             }
 
             override fun onMenuClicked(feed: Feed, position: Int) {
@@ -239,10 +241,10 @@ class HomeFragment : Fragment(), View.OnClickListener {
             }
 
             override fun onProfileLayoutClicked(feed: Feed) {
-                startActivity<ShowFeedActivity>(
-                    "profileEmail" to feed.getEmail(),
-                    "feedSort" to "profile"
-                )
+                requireContext().startActivity(ShowFeedActivity::class.java) {
+                    putExtra("profileEmail", feed.getEmail())
+                    putExtra("feedSort", "profile")
+                }
             }
 
             override fun onShareButtonClicked(feed: Feed) {
@@ -253,11 +255,10 @@ class HomeFragment : Fragment(), View.OnClickListener {
 
     override fun onClick(v: View?) {
         if (v?.id == R.id.add) {
-            startActivityForResult(
-                intentFor<MakeFeedActivity>(), Constants.FEED_MAKE_QEQUEST
-            )
+            val intent = Intent(requireContext(), MakeFeedActivity::class.java)
+            startActivityForResult(intent, Constants.FEED_MAKE_QEQUEST)
         } else if (v?.id == R.id.search) {
-            startActivity<SearchActivity>()
+            requireContext().startActivity(SearchActivity::class.java)
         } else if (v?.id == R.id.refresh) {
             loadFeedList()
         } else if (v?.id == R.id.scroll_up) {
@@ -271,9 +272,15 @@ class HomeFragment : Fragment(), View.OnClickListener {
     fun onDismissed(type: String) {
         if (targetFeed != null) {
             if (type == "feed_modify") {
-                startActivity<MakeFeedActivity>("feed" to targetFeed, "mode" to "modify")
+                requireContext().startActivity(MakeFeedActivity::class.java) {
+                    putExtra("feed", targetFeed)
+                    putExtra("mode", "modify")
+                }
             } else if (type == "feed_delete") {
-                startActivity<MakeFeedActivity>("feed" to targetFeed, "mode" to "delete")
+                requireContext().startActivity(MakeFeedActivity::class.java) {
+                    putExtra("feed", targetFeed)
+                    putExtra("mode", "delete")
+                }
             } else if (type == "follow") {
                 feedModule.onDismiss(
                     "follow",
@@ -295,7 +302,9 @@ class HomeFragment : Fragment(), View.OnClickListener {
                 )
                 CustomToast(requireContext(), getString(R.string.unfollow_toast)).show()
             } else if (type == "report") {
-                startActivity<ReportActivity>("feed" to targetFeed)
+                requireContext().startActivity(ReportActivity::class.java) {
+                    putExtra("feed", targetFeed)
+                }
             }
         }
     }

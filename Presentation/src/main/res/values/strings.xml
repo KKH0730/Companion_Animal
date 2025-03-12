@@ -113,12 +113,14 @@
 
     <!-- NotificationFragment-->
     <string name="notification_title">알림</string>
+    <string name="notification_no_contents">알림 내역이 비어 있습니다.</string>
 
     <!-- HomeFragment -->
     <string name="feed_title">피드</string>
 
     <!-- ChatFragment -->
     <string name="chatDialog_title">채팅방 나가기</string>
+    <string name="chat_no_contents">채팅 내역이 비어 있습니다.</string>
     <string name="chatDialog_message">채팅방을 나가시겠습니까?</string>
     <string name="chat_yes">예</string>
     <string name="chat_no">아니오</string>

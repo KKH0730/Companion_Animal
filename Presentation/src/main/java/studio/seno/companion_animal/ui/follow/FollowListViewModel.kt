@@ -4,13 +4,16 @@ import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseAuth
+import dagger.hilt.android.lifecycle.HiltViewModel
 import studio.seno.domain.model.Follow
 import studio.seno.domain.usecase.followUseCase.GetFollowUseCase
 import studio.seno.domain.usecase.followUseCase.SetFollowUseCase
 import studio.seno.domain.util.LongTaskCallback
 import studio.seno.domain.util.Result
+import javax.inject.Inject
 
-class FollowListViewModel(
+@HiltViewModel
+class FollowListViewModel @Inject constructor(
     private val setFollowUseCase: SetFollowUseCase,
     private val getFollowUseCase: GetFollowUseCase
 ) : ViewModel() {

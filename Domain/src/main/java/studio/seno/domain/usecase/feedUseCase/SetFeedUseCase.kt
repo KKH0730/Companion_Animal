@@ -5,8 +5,9 @@ import studio.seno.domain.repository.FeedRepository
 import studio.seno.domain.util.LongTaskCallback
 import studio.seno.domain.util.Mapper
 import studio.seno.domain.model.Feed
+import javax.inject.Inject
 
-class SetFeedUseCase (private val repository: FeedRepository) {
+class SetFeedUseCase @Inject constructor(private val repository: FeedRepository) {
     fun execute(
         email: String,
         nickname: String,

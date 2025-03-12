@@ -10,15 +10,15 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.google.firebase.auth.FirebaseAuth
-import com.royrodriguez.transitionbutton.TransitionButton
-import org.jetbrains.anko.support.v4.startActivity
-import org.koin.androidx.viewmodel.ext.android.viewModel
-import studio.seno.companion_animal.base.CustomToast
+import dagger.hilt.android.AndroidEntryPoint
 import studio.seno.companion_animal.MainActivity
 import studio.seno.companion_animal.R
+import studio.seno.companion_animal.base.CustomToast
 import studio.seno.companion_animal.databinding.FragmentLoginBinding
+import studio.seno.companion_animal.extension.startActivity
 import studio.seno.companion_animal.module.CommonFunction
 import studio.seno.companion_animal.module.TextModule
 import studio.seno.companion_animal.util.FinishActivityInterface
@@ -26,9 +26,10 @@ import studio.seno.domain.util.LongTaskCallback
 import studio.seno.domain.util.Result
 
 
+@AndroidEntryPoint
 class LoginFragment : Fragment(), View.OnClickListener {
     private var binding: FragmentLoginBinding? = null
-    private val viewModel : UserViewModel by viewModel()
+    private val viewModel : UserViewModel by viewModels()
     private lateinit var finishActivityInterface : FinishActivityInterface
     private var key = false
 
@@ -53,7 +54,7 @@ class LoginFragment : Fragment(), View.OnClickListener {
         if(FirebaseAuth.getInstance().currentUser == null){
             initView()
         } else {
-            startActivity<MainActivity>()
+            requireContext().startActivity(MainActivity::class.java)
             finishActivityInterface.finishCurrentActivity()
         }
 
@@ -83,7 +84,6 @@ class LoginFragment : Fragment(), View.OnClickListener {
         } else if (v?.id == R.id.move_register_btn) {
             findNavController().navigate(R.id.action_loginFragment_to_registerFragment)
         } else if (v?.id == R.id.login_Btn) {
-            binding!!.loginBtn.startAnimation()
             CommonFunction.closeKeyboard(requireContext(), binding!!.emailInput)
 
             val email: String = binding!!.emailInput.text.toString().trim()
@@ -99,10 +99,8 @@ class LoginFragment : Fragment(), View.OnClickListener {
                     override fun onResponse(result: Result<Any>) {
                         if(result is Result.Success) {
                             if(result.data as Boolean) {
-                                binding!!.loginBtn.stopAnimation(TransitionButton.StopAnimationStyle.EXPAND) {
-                                    startActivity<MainActivity>()
-                                    finishActivityInterface.finishCurrentActivity()
-                                }
+                                requireContext().startActivity(MainActivity::class.java)
+                                finishActivityInterface.finishCurrentActivity()
                             } else
                                 failLogin()
 
@@ -126,7 +124,6 @@ class LoginFragment : Fragment(), View.OnClickListener {
 
     private fun failLogin(){
         CustomToast(requireContext(), getString(R.string.login_fail)).show()
-        binding!!.loginBtn.stopAnimation(TransitionButton.StopAnimationStyle.SHAKE, null)
     }
 
     override fun onDestroyView() {

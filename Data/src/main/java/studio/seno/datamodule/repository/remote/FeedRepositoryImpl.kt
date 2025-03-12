@@ -20,8 +20,9 @@ import studio.seno.domain.repository.FeedRepository
 import studio.seno.domain.util.LongTaskCallback
 import studio.seno.domain.util.Result
 import studio.seno.domain.model.Feed
+import javax.inject.Inject
 
-class FeedRepositoryImpl() : FeedRepository {
+class FeedRepositoryImpl @Inject constructor() : FeedRepository {
     private val uploadRepositoryImpl = UploadRepositoryImpl()
     private val auth = FirebaseAuth.getInstance()
     private val db = FirebaseFirestore.getInstance()
@@ -182,7 +183,7 @@ class FeedRepositoryImpl() : FeedRepository {
         CoroutineScope(Dispatchers.IO).launch {
             var map = hashMapOf<String, Any>()
             var heartList = feed.getHeartList().toMutableMap()
-            var  myEmail = auth.currentUser.email.toString()
+            var  myEmail = auth.currentUser?.email.toString()
 
             if (flag)
                 heartList[myEmail] = myEmail
@@ -207,7 +208,7 @@ class FeedRepositoryImpl() : FeedRepository {
         CoroutineScope(Dispatchers.IO).launch {
             var map = hashMapOf<String, Any>()
             val bookmarkList = feed.getBookmarkList().toMutableMap()
-            val myEmail = auth.currentUser.email.toString()
+            val myEmail = auth.currentUser?.email.toString()
 
             if (flag) {
                 bookmarkList[myEmail] = myEmail

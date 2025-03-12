@@ -2,8 +2,9 @@ package studio.seno.domain.usecase.userMangerUseCase
 
 import studio.seno.domain.repository.UserManagerRepository
 import studio.seno.domain.util.Mapper
+import javax.inject.Inject
 
-class SetUserInfoUseCase(private val userManagerRepository: UserManagerRepository) {
+class SetUserInfoUseCase @Inject constructor(private val userManagerRepository: UserManagerRepository) {
     fun execute(
         id : Long,
         email: String,

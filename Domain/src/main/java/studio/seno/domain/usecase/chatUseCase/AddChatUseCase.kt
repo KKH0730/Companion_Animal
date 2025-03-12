@@ -2,8 +2,9 @@ package studio.seno.domain.usecase.chatUseCase
 
 import studio.seno.domain.repository.ChatRepository
 import studio.seno.domain.util.Mapper
+import javax.inject.Inject
 
-class AddChatUseCase(private val chatRepository: ChatRepository) {
+class AddChatUseCase @Inject constructor(private val chatRepository: ChatRepository) {
     fun execute(
         myEmail: String,
         realMyEmail :String,

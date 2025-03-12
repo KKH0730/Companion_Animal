@@ -11,10 +11,11 @@ import studio.seno.domain.model.Chat
 import studio.seno.domain.repository.ChatRepository
 import studio.seno.domain.util.LongTaskCallback
 import studio.seno.domain.util.Result
+import javax.inject.Inject
 
 private const val CHATROOT = "chat"
 
-class ChatRepositoryImpl : ChatRepository {
+class ChatRepositoryImpl @Inject constructor() : ChatRepository {
     private val realTimeDB = FirebaseDatabase.getInstance()
 
     override fun addChat(

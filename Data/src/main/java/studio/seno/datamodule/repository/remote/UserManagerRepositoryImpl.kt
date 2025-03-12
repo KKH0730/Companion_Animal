@@ -10,8 +10,9 @@ import studio.seno.domain.repository.UserManagerRepository
 import studio.seno.domain.model.User
 import studio.seno.domain.util.LongTaskCallback
 import studio.seno.domain.util.Result
+import javax.inject.Inject
 
-class UserManagerRepositoryImpl : UserManagerRepository {
+class UserManagerRepositoryImpl @Inject constructor() : UserManagerRepository {
     private val auth = FirebaseAuth.getInstance()
     private val db = FirebaseFirestore.getInstance()
 

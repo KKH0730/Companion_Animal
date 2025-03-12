@@ -6,8 +6,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import studio.seno.domain.repository.ReportRepository
 import studio.seno.domain.model.Feed
+import javax.inject.Inject
 
-class ReportRepositoryImpl : ReportRepository {
+class ReportRepositoryImpl @Inject constructor() : ReportRepository {
     private val db = FirebaseFirestore.getInstance()
 
     override fun reportFeed(feed: Feed, number: Int) {

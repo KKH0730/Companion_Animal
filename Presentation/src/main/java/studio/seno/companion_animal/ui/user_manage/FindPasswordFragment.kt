@@ -8,17 +8,19 @@ import android.widget.ImageButton
 import android.widget.TextView
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
-import org.koin.androidx.viewmodel.ext.android.viewModel
+import dagger.hilt.android.AndroidEntryPoint
 import studio.seno.companion_animal.base.CustomToast
 import studio.seno.companion_animal.R
 import studio.seno.companion_animal.databinding.FragmentFindPasswordBinding
 import studio.seno.companion_animal.module.CommonFunction
 
 
+@AndroidEntryPoint
 class FindPasswordFragment : Fragment(){
     private var binding : FragmentFindPasswordBinding? = null
-    private val viewModel : UserViewModel by viewModel()
+    private val viewModel : UserViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -49,9 +51,9 @@ class FindPasswordFragment : Fragment(){
                 viewModel.requestSendFindEmail(emailAddress)
                 viewModel.getFindPasswordListData().observe(requireActivity(), {
                     if (it) {
-                        binding!!.progressBar.visibility = View.GONE
-                        binding!!.emailInput.isEnabled = false
-                        binding!!.sendEmail.isEnabled = false
+                        binding?.progressBar?.visibility = View.GONE
+                        binding?.emailInput?.isEnabled = false
+                        binding?.sendEmail?.isEnabled = false
                         CustomToast(requireContext(), getString(R.string.find_password_announcement2)).show()
                         findNavController().navigate(R.id.action_findPasswordFragment_to_loginFragment)
                     } else
